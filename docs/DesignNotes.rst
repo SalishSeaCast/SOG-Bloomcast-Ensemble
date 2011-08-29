@@ -9,11 +9,32 @@ A SoG Bloomcast run on a given day is composed of the following steps:
    initialized for the period from 1-Jan to the day before the current
    date from various web sites. The forcing data are:
 
-   * Sandheads wind
+   * Sandheads wind from
+     http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html?timeframe=1&Prov=BC&StationID=6831&Year=2011&Month=8&Day=27&format=csv
+     with date values set appropriately; response is a CSV data file
+     sent as a download
    * YVR meteorology (air temperature, relative humidity, and cloud
      fraction)
-   * Fraser River discharge at Hope
+     http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html?timeframe=1&Prov=BC&StationID=889&Year=2011&Month=8&Day=28
+     with date values set appropriately; response is a CSV data file
+     sent as a download
+   * Fraser River discharge at Hope from
+     http://www.wateroffice.ec.gc.ca/graph/graph_e.html?mode=text&stn=08MF005&prm1=6&syr=2011&smo=8&sday=22&eyr=2011&emo=8&eday=30
+     with date values set appropriately
+
+     * session cookie indicating acceptance of data quality disclaimer
+       must be set
+     * reponse is an HTML page containing a well-formed table of
+       date/time and discharge values at 15 minute intervals
+
    * Englishman River discharge at Parksville
+     http://www.wateroffice.ec.gc.ca/graph/graph_e.html?mode=text&stn=08HB002&prm1=3&syr=2011&smo=08&sday=01&eyr=2011&emo=08&eday=30
+     with date values set appropriately
+
+     * session cookie indicating acceptance of data quality disclaimer
+       must be set
+     * reponse is an HTML page containing a well-formed table of
+       date/time and discharge values at 5 minute intervals
 
 #. Process the forcing data into data files in the format expected by
    SOG, and deal with missing data. There are 3 missing data
