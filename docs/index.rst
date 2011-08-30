@@ -36,7 +36,7 @@ provides:
   * Nitrate concentration
   * Diatom phytoplankton biomass
 
-  for noon local time on the estimated date of the bloom
+  for noon local standard time (LST) on the run date
 
 Run to run results that show the evolution of the bloom date
 predictions are also retained for analysis, but are not presented on
