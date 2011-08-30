@@ -80,3 +80,27 @@ A SoG Bloomcast run on a given day is composed of the following steps:
         * Update the results web page with a message that there was no run
           for the current day and so the best estimate of the spring bloom
           date remains that from the last completed run.
+
+#. Run SOG with an :file:`infile` that is tuned for the spring diatom
+   bloom and provides appropriate bloomcast parameter values:
+
+   * init datetime
+       typically :kbd:`yyyy-09-19 hh:mm:00`, where :kbd:`yyyy` is the
+       year before the one for which the bloom is being forecast
+
+   * end datetime
+       typically :kbd:`yyyy-??-?? hh:mm:00`, where :kbd:`yyyy` is the
+       year for which the bloom is being forecast
+
+   * CTD profile initialization file
+       typically :file:`SOG-initial/SG-S3-2001-09-19.sog`
+
+   * nitrate and silicon profiles initialization file
+
+   * 
+
+
+   The version of SOG used for bloomcast includes Susan's 2011 changes
+   to the :file:`forcing.f90` module that transitions from the forcing
+   data in the infile to averaged forcing data when the former runs
+   out.
