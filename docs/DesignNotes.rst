@@ -84,21 +84,38 @@ A SoG Bloomcast run on a given day is composed of the following steps:
 #. Run SOG with an :file:`infile` that is tuned for the spring diatom
    bloom and provides appropriate bloomcast parameter values:
 
-   * init datetime
-       typically :kbd:`yyyy-09-19 hh:mm:00`, where :kbd:`yyyy` is the
-       year before the one for which the bloom is being forecast
+   * :kbd:`init datetime`
+       typically :kbd:`yyyy-09-19 18:49:00`, where :kbd:`yyyy` is the
+       year before the one for which the bloom is being forecast; or
+       :kbd:`yyyy-09-18 18:49:00` when that year is a leap year
 
-   * end datetime
-       typically :kbd:`yyyy-??-?? hh:mm:00`, where :kbd:`yyyy` is the
+   * :kbd:`end datetime`
+       typically :kbd:`yyyy-05-01 00:49:00`, where :kbd:`yyyy` is the
        year for which the bloom is being forecast
 
-   * CTD profile initialization file
-       typically :file:`SOG-initial/SG-S3-2001-09-19.sog`
+   * :kbd:`ctd_in` CTD profile initialization file
+       typically :file:`SOG-initial/SG-39-2001-09-19.sog`
 
-   * nitrate and silicon profiles initialization file
+       .. note::
 
-   * 
+          The 2001-09-19 CTD cast is used for initialization for
+          several reasons: CTD cast data for the current year is often
+          not available until several months after the desired
+          early-autumn start date for bloomcast runs, the 2001-09-19
+          data is a good proxy for average conditions, and the
+          influence of the initial conditions on the SOG model results
+          disappears 10 to 20 days after the run start date.
 
+   * :kbd:`nuts_in` nitrate and silicon profiles initialization file
+       typically :file:`SOG-initial/Nuts-39-2001-09-19.sog`
+
+   * Suitable file names for timeseries and profile results output
+     files
+
+   * :kbd:`profday` year-day for profile
+       run date
+
+   * The names of the forcing data files created in step 2 above.
 
    The version of SOG used for bloomcast includes Susan's 2011 changes
    to the :file:`forcing.f90` module that transitions from the forcing
