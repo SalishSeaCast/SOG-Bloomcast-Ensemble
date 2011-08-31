@@ -16,7 +16,7 @@ EOS_WEB = /home/sallen/public_html/SOG-docs/SoG-bloomcast/
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  html        to make standalone HTML files"
-	@echo "  rsync-eosn  to rsync HTML files to EOS public web space"
+	@echo "  rsync-eos   to rsync HTML files to EOS public web space"
 
 clean:
 	-rm -rf $(BUILDDIR)/*
