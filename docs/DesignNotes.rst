@@ -36,6 +36,7 @@ A SoG Bloomcast run on a given day is composed of the following steps:
      * reponse is an HTML page containing a well-formed table of
        date/time and discharge values at 5 minute intervals
 
+
 #. Process the forcing data into data files in the format expected by
    SOG, and deal with missing data. There are 3 missing data
    scenarios:
@@ -121,3 +122,24 @@ A SoG Bloomcast run on a given day is composed of the following steps:
    to the :file:`forcing.f90` module that transitions from the forcing
    data in the infile to averaged forcing data when the former runs
    out.
+
+
+#. Generate timeseries and profile graphs from SOG run results (see
+   :ref:`SoG-BloomcastDocs-doc`).
+
+
+#. Use Susan's spring bloom identification algorithm to calculate the
+   estimated date of the spring diatom phytoplanktion bloom, and its
+   uncertainty.
+
+
+#. Generate the HTML code for the public web page summarizing the
+   bloomcast results from the run by substituting the graphs and
+   results calculated above into the page template.
+
+
+#. Generate the HTML code for the private web page of run to run
+   results.
+
+
+#. Push the web pages to the http://stratogem.ubc.ca domain.
