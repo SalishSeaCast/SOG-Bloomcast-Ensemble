@@ -1,5 +1,7 @@
 .. SoG Bloomcast documentation master file
 
+.. _SoG-BloomcastDocs-doc:
+
 SoG Bloomcast Documentation
 ===========================
 
