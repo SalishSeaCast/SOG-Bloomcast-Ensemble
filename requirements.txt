@@ -1,6 +1,7 @@
-# Python package and their versions required by SoG-bloomcast
+# Python packages and their versions required by SoG-bloomcast
 #
-# :command:`p -r requirements.txt` should install these in a new virtualenv
+# :command:`pip install -r requirements.txt` should install these in a
+# new virtualenv
 
 SoG-bloomcast
 Jinja2==2.6
