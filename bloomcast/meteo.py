@@ -17,45 +17,17 @@ def run():
     """
     config = Config()
     data = get_climate_data(config, 'meteo')
+    data_readers = (
+        read_temperature,
+        read_humidity,
+    )
     context_mgr = nested(
         open('YVR_air_temperature', 'w'),
         open('YVR_relative_humidity', 'w'),
     )
     with context_mgr as file_objs:
-        files = {
-            'temperature': file_objs[0],
-            'humidity': file_objs[1],
-        }
-        process_data(config, data, files)
-
-
-def process_data(config, data, files):
-    """Process data from XML data records to forcing data files in the
-    format that SOG expects.
-    """
-    data_readers = {
-        'temperature': read_temperature,
-        'humidity': read_humidity,
-    }
-    day = '1'
-    hourlies = {}
-    data_day = {}
-    for qty in data_readers.keys():
-        hourlies[qty] = []
-        data_day[qty] = '1'
-    for record in data:
-        for qty in data_readers.keys():
-            reader = data_readers[qty]
-            if record.get('day') != day and hourlies[qty]:
-                write_line(config, record, data_day[qty], hourlies[qty], files[qty])
-                day = record.get('day')
-                hourlies[qty] = [reader(record)]
-            else:
-                data_day[qty] = record.get('day')
-                try:
-                    hourlies[qty].append(reader(record))
-                except TypeError:
-                    return
+        for reader, file_obj in zip(data_readers, file_objs):
+            process_data(config, data, reader, file_obj)
 
 
 def read_temperature(record):
@@ -73,8 +45,40 @@ def read_humidity(record):
     return float(record.find('relhum').text)
 
 
-def write_line(config, record, data_day, hourlies, file_obj):
+def process_data(config, data, reader, file_obj):
+    """Process data from XML data records to a forcing data file in
+    the format that SOG expects.
     """
+    day = '1'
+    hourlies = []
+    data_day = '1'
+    for record in data:
+        if record.get('day') != day and hourlies:
+            write_line(config, record, data_day, hourlies, file_obj)
+            day = record.get('day')
+            hourlies = [reader(record)]
+        else:
+            data_day = record.get('day')
+            try:
+                hourlies.append(reader(record))
+            except TypeError:
+                return
+
+
+def write_line(config, record, data_day, hourlies, file_obj):
+    """Write a line of data to the specified forcing data file object
+    in the format expected by SOG.
+
+    Each line starts with 5 integers:
+
+    * Station ID (not used by SOG; set to EC web site station id)
+    * Year
+    * Month
+    * Day
+    * Quantity ID (not used by SOG; set to 42)
+
+    24 hourly values for the data quanity follow expressed as floats
+    with 1 decimal place.
     """
     line = (
         '{station_id} {year} {month} {day} 42'
