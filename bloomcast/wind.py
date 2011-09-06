@@ -7,42 +7,29 @@ day's data.
 from __future__ import absolute_import
 # Standard library:
 from datetime import datetime
-from StringIO import StringIO
-from xml.etree import ElementTree
-# HTTP Requests library:
-import requests
+import logging
 # Bloomcast:
-from utils import date_params
 from utils import Config
+from utils import get_climate_data
 
 
-def get_climate_data(config):
-    """
-    """
-    params = config.climate.wind.params
-    params['StationID'] = config.climate.wind.station_id
-    for key, value in date_params():
-        params[key] = value
-    r = requests.get(config.climate.url, params=params)
-    tree = ElementTree.parse(StringIO(r.content))
-    root = tree.getroot()
-    data = root.findall('stationdata')
-    return data
+log = logging.getLogger(__name__)
 
 
 def run():
     """
     """
     config = Config()
-    data = get_climate_data(config)
+    data = get_climate_data(config, 'wind')
     data.reverse()
     for record in data:
         if record.find('windspd').text:
             latest_data = '{year}-{month}-{day} {hour}:{minute} {speed}'.format(
                 speed=record.find('windspd').text, **record.attrib)
             break
-    print 'At {0} the lastest available wind data was for {1}'.format(
-        datetime.now().strftime('%Y-%m-%d %H:%M'), latest_data)
+    print (
+        'At {0:%Y-%m-%d %H:%M} the lastest available wind data was {1}'
+        .format(datetime.now(), latest_data))
 
 
 if __name__ == '__main__':

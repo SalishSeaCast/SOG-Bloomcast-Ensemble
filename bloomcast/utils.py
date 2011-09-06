@@ -6,6 +6,10 @@ modules.
 from __future__ import absolute_import
 # Standard library:
 from datetime import date
+from StringIO import StringIO
+from xml.etree import cElementTree as ElementTree
+# HTTP Requests library:
+import requests
 
 
 class Config(object):
@@ -15,13 +19,32 @@ class Config(object):
         class _Placeholder(object): pass
         self.climate = _Placeholder()
         self.climate.url = 'http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html'
-        self.climate.wind = _Placeholder()
-        self.climate.wind.station_id = 6831
-        self.climate.wind.params = {
+        self.climate.params = {
             'timeframe': 1,
             'Prov': 'BC',
             'format': 'xml',
         }
+        self.climate.meteo = _Placeholder()
+        self.climate.meteo.station_id = 889
+        self.climate.wind = _Placeholder()
+        self.climate.wind.station_id = 6831
+
+
+def get_climate_data(config, data_type):
+    """Return a list of XML objects containing the specified type of
+    climate data.
+
+    The XML objects are :class:`ElementTree` subelement instances.
+    """
+    params = config.climate.params
+    params['StationID'] = getattr(config.climate, data_type).station_id
+    for key, value in date_params():
+        params[key] = value
+    response = requests.get(config.climate.url, params=params)
+    tree = ElementTree.parse(StringIO(response.content))
+    root = tree.getroot()
+    data = root.findall('stationdata')
+    return data
 
 
 def date_params():
