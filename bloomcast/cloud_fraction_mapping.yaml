@@ -1,0 +1,47 @@
+# Susan's mapping of weather description to cloud fraction
+Drizzle:   10
+Drizzle,Fog:   10
+Fog:           10
+Freezing Drizzle:      10
+Freezing Drizzle,Fog:  10
+Freezing Fog:          10
+Freezing Rain:         10
+Freezing Rain,Fog:     10
+Haze:     8
+Heavy Rain:            10
+Heavy Rain,Fog:        10
+Moderate Drizzle,Fog:  10
+Moderate Rain:         10
+Moderate Rain,Fog:     10
+Moderate Rain Showers: 10
+Moderate Rain Showers,Fog:     10
+Moderate Rain Showers,Snow Showers,Fog:        10
+Moderate Snow: 10
+Moderate Snow Showers:      10
+Moderate Snow Showers,Fog:  10
+Moderate Snow Showers,Freezing Fog:    10
+Rain:     10
+Rain Showers:  10
+Rain Showers,Fog:      10
+Rain Showers,Ice Pellet Showers,Fog:   10
+Rain Showers,Snow Showers:             10
+Rain Showers,Snow Showers,Fog:         10
+Rain,Drizzle:      10
+Rain,Drizzle,Fog:  10
+Rain,Fog:          10
+Rain,Snow:         10
+Rain,Snow Grains:  10
+Rain,Snow,Fog:     10
+Snow:              10
+Snow Grains:       10
+Snow Pellets:      10
+Snow Showers:      10
+Snow Showers,Fog:  10
+Snow Showers,Snow Pellets:             10
+Snow,Fog:          10
+Thunderstorms,Rain Showers:            10
+Thunderstorms,Rain Showers,Snow Showers:       10
+Cloudy:             9
+Mostly Cloudy:      7
+Mainly Clear:       3
+Clear:  0
