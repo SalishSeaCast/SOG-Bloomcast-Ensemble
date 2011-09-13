@@ -1,0 +1,11 @@
+climate:
+  url: http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html
+  params:
+    timeframe: 1        # Daily
+    Prov: BC
+    format: xml
+  meteo:
+    station_id: 889     # YVR
+    cloud_fraction_mapping: cloud_fraction_mapping.yaml
+  wind:
+    station_id: 6831    # Sandheads

@@ -10,15 +10,20 @@ from StringIO import StringIO
 from xml.etree import cElementTree as ElementTree
 # HTTP Requests library:
 import requests
+# YAML library:
+import yaml
 
 
 class Config(object):
     """Placeholder for a config object that reads values from a file.
     """
-    def __init__(self):
+    def load_config(self, config_file):
+        """
+        """
         class _Placeholder(object): pass
+        config_dict = self._read_config_file(config_file)
         self.climate = _Placeholder()
-        self.climate.url = 'http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html'
+        self.climate.url = config_dict['climate']['url']
         self.climate.params = {
             'timeframe': 1,
             'Prov': 'BC',
@@ -28,6 +33,14 @@ class Config(object):
         self.climate.meteo.station_id = 889
         self.climate.wind = _Placeholder()
         self.climate.wind.station_id = 6831
+
+
+    def _read_config_file(self, config_file):
+        """Return the dict that results from loading the contents of
+        the specified config file as YAML.
+        """
+        with open(config_file, 'rt') as file_obj:
+            return yaml.load(file_obj.read())
 
 
 def get_climate_data(config, data_type):
