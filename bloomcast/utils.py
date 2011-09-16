@@ -14,28 +14,31 @@ import requests
 import yaml
 
 
+class _Container(object): pass
+
+
 class Config(object):
     """Placeholder for a config object that reads values from a file.
     """
     def load_config(self, config_file):
+        """Load values from the specified config file into the
+        attributes of the Config object.
         """
-        """
-        class _Placeholder(object): pass
-        config_dict = self._read_config_file(config_file)
-        self.climate = _Placeholder()
-        self.climate.url = config_dict['climate']['url']
-        self.climate.params = {
-            'timeframe': 1,
-            'Prov': 'BC',
-            'format': 'xml',
-        }
-        self.climate.meteo = _Placeholder()
-        self.climate.meteo.station_id = 889
-        self.climate.wind = _Placeholder()
-        self.climate.wind.station_id = 6831
+        config_dict = self._read_yaml_file(config_file)
+        self.climate = _Container()
+        for attr in 'url params'.split():
+            setattr(self.climate, attr, config_dict['climate'][attr])
+        self.climate.meteo = _Container()
+        meteo = config_dict['climate']['meteo']
+        self.climate.meteo.station_id = meteo['station_id']
+        self.climate.meteo.cloud_fraction_mapping = self._read_yaml_file(
+            meteo['cloud_fraction_mapping'])
+        self.climate.wind = _Container()
+        wind = config_dict['climate']['wind']
+        self.climate.wind.station_id = wind['station_id']
 
 
-    def _read_config_file(self, config_file):
+    def _read_yaml_file(self, config_file):
         """Return the dict that results from loading the contents of
         the specified config file as YAML.
         """
