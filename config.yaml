@@ -1,3 +1,5 @@
+# SoG bloomcast configuration file
+
 climate:
   url: http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html
   params:
@@ -6,6 +8,6 @@ climate:
     format: xml
   meteo:
     station_id: 889     # YVR
-    cloud_fraction_mapping: cloud_fraction_mapping.yaml
+    cloud_fraction_mapping: cloud_fraction_mapping.yaml # file containing mapping
   wind:
     station_id: 6831    # Sandheads

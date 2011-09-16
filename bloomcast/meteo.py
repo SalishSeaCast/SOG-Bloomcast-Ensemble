@@ -4,6 +4,7 @@ from __future__ import absolute_import
 # Standard library:
 from contextlib import nested
 import logging
+import sys
 # Bloomcast:
 from utils import Config
 from utils import get_climate_data
@@ -12,10 +13,11 @@ from utils import get_climate_data
 log = logging.getLogger(__name__)
 
 
-def run():
+def run(config_file):
     """
     """
     config = Config()
+    config.load_config(config_file)
     data = get_climate_data(config, 'meteo')
     data_readers = (
         read_temperature,
@@ -94,4 +96,4 @@ def write_line(config, record, data_day, hourlies, file_obj):
 
 
 if __name__ == '__main__':
-    run()
+    run(sys.argv[1])
