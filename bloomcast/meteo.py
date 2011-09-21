@@ -29,7 +29,7 @@ def run(config_file):
     )
     with context_mgr as file_objs:
         for reader, file_obj in zip(data_readers, file_objs):
-            process_data(config, data, reader, file_obj)
+            process_data(config, data, reader, write_line, file_obj)
 
 
 def read_temperature(record):
@@ -47,7 +47,7 @@ def read_humidity(record):
     return float(record.find('relhum').text)
 
 
-def process_data(config, data, reader, file_obj):
+def process_data(config, data, reader, writer, file_obj):
     """Process data from XML data records to a forcing data file in
     the format that SOG expects.
     """
@@ -56,7 +56,7 @@ def process_data(config, data, reader, file_obj):
     data_day = '1'
     for record in data:
         if record.get('day') != day and hourlies:
-            write_line(config, record, data_day, hourlies, file_obj)
+            writer(config, record, data_day, hourlies, file_obj)
             day = record.get('day')
             hourlies = [reader(record)]
         else:
