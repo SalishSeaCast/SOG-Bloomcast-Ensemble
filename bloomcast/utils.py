@@ -25,22 +25,38 @@ class Config(object):
         attributes of the Config object.
         """
         config_dict = self._read_yaml_file(config_file)
+        self.infile = config_dict['infile']
+        infile_dict = self._read_SOG_infile(self.infile)
         self.climate = _Container()
         for attr in 'url params'.split():
             setattr(self.climate, attr, config_dict['climate'][attr])
+        self._load_meteo_config(config_dict, infile_dict)
+        self._load_wind_config(config_dict, infile_dict)
+
+
+    def _load_meteo_config(self, config_dict, infile_dict):
+        """Load Config values for meteorological forcing data.
+        """
         self.climate.meteo = _Container()
         meteo = config_dict['climate']['meteo']
         for attr in 'station_id quantities'.split():
             setattr(self.climate.meteo, attr, meteo[attr])
         self.climate.meteo.cloud_fraction_mapping = self._read_yaml_file(
             meteo['cloud_fraction_mapping'])
+        forcing_data_files = infile_dict['forcing_data_files']
+        self.climate.meteo.output_files = {}
+        for qty in self.climate.meteo.quantities:
+            self.climate.meteo.output_files[qty] = forcing_data_files[qty]
+
+
+    def _load_wind_config(self, config_dict, infile_dict):
+        """Load Config values for wind forcing data.
+        """
         self.climate.wind = _Container()
         wind = config_dict['climate']['wind']
         self.climate.wind.station_id = wind['station_id']
-        infile_dict = self._read_SOG_infile('infile')
         forcing_data_files = infile_dict['forcing_data_files']
-        for qty in self.climate.meteo.quantities:
-            self.climate.meteo.output_files[qty] = forcing_data_files[qty]
+        self.climate.wind.output_files = {}
         self.climate.wind.output_files['wind'] = forcing_data_files['wind']
 
 

@@ -1,5 +1,7 @@
 # SoG bloomcast configuration file
 
+infile: 2012_bloomcast_infile
+
 climate:
   url: http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html
   params:
@@ -11,6 +13,6 @@ climate:
     quantities:
       - air_temperature
       - relative_humidity
-    cloud_fraction_mapping: cloud_fraction_mapping.yaml # file containing mapping
+    cloud_fraction_mapping: cloud_fraction_mapping.yaml  # file containing mapping
   wind:
     station_id: 6831    # Sandheads
