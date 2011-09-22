@@ -1,4 +1,4 @@
-.. DesignNotes-section:
+.. _DesignNotes-section:
 
 Design Notes
 ============
@@ -143,3 +143,44 @@ A SoG Bloomcast run on a given day is composed of the following steps:
 
 
 #. Push the web pages to the http://stratogem.ubc.ca domain.
+
+
+.. _ForcingDataProcessing-section:
+
+Forcing Data Processing
+-----------------------
+
+
+.. _WindTranformation-section:
+
+Wind Transformation
+~~~~~~~~~~~~~~~~~~~
+
+Environment Canada provides wind velocity data in the form of speed in
+km/hr and direction in 10s of degrees. SOG expects wind velocites as
+cross- and along-estuary components in m/s. For the Strait of Geogria
+the along-estuary direction is 305\ |deg|. SOG also expects the vector
+direction oriented so that it is consistent with ocean currents;
+i.e. westerly currents and winds demote flow *to* the west.
+
+.. |deg| unicode:: 0xb0
+
+This snippet of Python shows the transformation algorithm in detail::
+
+  # Convert speed from km/hr to m/s
+  speed = speed * 1000 / (60 * 60)
+  # Convert direction from 10s of degrees to degrees
+  direction = direction * 10
+  # Convert speed and direction to u and v components
+  radian_direction = radians(direction)
+  u_wind = speed * sin(radian_direction)
+  v_wind = speed * cos(radian_direction)
+  # Rotate components to align u direction with Strait
+  strait_heading = radians(305)
+  cross_wind = u_wind * cos(strait_heading) - v_wind * sin(strait_heading)
+  along_wind = u_wind * sin(strait_heading) + v_wind * cos(strait_heading)
+  # Resolve atmosphere/ocean direction difference in favour of
+  # oceanography
+  cross_wind = -cross_wind
+  along_wind = -along_wind
+
