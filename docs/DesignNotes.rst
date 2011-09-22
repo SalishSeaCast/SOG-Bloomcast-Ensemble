@@ -10,13 +10,13 @@ A SoG Bloomcast run on a given day is composed of the following steps:
    date from various web sites. The forcing data are:
 
    * Sandheads wind from
-     http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html?timeframe=1&Prov=BC&StationID=6831&Year=2011&Month=8&Day=27&format=csv
-     with date values set appropriately; response is a CSV data file
+     http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html?timeframe=1&Prov=BC&StationID=6831&Year=2011&Month=8&Day=27&format=xml
+     with date values set appropriately; response is a XML data file
      sent as a download
    * YVR meteorology (air temperature, relative humidity, and cloud
      fraction)
-     http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html?timeframe=1&Prov=BC&StationID=889&Year=2011&Month=8&Day=28
-     with date values set appropriately; response is a CSV data file
+     http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html?timeframe=1&Prov=BC&StationID=889&Year=2011&Month=8&Day=28%format=xml
+     with date values set appropriately; response is a XML data file
      sent as a download
    * Fraser River discharge at Hope from
      http://www.wateroffice.ec.gc.ca/graph/graph_e.html?mode=text&stn=08MF005&prm1=6&syr=2011&smo=8&sday=22&eyr=2011&emo=8&eday=30
