@@ -6,6 +6,7 @@ modules.
 from __future__ import absolute_import
 # Standard library:
 from datetime import date
+from datetime import datetime
 from StringIO import StringIO
 from xml.etree import cElementTree as ElementTree
 # HTTP Requests library:
@@ -81,36 +82,93 @@ class Config(object):
         return infile_dict
 
 
-def get_climate_data(config, data_type):
-    """Return a list of XML objects containing the specified type of
-    climate data.
-
-    The XML objects are :class:`ElementTree` subelement instances.
+class ClimateDataProcessor(object):
+    """Climate forcing data processor base class.
     """
-    params = config.climate.params
-    params['StationID'] = getattr(config.climate, data_type).station_id
-    for key, value in date_params():
-        params[key] = value
-    response = requests.get(config.climate.url, params=params)
-    tree = ElementTree.parse(StringIO(response.content))
-    root = tree.getroot()
-    data = root.findall('stationdata')
-    return data
+    def __init__(self, config, data_readers):
+        self.config = config
+        self.data_readers = data_readers
+        self.hourlies = {}
 
 
-def date_params():
-    """Return an iterator of key/value pairs of the components of
-    today's date.
+    def get_climate_data(self, data_type):
+        """Return a list of XML objects containing the specified type of
+        climate data.
 
-    The keys are the component names in the format required for
-    requests to the :kbd:`climate.weatheroffice.gc.ca` site.
+        The XML objects are :class:`ElementTree` subelement instances.
+        """
+        params = self.config.climate.params
+        params['StationID'] = getattr(self.config.climate, data_type).station_id
+        for key, value in self._date_params():
+            params[key] = value
+        response = requests.get(self.config.climate.url, params=params)
+        tree = ElementTree.parse(StringIO(response.content))
+        root = tree.getroot()
+        self.data = root.findall('stationdata')
 
-    The values are today's date components as integers.
-    """
-    today = date.today()
-    params = {
-        'Year': today.year,
-        'Month': today.month,
-        'Day': today.day,
-    }
-    return params.iteritems()
+
+    def _date_params(self):
+        """Return an iterator of key/value pairs of the components of
+        today's date.
+
+        The keys are the component names in the format required for
+        requests to the :kbd:`climate.weatheroffice.gc.ca` site.
+
+        The values are today's date components as integers.
+        """
+        today = date.today()
+        params = {
+            'Year': today.year,
+            'Month': today.month,
+            'Day': today.day,
+        }
+        return params.iteritems()
+
+
+    def process_data(self, qty, end_date=date.today()):
+        """Process data from XML data records to a forcing data file in
+        the format that SOG expects.
+        """
+        reader = self.data_readers[qty]
+        self.hourlies[qty] = []
+        for record in self.data:
+            timestamp = datetime(
+                int(record.get('year')),
+                int(record.get('month')),
+                int(record.get('day')),
+                int(record.get('hour')),
+            )
+            if timestamp.date() > end_date:
+                break
+            self.hourlies[qty].append((timestamp, reader(record)))
+        self._trim_data(qty)
+
+
+    def _valuegetter(self, data_item):
+        """Return a data value.
+
+        Override this if data is stored in hourlies list in a type or
+        data structure other than a simple value; e.g. wind data is
+        stored as a tuple of components.
+        """
+        return data_item
+
+
+    def _trim_data(self, qty):
+        """Trim empty and incomplete days from the end of the hourlies
+        data list.
+
+        Days without any data are deleted first, then days without
+        data at 23:00 are deleted.
+        """
+        while True:
+            if any([self._valuegetter(data[1])
+                    for data in self.hourlies[qty][-24:]]):
+                break
+            else:
+                del self.hourlies[qty][-24:]
+        while True:
+            if self._valuegetter(self.hourlies[qty][-1][1]) is None:
+                del self.hourlies[qty][-24:]
+            else:
+                break

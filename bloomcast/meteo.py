@@ -2,26 +2,25 @@
 """
 from __future__ import absolute_import
 # Standard library:
-from contextlib import nested
 import logging
 import sys
 # Bloomcast:
+from utils import ClimateDataProcessor
 from utils import Config
-from utils import get_climate_data
 
 
 log = logging.getLogger(__name__)
 
 
-class Meteo(object):
+class MeteoProcessor(ClimateDataProcessor):
     """Meteorological forcing data processor.
     """
     def __init__(self, config):
-        self.config = config
-        self.data_readers = {
+        data_readers = {
             'air_temperature': self.read_temperature,
             'relative_humidity': self.read_humidity,
         }
+        super(MeteoProcessor, self).__init__(config, data_readers)
 
 
     def read_temperature(self, record):
@@ -30,13 +29,25 @@ class Meteo(object):
         SOG expects air temperature to be in 10ths of degrees Celcius due
         to legacy data formating of files from Environment Canada.
         """
-        return float(record.find('temp').text) * 10
+        temperature = record.find('temp').text
+        try:
+            temperature = float(temperature) * 10
+        except TypeError:
+            # Allow None value to pass
+            pass
+        return temperature
 
 
     def read_humidity(self, record):
         """Read relative humidity from XML data object.
         """
-        return float(record.find('relhum').text)
+        humidity = record.find('relhum').text
+        try:
+            humidity = float(humidity)
+        except TypeError:
+            # Allow None value to pass
+            pass
+        return humidity
 
 
     def write_line(self, record, data_day, hourlies, file_obj):
@@ -67,49 +78,21 @@ class Meteo(object):
         print >> file_obj, line
 
 
-    def process_data(self, data, qty, file_obj):
-        """Process data from XML data records to a forcing data file in
-        the format that SOG expects.
-        """
-        reader = self.data_readers[qty]
-        day = '1'
-        hourlies = []
-        data_day = '1'
-        for record in data:
-            if record.get('day') != day and hourlies:
-                self.write_line(record, data_day, hourlies, file_obj)
-                day = record.get('day')
-                hourlies = [reader(record)]
-            else:
-                data_day = record.get('day')
-                try:
-                    hourlies.append(reader(record))
-                except TypeError:
-                    return
-
-
 def run(config_file):
     """
     """
     config = Config()
     config.load_config(config_file)
-    output_files = {
-        'air_temperature': 'YVR_air_temperature',
-        'relative_humidity': 'YVR_relative_humidity',
-    }
-    meteo = Meteo(config)
-    file_objs = {
-        'air_temperature': open('YVR_air_temperature', 'w'),
-        'relative_humidity': open('YVR_relative_humidity', 'w'),
-    }
-    data = get_climate_data(config, 'meteo')
-    context_mgr = nested(
-        file_objs['air_temperature'],
-        file_objs['relative_humidity'],
-    )
-    with context_mgr:
-        for qty in output_files:
-            meteo.process_data(data, qty, file_objs[qty])
+    meteo = MeteoProcessor(config)
+    file_objs = {}
+    contexts = []
+    for qty in config.climate.meteo.quantities:
+        file_objs[qty] = open(config.climate.meteo.output_files[qty], 'wt')
+        contexts.append(file_objs[qty])
+    meteo.get_climate_data('meteo')
+    for qty in config.climate.meteo.quantities:
+        meteo.process_data(qty)
+        print qty, meteo.hourlies[qty][-1]
 
 
 if __name__ == '__main__':

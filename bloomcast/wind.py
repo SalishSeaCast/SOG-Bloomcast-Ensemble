@@ -6,15 +6,60 @@ day's data.
 """
 from __future__ import absolute_import
 # Standard library:
-from datetime import datetime
 import logging
 import sys
 # Bloomcast:
+from utils import ClimateDataProcessor
 from utils import Config
-from utils import get_climate_data
 
 
 log = logging.getLogger(__name__)
+
+
+class WindProcessor(ClimateDataProcessor):
+    """Wind forcing data processor.
+    """
+    def __init__(self, config):
+        data_readers = {'wind': self.read_wind_velocity}
+        super(WindProcessor, self).__init__(config, data_readers)
+
+
+    def read_wind_velocity(self, record):
+        """Read wind velocity from XML data object and transform it to
+        along- and cross-strait components.
+        """
+        speed = record.find('windspd').text
+        direction = record.find('winddir').text
+        try:
+            speed = float(speed)
+        except TypeError:
+            # Allow None value to pass
+            pass
+        try:
+            direction = float(direction) * 10
+        except TypeError:
+            # Allow None value to pass
+            pass
+        return speed, direction
+
+
+    def _valuegetter(self, data_item):
+        """Return the along-strait wind velocity component.
+        """
+        return data_item[0]
+
+
+    def write_line(self, record, data_day, hourlies, file_obj):
+        """
+        """
+        line = (
+            '{day} {month} {year}'
+            .format(
+                day=data_day,
+                month=record.get('month'),
+                year=record.get('year'),
+        ))
+        print >> file_obj, line
 
 
 def run(config_file):
@@ -22,57 +67,11 @@ def run(config_file):
     """
     config = Config()
     config.load_config(config_file)
-    data = get_climate_data(config, 'wind')
-    with open('Sandheads_wind', 'w') as file_obj:
-        process_data(config, data, read_wind_velocity, write_line, file_obj)
-    data.reverse()
-    for record in data:
-        if record.find('windspd').text:
-            latest_data = '{year}-{month}-{day} {hour}:{minute} {speed}'.format(
-                speed=record.find('windspd').text, **record.attrib)
-            break
-    print (
-        'At {0:%Y-%m-%d %H:%M} the lastest available wind data was {1}'
-        .format(datetime.now(), latest_data))
-
-
-def read_wind_velocity(record):
-    """
-    """
-    return float(record.find('windspd').text)
-
-
-def process_data(config, data, reader, writer, file_obj):
-    """Process data from XML data records to a forcing data file in
-    the format that SOG expects.
-    """
-    day = '1'
-    hourlies = []
-    data_day = '1'
-    for record in data:
-        if record.get('day') != day and hourlies:
-            writer(config, record, data_day, hourlies, file_obj)
-            day = record.get('day')
-            hourlies = [reader(record)]
-        else:
-            data_day = record.get('day')
-            try:
-                hourlies.append(reader(record))
-            except TypeError:
-                return
-
-
-def write_line(config, record, data_day, hourlies, file_obj):
-    """
-    """
-    line = (
-        '{day} {month} {year}'
-        .format(
-            day=data_day,
-            month=record.get('month'),
-            year=record.get('year'),
-    ))
-    print >> file_obj, line
+    wind = WindProcessor(config)
+    wind.get_climate_data('wind')
+    wind.process_data('wind')
+    config.run_date = wind.hourlies['wind'][-1][0].date()
+    print 'wind', wind.hourlies['wind'][-1]
 
 
 if __name__ == '__main__':
