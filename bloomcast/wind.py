@@ -7,6 +7,9 @@ day's data.
 from __future__ import absolute_import
 # Standard library:
 import logging
+from math import cos
+from math import radians
+from math import sin
 import sys
 # Bloomcast:
 from utils import ClimateDataProcessor
@@ -32,16 +35,26 @@ class WindProcessor(ClimateDataProcessor):
         speed = record.find('windspd').text
         direction = record.find('winddir').text
         try:
-            speed = float(speed)
-        except TypeError:
-            # None indicates missing data
-            pass
-        try:
+            # Convert from km/hr to m/s
+            speed = float(speed) * 1000 / (60 * 60)
+            # Convert from 10s of degrees to degrees
             direction = float(direction) * 10
         except TypeError:
             # None indicates missing data
-            pass
-        return speed, direction
+            return None, None
+        # Convert speed and direction to u and v components
+        radian_direction = radians(direction)
+        u_wind = speed * sin(radian_direction)
+        v_wind = speed * cos(radian_direction)
+        # Rotate components to align u direction with Strait
+        strait_heading = radians(305)
+        cross_wind = u_wind * cos(strait_heading) - v_wind * sin(strait_heading)
+        along_wind = u_wind * sin(strait_heading) + v_wind * cos(strait_heading)
+        # Resolve atmosphere/ocean direction difference in favour of
+        # oceanography
+        cross_wind = -cross_wind
+        along_wind = -along_wind
+        return cross_wind, along_wind
 
 
     def _valuegetter(self, data_item):
