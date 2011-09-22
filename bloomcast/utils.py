@@ -76,6 +76,7 @@ class Config(object):
             'forcing_data_files': {
                 'air_temperature': 'YVR_air_temperature',
                 'relative_humidity': 'YVR_relative_humidity',
+                'cloud_fraction': 'YVR_cloud_fraction',
                 'wind': 'Sandheads_wind',
             },
         }

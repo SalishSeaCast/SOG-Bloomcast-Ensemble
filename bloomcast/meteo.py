@@ -9,7 +9,9 @@ from utils import ClimateDataProcessor
 from utils import Config
 
 
-log = logging.getLogger(__name__)
+### TODO: Configure email logger for unrecognized weather descriptions
+logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__file__)
 
 
 class MeteoProcessor(ClimateDataProcessor):
@@ -19,6 +21,7 @@ class MeteoProcessor(ClimateDataProcessor):
         data_readers = {
             'air_temperature': self.read_temperature,
             'relative_humidity': self.read_humidity,
+            'cloud_fraction': self.read_cloud_fraction,
         }
         super(MeteoProcessor, self).__init__(config, data_readers)
 
@@ -33,7 +36,7 @@ class MeteoProcessor(ClimateDataProcessor):
         try:
             temperature = float(temperature) * 10
         except TypeError:
-            # Allow None value to pass
+            # None indicates missing data
             pass
         return temperature
 
@@ -45,9 +48,29 @@ class MeteoProcessor(ClimateDataProcessor):
         try:
             humidity = float(humidity)
         except TypeError:
-            # Allow None value to pass
+            # None indicates missing data
             pass
         return humidity
+
+
+    def read_cloud_fraction(self, record):
+        """Read weather description from XML data object and transform
+        it to cloud fraction via Susan's heuristic mapping.
+        """
+        weather_desc = record.find('weather').text
+        mapping = self.config.climate.meteo.cloud_fraction_mapping
+        try:
+            cloud_fraction = mapping[weather_desc]
+        except KeyError:
+            if weather_desc is None:
+                # None indicates missing data
+                cloud_fraction = None
+            else:
+                log.warning(
+                    'Unrecognized weather description: {0}; '
+                    'cloud fraction set to 10'.format(weather_desc))
+                cloud_fraction = 10
+        return cloud_fraction
 
 
     def write_line(self, record, data_day, hourlies, file_obj):
