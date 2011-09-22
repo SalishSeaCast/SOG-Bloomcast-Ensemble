@@ -8,6 +8,9 @@ climate:
     format: xml
   meteo:
     station_id: 889     # YVR
+    quantities:
+      - air_temperature
+      - relative_humidity
     cloud_fraction_mapping: cloud_fraction_mapping.yaml # file containing mapping
   wind:
     station_id: 6831    # Sandheads

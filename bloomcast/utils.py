@@ -30,12 +30,18 @@ class Config(object):
             setattr(self.climate, attr, config_dict['climate'][attr])
         self.climate.meteo = _Container()
         meteo = config_dict['climate']['meteo']
-        self.climate.meteo.station_id = meteo['station_id']
+        for attr in 'station_id quantities'.split():
+            setattr(self.climate.meteo, attr, meteo[attr])
         self.climate.meteo.cloud_fraction_mapping = self._read_yaml_file(
             meteo['cloud_fraction_mapping'])
         self.climate.wind = _Container()
         wind = config_dict['climate']['wind']
         self.climate.wind.station_id = wind['station_id']
+        infile_dict = self._read_SOG_infile('infile')
+        forcing_data_files = infile_dict['forcing_data_files']
+        for qty in self.climate.meteo.quantities:
+            self.climate.meteo.output_files[qty] = forcing_data_files[qty]
+        self.climate.wind.output_files['wind'] = forcing_data_files['wind']
 
 
     def _read_yaml_file(self, config_file):
@@ -44,6 +50,19 @@ class Config(object):
         """
         with open(config_file, 'rt') as file_obj:
             return yaml.load(file_obj.read())
+
+
+    def _read_SOG_infile(self, infile):
+        """Placeholder for method that will read data from SOG infile.
+        """
+        infile_dict = {
+            'forcing_data_files': {
+                'air_temperature': 'YVR_air_temperature',
+                'relative_humidity': 'YVR_relative_humidity',
+                'wind': 'Sandheads_wind',
+            },
+        }
+        return infile_dict
 
 
 def get_climate_data(config, data_type):
