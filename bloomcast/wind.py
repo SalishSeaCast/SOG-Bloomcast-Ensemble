@@ -13,7 +13,7 @@ from utils import ClimateDataProcessor
 from utils import Config
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger(__file__)
 
 
 class WindProcessor(ClimateDataProcessor):
@@ -33,12 +33,12 @@ class WindProcessor(ClimateDataProcessor):
         try:
             speed = float(speed)
         except TypeError:
-            # Allow None value to pass
+            # None indicates missing data
             pass
         try:
             direction = float(direction) * 10
         except TypeError:
-            # Allow None value to pass
+            # None indicates missing data
             pass
         return speed, direction
 
