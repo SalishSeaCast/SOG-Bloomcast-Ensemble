@@ -115,7 +115,7 @@ def run(config_file):
     meteo.get_climate_data('meteo')
     for qty in config.climate.meteo.quantities:
         meteo.process_data(qty)
-        print qty, meteo.hourlies[qty][-1]
+        log.debug('{0} {1}'.format(qty, meteo.hourlies[qty][-1]))
 
 
 if __name__ == '__main__':
