@@ -13,6 +13,7 @@ from utils import ClimateDataProcessor
 from utils import Config
 
 
+logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__file__)
 
 
@@ -71,7 +72,7 @@ def run(config_file):
     wind.get_climate_data('wind')
     wind.process_data('wind')
     config.run_date = wind.hourlies['wind'][-1][0].date()
-    print 'wind', wind.hourlies['wind'][-1]
+    log.debug('wind {0}'.format(wind.hourlies['wind'][-1]))
 
 
 if __name__ == '__main__':
