@@ -18,22 +18,30 @@ class TestConfig(unittest.TestCase):
         return self._get_target_class()(*args, **kwargs)
 
 
+    def _make_mock_config_dict(self):
+        mock_config_dict = {
+            'infile': None,
+            'climate': {
+                'url': None,
+                'params': None,
+                'meteo': {
+                    'station_id': None,
+                    'quantities': [],
+                    'cloud_fraction_mapping': None,
+                },
+                'wind': {
+                    'station_id': None
+                },
+        }}
+        return mock_config_dict
+
+
     def test_config_climate_url(self):
         """load_config puts expected value in config.climate.url
         """
         test_url = 'http://example.com/climateData/bulkdata_e.html'
-        mock_config_dict = {
-            'climate': {
-                'url': test_url,
-                'params': None,
-                'meteo': {
-                    'station_id': None,
-                    'cloud_fraction_mapping': None,
-                },
-                'wind': {
-                    'station_id': None,
-                },
-        }}
+        mock_config_dict = self._make_mock_config_dict()
+        mock_config_dict['climate']['url'] = test_url
         config = self._make_one()
         config._read_yaml_file = Mock(return_value=mock_config_dict)
         config.load_config('config_file')
@@ -48,18 +56,8 @@ class TestConfig(unittest.TestCase):
             'Prov': 'BC',
             'format': 'xml',
         }
-        mock_config_dict = {
-            'climate': {
-                'url': None,
-                'params': test_params,
-                'meteo': {
-                    'station_id': None,
-                    'cloud_fraction_mapping': None,
-                },
-                'wind': {
-                    'station_id': None,
-                },
-        }}
+        mock_config_dict = self._make_mock_config_dict()
+        mock_config_dict['climate']['params'] = test_params
         config = self._make_one()
         config._read_yaml_file = Mock(return_value=mock_config_dict)
         config.load_config('config_file')
@@ -70,18 +68,8 @@ class TestConfig(unittest.TestCase):
         """load_config puts expected value in config.climate.meteo.station_id
         """
         test_station_id = 889
-        mock_config_dict = {
-            'climate': {
-                'url': None,
-                'params': None,
-                'meteo': {
-                    'station_id': test_station_id,
-                    'cloud_fraction_mapping': None,
-                },
-                'wind': {
-                    'station_id': None,
-                },
-        }}
+        mock_config_dict = self._make_mock_config_dict()
+        mock_config_dict['climate']['meteo']['station_id'] = test_station_id
         config = self._make_one()
         config._read_yaml_file = Mock(return_value=mock_config_dict)
         config.load_config('config_file')
@@ -92,18 +80,9 @@ class TestConfig(unittest.TestCase):
         """load_config puts expected value in cloud_fraction_mapping
         """
         test_cloud_fraction_mapping_file = 'cloud_fraction_mapping.yaml'
-        mock_config_dict = {
-            'climate': {
-                'url': None,
-                'params': None,
-                'meteo': {
-                    'station_id': None,
-                    'cloud_fraction_mapping': test_cloud_fraction_mapping_file,
-                },
-                'wind': {
-                    'station_id': None,
-                },
-        }}
+        mock_config_dict = self._make_mock_config_dict()
+        mock_config_dict['climate']['meteo']['cloud_fraction_mapping'] = (
+            test_cloud_fraction_mapping_file)
         test_cloud_fraction_mapping = {
             'Drizzle':   10,
             'Clear':  0,
@@ -124,18 +103,8 @@ class TestConfig(unittest.TestCase):
         """load_config puts expected value in config.climate.wind.station_id
         """
         test_station_id = 889
-        mock_config_dict = {
-            'climate': {
-                'url': None,
-                'params': None,
-                'meteo': {
-                    'station_id': None,
-                    'cloud_fraction_mapping': None,
-                },
-                'wind': {
-                    'station_id': test_station_id,
-                },
-        }}
+        mock_config_dict = self._make_mock_config_dict()
+        mock_config_dict['climate']['wind']['station_id'] = test_station_id
         config = self._make_one()
         config._read_yaml_file = Mock(return_value=mock_config_dict)
         config.load_config('config_file')
