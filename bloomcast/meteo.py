@@ -2,6 +2,7 @@
 """
 from __future__ import absolute_import
 # Standard library:
+from contextlib import nested
 import logging
 import sys
 # Bloomcast:
@@ -73,7 +74,7 @@ class MeteoProcessor(ClimateDataProcessor):
         return cloud_fraction
 
 
-    def write_line(self, record, data_day, hourlies, file_obj):
+    def write_line(self, hourlies, file_obj):
         """Write a line of data to the specified forcing data file object
         in the format expected by SOG.
 
@@ -92,12 +93,12 @@ class MeteoProcessor(ClimateDataProcessor):
             '{station_id} {year} {month} {day} 42'
             .format(
                 station_id=self.config.climate.meteo.station_id,
-                year=record.get('year'),
-                month=record.get('month'),
-                day=data_day,
+                year=hourlies[0][0].year,
+                month=hourlies[0][0].month,
+                day=hourlies[0][0].day,
             ))
-        for value in hourlies:
-            line += ' {0:.1f}'.format(value)
+        for hour in hourlies:
+            line += ' {0:.1f}'.format(hour[1])
         print >> file_obj, line
 
 
@@ -113,9 +114,13 @@ def run(config_file):
         file_objs[qty] = open(config.climate.meteo.output_files[qty], 'wt')
         contexts.append(file_objs[qty])
     meteo.get_climate_data('meteo')
-    for qty in config.climate.meteo.quantities:
-        meteo.process_data(qty)
-        log.debug('{0} {1}'.format(qty, meteo.hourlies[qty][-1]))
+    with nested(*contexts):
+        for qty in config.climate.meteo.quantities:
+            meteo.process_data(qty)
+            log.debug('latest {0} {1}'.format(qty, meteo.hourlies[qty][-1]))
+            for i in xrange(len(meteo.hourlies[qty]) / 24):
+                meteo.write_line(
+                    meteo.hourlies[qty][i * 24:(i + 1) *24], file_objs[qty])
 
 
 if __name__ == '__main__':
