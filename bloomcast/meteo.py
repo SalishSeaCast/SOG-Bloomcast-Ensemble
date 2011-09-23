@@ -86,17 +86,12 @@ class MeteoProcessor(ClimateDataProcessor):
         * Day
         * Quantity ID (not used by SOG; set to 42)
 
-        24 hourly values for the data quanity follow expressed as floats
-        with 1 decimal place.
+        That is followed by 24 hourly values for the data quanity
+        follow expressed as floats with 1 decimal place.
         """
-        line = (
-            '{station_id} {year} {month} {day} 42'
-            .format(
-                station_id=self.config.climate.meteo.station_id,
-                year=hourlies[0][0].year,
-                month=hourlies[0][0].month,
-                day=hourlies[0][0].day,
-            ))
+        timestamp = hourlies[0][0]
+        line = '{0} {1:%Y %m %d} 42'.format(
+            self.config.climate.meteo.station_id, timestamp)
         for hour in hourlies:
             line += ' {0:.1f}'.format(hour[1])
         print >> file_obj, line
