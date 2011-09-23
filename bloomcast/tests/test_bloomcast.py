@@ -10,7 +10,7 @@ class TestConfig(unittest.TestCase):
     """Unit tests for Config object.
     """
     def _get_target_class(self):
-        from .utils import Config
+        from utils import Config
         return Config
 
 
