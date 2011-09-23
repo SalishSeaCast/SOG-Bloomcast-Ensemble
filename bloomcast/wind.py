@@ -1,8 +1,4 @@
 """Wind forcing data processing module for SoG-bloomcast project.
-
-Monitor Sandheads wind data on Environment Canada site to determine
-what the lag is between the current date and the most recent full
-day's data.
 """
 from __future__ import absolute_import
 # Standard library:
@@ -63,16 +59,26 @@ class WindProcessor(ClimateDataProcessor):
         return data_item[0]
 
 
-    def write_line(self, record, data_day, hourlies, file_obj):
+    def write_line(self, data, file_obj):
+        """Write a line of data to the specified wind forcing data
+        file object in the format expected by SOG.
+
+        Each line starts with 3 integers:
+
+        * Day
+        * Month
+        * Year
+
+        That is followed by 3 floats:
+
+        * Hour
+        * Cross-strait wind component
+        * Along-strait wind component
         """
-        """
-        line = (
-            '{day} {month} {year}'
-            .format(
-                day=data_day,
-                month=record.get('month'),
-                year=record.get('year'),
-        ))
+        timestamp = data[0]
+        wind = data[1]
+        line = '{0:%Y %m %d} {1:.1f} {2:f} {3:f}'.format(
+            timestamp, timestamp.hour, wind[0], wind[1])
         print >> file_obj, line
 
 
@@ -85,7 +91,10 @@ def run(config_file):
     wind.get_climate_data('wind')
     wind.process_data('wind')
     config.run_date = wind.hourlies['wind'][-1][0].date()
-    log.debug('wind {0}'.format(wind.hourlies['wind'][-1]))
+    log.debug('latest wind {0}'.format(wind.hourlies['wind'][-1]))
+    with open(config.climate.wind.output_files['wind'], 'wt') as file_obj:
+        for data in wind.hourlies:
+            wind.write_line(data, file_obj)
 
 
 if __name__ == '__main__':
