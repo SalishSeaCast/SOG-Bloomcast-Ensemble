@@ -1,6 +1,7 @@
 """Meteorolgical forcing data processing module for SoG-bloomcast project.
 """
 from __future__ import absolute_import
+from __future__ import print_function
 # Standard library:
 from contextlib import nested
 import logging
@@ -94,7 +95,7 @@ class MeteoProcessor(ClimateDataProcessor):
             self.config.climate.meteo.station_id, timestamp)
         for hour in hourlies:
             line += ' {0:.1f}'.format(hour[1])
-        print >> file_obj, line
+        print(line, file=file_obj)
 
 
 def run(config_file):

@@ -1,6 +1,7 @@
 """Wind forcing data processing module for SoG-bloomcast project.
 """
 from __future__ import absolute_import
+from __future__ import print_function
 # Standard library:
 import logging
 from math import cos
@@ -79,7 +80,7 @@ class WindProcessor(ClimateDataProcessor):
         wind = data[1]
         line = '{0:%Y %m %d} {1:.1f} {2:f} {3:f}'.format(
             timestamp, timestamp.hour, wind[0], wind[1])
-        print >> file_obj, line
+        print(line, file=file_obj)
 
 
 def run(config_file):
@@ -93,7 +94,7 @@ def run(config_file):
     config.run_date = wind.hourlies['wind'][-1][0].date()
     log.debug('latest wind {0}'.format(wind.hourlies['wind'][-1]))
     with open(config.climate.wind.output_files['wind'], 'wt') as file_obj:
-        for data in wind.hourlies:
+        for data in wind.hourlies['wind']:
             wind.write_line(data, file_obj)
 
 
