@@ -1,7 +1,6 @@
 """Meteorolgical forcing data processing module for SoG-bloomcast project.
 """
 from __future__ import absolute_import
-from __future__ import print_function
 # Standard library:
 from contextlib import nested
 from datetime import date
@@ -12,7 +11,7 @@ from utils import ClimateDataProcessor
 from utils import Config
 
 
-log = logging.getLogger(__file__)
+log = logging.getLogger(__name__)
 
 
 class MeteoProcessor(ClimateDataProcessor):
@@ -45,9 +44,7 @@ class MeteoProcessor(ClimateDataProcessor):
             for qty in self.config.climate.meteo.quantities:
                 self.process_data(qty, end_date=self.config.data_date)
                 log.debug('latest {0} {1}'.format(qty, self.hourlies[qty][-1]))
-                for i in xrange(len(self.hourlies[qty]) / 24):
-                    self.write_line(
-                        self.hourlies[qty][i * 24:(i + 1) *24], file_objs[qty])
+                file_objs[qty].writelines(self.format_data(qty))
 
 
     def read_temperature(self, record):
@@ -97,9 +94,9 @@ class MeteoProcessor(ClimateDataProcessor):
         return cloud_fraction
 
 
-    def write_line(self, hourlies, file_obj):
-        """Write a line of data to the specified forcing data file object
-        in the format expected by SOG.
+    def format_data(self, qty):
+        """Generate lines of metorological forcing data in the format
+        expected by SOG.
 
         Each line starts with 5 integers:
 
@@ -112,12 +109,15 @@ class MeteoProcessor(ClimateDataProcessor):
         That is followed by 24 hourly values for the data quanity
         follow expressed as floats with 1 decimal place.
         """
-        timestamp = hourlies[0][0]
-        line = '{0} {1:%Y %m %d} 42'.format(
-            self.config.climate.meteo.station_id, timestamp)
-        for hour in hourlies:
-            line += ' {0:.1f}'.format(hour[1])
-        print(line, file=file_obj)
+        for i in xrange(len(self.hourlies[qty]) / 24):
+            data = self.hourlies[qty][i * 24:(i + 1) *24]
+            timestamp = data[0][0]
+            line = '{0} {1:%Y %m %d} 42'.format(
+                self.config.climate.meteo.station_id, timestamp)
+            for hour in data:
+                line += ' {0:.1f}'.format(hour[1])
+            line += '\n'
+            yield line
 
 
 def run(config_file):

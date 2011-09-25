@@ -1,7 +1,6 @@
 """Wind forcing data processing module for SoG-bloomcast project.
 """
 from __future__ import absolute_import
-from __future__ import print_function
 # Standard library:
 import logging
 from math import cos
@@ -13,7 +12,7 @@ from utils import ClimateDataProcessor
 from utils import Config
 
 
-log = logging.getLogger(__file__)
+log = logging.getLogger(__name__)
 
 
 class WindProcessor(ClimateDataProcessor):
@@ -38,8 +37,7 @@ class WindProcessor(ClimateDataProcessor):
         data_date = self.hourlies['wind'][-1][0].date()
         output_file = self.config.climate.wind.output_files['wind']
         with open(output_file, 'wt') as file_obj:
-            for data in self.hourlies['wind']:
-                self.write_line(data, file_obj)
+            file_obj.writelines(self.format_data())
         return data_date
 
 
@@ -78,9 +76,9 @@ class WindProcessor(ClimateDataProcessor):
         return data_item[0]
 
 
-    def write_line(self, data, file_obj):
-        """Write a line of data to the specified wind forcing data
-        file object in the format expected by SOG.
+    def format_data(self):
+        """Generate lines of wind forcing data in the format expected
+        by SOG.
 
         Each line starts with 3 integers:
 
@@ -94,11 +92,12 @@ class WindProcessor(ClimateDataProcessor):
         * Cross-strait wind component
         * Along-strait wind component
         """
-        timestamp = data[0]
-        wind = data[1]
-        line = '{0:%Y %m %d} {1:.1f} {2:f} {3:f}'.format(
-            timestamp, timestamp.hour, wind[0], wind[1])
-        print(line, file=file_obj)
+        for data in self.hourlies['wind']:
+            timestamp = data[0]
+            wind = data[1]
+            line = '{0:%d %m %Y} {1:.1f} {2:f} {3:f}\n'.format(
+                timestamp, timestamp.hour, wind[0], wind[1])
+            yield line
 
 
 def run(config_file):
