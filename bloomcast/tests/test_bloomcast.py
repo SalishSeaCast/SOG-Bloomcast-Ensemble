@@ -1,6 +1,7 @@
 """Unit tests for bloomcast modules.
 """
 from __future__ import absolute_import
+from datetime import datetime
 from mock import Mock
 from mock import DEFAULT
 import unittest2 as unittest
@@ -127,3 +128,53 @@ class TestConfig(unittest.TestCase):
         config._read_yaml_file = Mock(return_value=mock_config_dict)
         config._load_wind_config(mock_config_dict, mock_infile_dict)
         self.assertEqual(config.climate.wind.station_id, test_station_id)
+
+
+
+class TestWindProcessor(unittest.TestCase):
+    """Unit tests for WindProcessor object.
+    """
+    def _get_target_class(self):
+        from wind import WindProcessor
+        return WindProcessor
+
+
+    def _make_one(self, *args, **kwargs):
+        return self._get_target_class()(*args, **kwargs)
+
+
+    def test_format_data(self):
+        """format_data generator returns correctly formatted forcing data file line
+        """
+        wind = self._make_one(Mock())
+        wind.hourlies['wind'] = [
+            (datetime(2011, 9, 25, 9, 0, 0), (1.0, 2.0)),
+        ]
+        line = wind.format_data().next()
+        self.assertEqual(line, '25 09 2011 9.0 1.000000 2.000000\n')
+
+
+
+class TestMeteoProcessor(unittest.TestCase):
+    """Unit tests for MeteoProcessor object.
+    """
+    def _get_target_class(self):
+        from meteo import MeteoProcessor
+        return MeteoProcessor
+
+
+    def _make_one(self, *args, **kwargs):
+        return self._get_target_class()(*args, **kwargs)
+
+
+    def test_format_data(self):
+        """format_data generator returns correctly formatted forcing data file line
+        """
+        meteo = self._make_one(Mock())
+        meteo.config = Mock()
+        meteo.config.climate.meteo.station_id = '889'
+        meteo.hourlies['air_temperature'] = [
+            (datetime(2011, 9, 25, i, 0, 0), 215.0)
+            for i in xrange(24)]
+        line = meteo.format_data('air_temperature').next()
+        self.assertEqual(line, '889 2011 09 25 42' + ' 215.0' * 24 + '\n')

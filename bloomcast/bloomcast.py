@@ -10,7 +10,7 @@ from wind import WindProcessor
 from meteo import MeteoProcessor
 
 
-log = logging.getLogger(__file__)
+log = logging.getLogger('bloomcast')
 
 
 def run(config_file):
@@ -22,8 +22,8 @@ def run(config_file):
     wind = WindProcessor(config)
     config.data_date = wind.make_forcing_data_file()
     log.debug('based on wind data run data date is {0:%Y-%m-%d}'
-              .format(config.run_date))
-    meteo = MeteoProcessor()
+              .format(config.data_date))
+    meteo = MeteoProcessor(config)
     meteo.make_forcing_data_files()
 
 
