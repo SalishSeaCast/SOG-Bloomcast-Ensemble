@@ -130,6 +130,63 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config.climate.wind.station_id, test_station_id)
 
 
+class TestClimateDataProcessor(unittest.TestCase):
+    """Unit tests for ClimateDataProcessor object.
+    """
+    def _get_target_class(self):
+        from utils import ClimateDataProcessor
+        return ClimateDataProcessor
+
+
+    def _make_one(self, *args, **kwargs):
+        return self._get_target_class()(*args, **kwargs)
+
+
+    def test_patch_data_1_hour_gap(self):
+        """patch_data correctly interpolates value for 1 hour gap in hourlies
+        """
+        meteo = self._make_one(Mock(name='config'), Mock(name='data_readers'))
+        meteo.hourlies['air_temperature'] = [
+            (datetime(2011, 9, 25, 9, 0, 0), 215.0),
+            (datetime(2011, 9, 25, 10, 0, 0), None),
+            (datetime(2011, 9, 25, 11, 0, 0), 235.0),
+        ]
+        meteo.patch_data('air_temperature')
+        self.assertEqual(meteo.hourlies['air_temperature'][1][1], 225.0)
+
+
+    def test_patch_data_2_hour_gap(self):
+        """patch_data correctly interpolates value for 2 hour gap in hourlies
+        """
+        meteo = self._make_one(Mock(name='config'), Mock(name='data_readers'))
+        meteo.hourlies['air_temperature'] = [
+            (datetime(2011, 9, 25, 9, 0, 0), 215.0),
+            (datetime(2011, 9, 25, 10, 0, 0), None),
+            (datetime(2011, 9, 25, 11, 0, 0), None),
+            (datetime(2011, 9, 25, 12, 0, 0), 230.0),
+        ]
+        meteo.patch_data('air_temperature')
+        self.assertEqual(meteo.hourlies['air_temperature'][1][1], 220.0)
+        self.assertEqual(meteo.hourlies['air_temperature'][2][1], 225.0)
+
+
+    def test_patch_data_2_gaps(self):
+        """patch_data correctly interpolates value for 2 gaps in hourlies
+        """
+        meteo = self._make_one(Mock(name='config'), Mock(name='data_readers'))
+        meteo.hourlies['air_temperature'] = [
+            (datetime(2011, 9, 25, 9, 0, 0), 215.0),
+            (datetime(2011, 9, 25, 10, 0, 0), None),
+            (datetime(2011, 9, 25, 11, 0, 0), None),
+            (datetime(2011, 9, 25, 12, 0, 0), 230.0),
+            (datetime(2011, 9, 25, 13, 0, 0), None),
+            (datetime(2011, 9, 25, 14, 0, 0), 250.0),
+        ]
+        meteo.patch_data('air_temperature')
+        self.assertEqual(meteo.hourlies['air_temperature'][1][1], 220.0)
+        self.assertEqual(meteo.hourlies['air_temperature'][2][1], 225.0)
+        self.assertEqual(meteo.hourlies['air_temperature'][4][1], 240.0)
+
 
 class TestWindProcessor(unittest.TestCase):
     """Unit tests for WindProcessor object.
@@ -146,13 +203,12 @@ class TestWindProcessor(unittest.TestCase):
     def test_format_data(self):
         """format_data generator returns correctly formatted forcing data file line
         """
-        wind = self._make_one(Mock())
+        wind = self._make_one(Mock(name='config'))
         wind.hourlies['wind'] = [
             (datetime(2011, 9, 25, 9, 0, 0), (1.0, 2.0)),
         ]
         line = wind.format_data().next()
         self.assertEqual(line, '25 09 2011 9.0 1.000000 2.000000\n')
-
 
 
 class TestMeteoProcessor(unittest.TestCase):
@@ -170,8 +226,7 @@ class TestMeteoProcessor(unittest.TestCase):
     def test_format_data(self):
         """format_data generator returns correctly formatted forcing data file line
         """
-        meteo = self._make_one(Mock())
-        meteo.config = Mock()
+        meteo = self._make_one(Mock(name='config'))
         meteo.config.climate.meteo.station_id = '889'
         meteo.hourlies['air_temperature'] = [
             (datetime(2011, 9, 25, i, 0, 0), 215.0)
