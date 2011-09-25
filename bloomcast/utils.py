@@ -133,24 +133,33 @@ class ClimateDataProcessor(object):
         reader = self.data_readers[qty]
         self.hourlies[qty] = []
         for record in self.data:
-            timestamp = datetime(
-                int(record.get('year')),
-                int(record.get('month')),
-                int(record.get('day')),
-                int(record.get('hour')),
-            )
+            timestamp = self.read_timestamp(record)
             if timestamp.date() > end_date:
                 break
             self.hourlies[qty].append((timestamp, reader(record)))
         self._trim_data(qty)
+        self.patch_data(qty)
+
+
+    def read_timestamp(self, record):
+        """Read timestamp from XML data object and return it as a
+        datetime instance.
+        """
+        timestamp = datetime(
+            int(record.get('year')),
+            int(record.get('month')),
+            int(record.get('day')),
+            int(record.get('hour')),
+        )
+        return timestamp
 
 
     def _valuegetter(self, data_item):
         """Return a data value.
 
-        Override this if data is stored in hourlies list in a type or
-        data structure other than a simple value; e.g. wind data is
-        stored as a tuple of components.
+        Override this method if data is stored in hourlies list in a
+        type or data structure other than a simple value; e.g. wind
+        data is stored as a tuple of components.
         """
         return data_item
 
@@ -173,3 +182,38 @@ class ClimateDataProcessor(object):
                 del self.hourlies[qty][-24:]
             else:
                 break
+
+
+    def patch_data(self, qty):
+        """Patch missing data values by interpolation.
+        """
+        gap_start = gap_end = None
+        for i, data in enumerate(self.hourlies[qty]):
+            if self._valuegetter(data[1]) is None:
+                gap_start = i if gap_start is None else gap_start
+                gap_end = i
+            elif gap_start is not None:
+                self.interpolate_values(qty, gap_start, gap_end)
+                gap_start = gap_end = None
+
+
+    def interpolate_values(self, qty, gap_start, gap_end):
+        """Calculate values for missing data via linear interpolation.
+
+        Override this method if:
+
+        * Data is stored in hourlies list in a type or data structure
+          other than a simple value; e.g. wind data is stored as a
+          tuple of components.
+
+        * Data requires special handling for interpolation; e.g. wind
+          data gaps that exceed 11 hours are to be patched but also
+          reported via email.
+        """
+        timestamp = self.hourlies[qty][gap_start][0]
+        last_value = self.hourlies[qty][gap_start - 1][1]
+        next_value = self.hourlies[qty][gap_end + 1][1]
+        delta = (next_value - last_value) / (gap_end - gap_start + 2)
+        for i in xrange(gap_end - gap_start + 1):
+            value = last_value + delta * (i + 1)
+            self.hourlies[qty][gap_start + i] = (timestamp, value)
