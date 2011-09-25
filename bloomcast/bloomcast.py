@@ -6,6 +6,8 @@ import logging
 import sys
 # Bloomcast:
 from utils import Config
+from wind import WindProcessor
+from meteo import MeteoProcessor
 
 
 log = logging.getLogger(__file__)
@@ -16,6 +18,20 @@ def run(config_file):
     """
     config = Config()
     config.load_config(config_file)
+    configure_logging(config_file)
+    wind = WindProcessor(config)
+    config.data_date = wind.make_forcing_data_file()
+    log.debug('based on wind data run data date is {0:%Y-%m-%d}'
+              .format(config.run_date))
+    meteo = MeteoProcessor()
+    meteo.make_forcing_data_files()
+
+
+def configure_logging(config_file):
+    """
+    """
+    ### TODO: Configure email logger for unrecognized weather descriptions
+    logging.basicConfig(level=logging.DEBUG)
 
 
 if __name__ == '__main__':

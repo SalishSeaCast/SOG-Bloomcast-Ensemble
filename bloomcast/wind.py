@@ -13,7 +13,6 @@ from utils import ClimateDataProcessor
 from utils import Config
 
 
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__file__)
 
 
@@ -23,6 +22,25 @@ class WindProcessor(ClimateDataProcessor):
     def __init__(self, config):
         data_readers = {'wind': self.read_wind_velocity}
         super(WindProcessor, self).__init__(config, data_readers)
+
+
+    def make_forcing_data_file(self):
+        """Get the wind forcing data from the Environment Canada web
+        service, process it to extract it from the XML download, trim
+        incomplete days from the end, patch missing values, and write
+        the data to a file in the format that SOG expects.
+
+        Return the date of the last day for which data was obtained.
+        """
+        self.get_climate_data('wind')
+        self.process_data('wind')
+        log.debug('latest wind {0}'.format(self.hourlies['wind'][-1]))
+        data_date = self.hourlies['wind'][-1][0].date()
+        output_file = self.config.climate.wind.output_files['wind']
+        with open(output_file, 'wt') as file_obj:
+            for data in self.hourlies['wind']:
+                self.write_line(data, file_obj)
+        return data_date
 
 
     def read_wind_velocity(self, record):
@@ -84,18 +102,14 @@ class WindProcessor(ClimateDataProcessor):
 
 
 def run(config_file):
+    """Process meteorological forcing data into SOG forcing data
+    files by running the MeteoProcessor independent of bloomcast.
     """
-    """
+    logging.basicConfig(level=logging.DEBUG)
     config = Config()
     config.load_config(config_file)
     wind = WindProcessor(config)
-    wind.get_climate_data('wind')
-    wind.process_data('wind')
-    config.run_date = wind.hourlies['wind'][-1][0].date()
-    log.debug('latest wind {0}'.format(wind.hourlies['wind'][-1]))
-    with open(config.climate.wind.output_files['wind'], 'wt') as file_obj:
-        for data in wind.hourlies['wind']:
-            wind.write_line(data, file_obj)
+    wind.make_forcing_data_file()
 
 
 if __name__ == '__main__':

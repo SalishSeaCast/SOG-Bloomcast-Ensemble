@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 # Standard library:
 from contextlib import nested
+from datetime import date
 import logging
 import sys
 # Bloomcast:
@@ -11,8 +12,6 @@ from utils import ClimateDataProcessor
 from utils import Config
 
 
-### TODO: Configure email logger for unrecognized weather descriptions
-logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__file__)
 
 
@@ -26,6 +25,29 @@ class MeteoProcessor(ClimateDataProcessor):
             'cloud_fraction': self.read_cloud_fraction,
         }
         super(MeteoProcessor, self).__init__(config, data_readers)
+
+
+    def make_forcing_data_files(self):
+        """Get the meteorological forcing data from the Environment
+        Canada web service, process it to extract quantity values from
+        the XML download, trim incomplete days from the end, patch
+        missing values, and write the data to files in the format that
+        SOG expects.
+        """
+        file_objs = {}
+        contexts = []
+        for qty in self.config.climate.meteo.quantities:
+            output_file = self.config.climate.meteo.output_files[qty]
+            file_objs[qty] = open(output_file, 'wt')
+            contexts.append(file_objs[qty])
+        self.get_climate_data('meteo')
+        with nested(*contexts):
+            for qty in self.config.climate.meteo.quantities:
+                self.process_data(qty, end_date=self.config.data_date)
+                log.debug('latest {0} {1}'.format(qty, self.hourlies[qty][-1]))
+                for i in xrange(len(self.hourlies[qty]) / 24):
+                    self.write_line(
+                        self.hourlies[qty][i * 24:(i + 1) *24], file_objs[qty])
 
 
     def read_temperature(self, record):
@@ -99,24 +121,15 @@ class MeteoProcessor(ClimateDataProcessor):
 
 
 def run(config_file):
+    """Process meteorological forcing data into SOG forcing data
+    files by running the MeteoProcessor independent of bloomcast.
     """
-    """
+    logging.basicConfig(level=logging.DEBUG)
     config = Config()
     config.load_config(config_file)
+    config.data_date = date.today()
     meteo = MeteoProcessor(config)
-    file_objs = {}
-    contexts = []
-    for qty in config.climate.meteo.quantities:
-        file_objs[qty] = open(config.climate.meteo.output_files[qty], 'wt')
-        contexts.append(file_objs[qty])
-    meteo.get_climate_data('meteo')
-    with nested(*contexts):
-        for qty in config.climate.meteo.quantities:
-            meteo.process_data(qty)
-            log.debug('latest {0} {1}'.format(qty, meteo.hourlies[qty][-1]))
-            for i in xrange(len(meteo.hourlies[qty]) / 24):
-                meteo.write_line(
-                    meteo.hourlies[qty][i * 24:(i + 1) *24], file_objs[qty])
+    meteo.make_forcing_data_file()
 
 
 if __name__ == '__main__':
