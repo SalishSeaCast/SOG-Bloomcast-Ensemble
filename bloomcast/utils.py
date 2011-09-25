@@ -210,10 +210,10 @@ class ClimateDataProcessor(object):
           data gaps that exceed 11 hours are to be patched but also
           reported via email.
         """
-        timestamp = self.hourlies[qty][gap_start][0]
         last_value = self.hourlies[qty][gap_start - 1][1]
         next_value = self.hourlies[qty][gap_end + 1][1]
         delta = (next_value - last_value) / (gap_end - gap_start + 2)
         for i in xrange(gap_end - gap_start + 1):
+            timestamp = self.hourlies[qty][gap_start + i][0]
             value = last_value + delta * (i + 1)
             self.hourlies[qty][gap_start + i] = (timestamp, value)

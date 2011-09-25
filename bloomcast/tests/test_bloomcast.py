@@ -152,7 +152,9 @@ class TestClimateDataProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 11, 0, 0), 235.0),
         ]
         meteo.patch_data('air_temperature')
-        self.assertEqual(meteo.hourlies['air_temperature'][1][1], 225.0)
+        self.assertEqual(
+            meteo.hourlies['air_temperature'][1],
+            (datetime(2011, 9, 25, 10, 0, 0), 225.0))
 
 
     def test_patch_data_2_hour_gap(self):
@@ -166,8 +168,12 @@ class TestClimateDataProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 12, 0, 0), 230.0),
         ]
         meteo.patch_data('air_temperature')
-        self.assertEqual(meteo.hourlies['air_temperature'][1][1], 220.0)
-        self.assertEqual(meteo.hourlies['air_temperature'][2][1], 225.0)
+        self.assertEqual(
+            meteo.hourlies['air_temperature'][1],
+            (datetime(2011, 9, 25, 10, 0, 0), 220.0))
+        self.assertEqual(
+            meteo.hourlies['air_temperature'][2],
+            (datetime(2011, 9, 25, 11, 0, 0), 225.0))
 
 
     def test_patch_data_2_gaps(self):
@@ -183,9 +189,15 @@ class TestClimateDataProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 14, 0, 0), 250.0),
         ]
         meteo.patch_data('air_temperature')
-        self.assertEqual(meteo.hourlies['air_temperature'][1][1], 220.0)
-        self.assertEqual(meteo.hourlies['air_temperature'][2][1], 225.0)
-        self.assertEqual(meteo.hourlies['air_temperature'][4][1], 240.0)
+        self.assertEqual(
+            meteo.hourlies['air_temperature'][1],
+            (datetime(2011, 9, 25, 10, 0, 0), 220.0))
+        self.assertEqual(
+            meteo.hourlies['air_temperature'][2],
+            (datetime(2011, 9, 25, 11, 0, 0), 225.0))
+        self.assertEqual(
+            meteo.hourlies['air_temperature'][4],
+            (datetime(2011, 9, 25, 13, 0, 0), 240.0))
 
 
 class TestWindProcessor(unittest.TestCase):
