@@ -76,6 +76,30 @@ class WindProcessor(ClimateDataProcessor):
         return data_item[0]
 
 
+    def interpolate_values(self, qty, gap_start, gap_end):
+        """Calculate values for missing data via linear interpolation.
+
+        Data gaps that exceed 11 hours are to be patched but also
+        reported via email.
+        """
+        gap_hours = gap_end - gap_start + 1
+        if gap_hours > 11:
+            log.warning(
+                'A wind forcing data gap > 11 hr starting at {0:%Y-%m-%d %H:00} '
+                'has been patched by linear interpolation'
+                .format(self.hourlies[qty][gap_start][0]))
+        last_cross_wind, last_along_wind = self.hourlies[qty][gap_start - 1][1]
+        next_cross_wind, next_along_wind = self.hourlies[qty][gap_end + 1][1]
+        delta_cross_wind = (next_cross_wind - last_cross_wind) / (gap_hours + 1)
+        delta_along_wind = (next_along_wind - last_along_wind) / (gap_hours + 1)
+        for i in xrange(gap_end - gap_start + 1):
+            timestamp = self.hourlies[qty][gap_start + i][0]
+            cross_wind = last_cross_wind + delta_cross_wind * (i + 1)
+            along_wind = last_along_wind + delta_along_wind * (i + 1)
+            self.hourlies[qty][gap_start + i] = (
+                timestamp, (cross_wind, along_wind))
+
+
     def format_data(self):
         """Generate lines of wind forcing data in the format expected
         by SOG.
