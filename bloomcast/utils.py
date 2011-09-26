@@ -34,7 +34,7 @@ class Config(object):
         self._load_meteo_config(config_dict, infile_dict)
         self._load_wind_config(config_dict, infile_dict)
         self.rivers = _Container()
-        for attr in 'url porams'.split():
+        for attr in 'disclaimer_url accept_disclaimer data_url params'.split():
             setattr(self.rivers, attr, config_dict['rivers'][attr])
         self._load_rivers_config(config_dict, infile_dict)
 
@@ -71,12 +71,13 @@ class Config(object):
         self.rivers.primary = _Container()
         primary_river = config_dict['rivers']['primary']
         self.rivers.primary.station_id = primary_river['station_id']
+        self.rivers.secondary = _Container()
         secondary_river = config_dict['rivers']['secondary']
         self.rivers.secondary.station_id = secondary_river['station_id']
         forcing_data_files = infile_dict['forcing_data_files']
         self.rivers.output_files = {}
         for river in 'primary secondary'.split():
-            self.rivers.output_files[river] = forcing_data_files[river]
+            self.rivers.output_files[river] = forcing_data_files[river+'_river']
 
 
     def _read_yaml_file(self, config_file):
@@ -96,6 +97,8 @@ class Config(object):
                 'relative_humidity': 'YVR_relative_humidity',
                 'cloud_fraction': 'YVR_cloud_fraction',
                 'wind': 'Sandheads_wind',
+                'primary_river': 'Fraser_flow',
+                'secondary_river': 'Englishman_flow',
             },
         }
         return infile_dict
@@ -118,8 +121,7 @@ class ClimateDataProcessor(object):
         """
         params = self.config.climate.params
         params['StationID'] = getattr(self.config.climate, data_type).station_id
-        for key, value in self._date_params():
-            params[key] = value
+        params.update(self._date_params())
         response = requests.get(self.config.climate.url, params=params)
         tree = ElementTree.parse(StringIO(response.content))
         root = tree.getroot()
