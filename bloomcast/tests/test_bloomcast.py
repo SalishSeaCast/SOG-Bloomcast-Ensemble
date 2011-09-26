@@ -2,8 +2,9 @@
 """
 from __future__ import absolute_import
 from datetime import datetime
-from mock import Mock
 from mock import DEFAULT
+from mock import Mock
+from mock import patch
 import unittest2 as unittest
 
 
@@ -210,6 +211,80 @@ class TestWindProcessor(unittest.TestCase):
 
     def _make_one(self, *args, **kwargs):
         return self._get_target_class()(*args, **kwargs)
+
+
+    def test_patch_data_1_hour_gap(self):
+        """patch_data correctly interpolates value for 1 hour gap in hourlies
+        """
+        wind = self._make_one(Mock(name='config'))
+        wind.hourlies['wind'] = [
+            (datetime(2011, 9, 25, 9, 0, 0), (1.0, -2.0)),
+            (datetime(2011, 9, 25, 10, 0, 0), (None, None)),
+            (datetime(2011, 9, 25, 11, 0, 0), (2.0, -1.0)),
+        ]
+        wind.patch_data('wind')
+        self.assertEqual(
+            wind.hourlies['wind'][1],
+            (datetime(2011, 9, 25, 10, 0, 0), (1.5, -1.5)))
+
+
+    def test_patch_data_2_hour_gap(self):
+        """patch_data correctly interpolates value for 2 hour gap in hourlies
+        """
+        wind = self._make_one(Mock(name='config'))
+        wind.hourlies['wind'] = [
+            (datetime(2011, 9, 25, 9, 0, 0), (1.0, -2.0)),
+            (datetime(2011, 9, 25, 10, 0, 0), (None, None)),
+            (datetime(2011, 9, 25, 11, 0, 0), (None, None)),
+            (datetime(2011, 9, 25, 12, 0, 0), (2.5, -0.5)),
+        ]
+        wind.patch_data('wind')
+        self.assertEqual(
+            wind.hourlies['wind'][1],
+            (datetime(2011, 9, 25, 10, 0, 0), (1.5, -1.5)))
+        self.assertEqual(
+            wind.hourlies['wind'][2],
+            (datetime(2011, 9, 25, 11, 0, 0), (2.0, -1.0)))
+
+
+    def test_patch_data_2_gaps(self):
+        """patch_data correctly interpolates value for 2 gaps in hourlies
+        """
+        wind = self._make_one(Mock(name='config'))
+        wind.hourlies['wind'] = [
+            (datetime(2011, 9, 25, 9, 0, 0), (1.0, -2.0)),
+            (datetime(2011, 9, 25, 10, 0, 0), (None, None)),
+            (datetime(2011, 9, 25, 11, 0, 0), (None, None)),
+            (datetime(2011, 9, 25, 12, 0, 0), (2.5, -0.5)),
+            (datetime(2011, 9, 25, 13, 0, 0), (None, None)),
+            (datetime(2011, 9, 25, 14, 0, 0), (4.5, 0.5)),
+        ]
+        wind.patch_data('wind')
+        self.assertEqual(
+            wind.hourlies['wind'][1],
+            (datetime(2011, 9, 25, 10, 0, 0), (1.5, -1.5)))
+        self.assertEqual(
+            wind.hourlies['wind'][2],
+            (datetime(2011, 9, 25, 11, 0, 0), (2.0, -1.0)))
+        self.assertEqual(
+            wind.hourlies['wind'][4],
+            (datetime(2011, 9, 25, 13, 0, 0), (3.5, 0.0)))
+
+
+    def test_interpolate_values_gap_gt_11_hr_logs_warning(self):
+        """wind data gap >11 hr generates warning log message
+        """
+        wind = self._make_one(Mock(name='config'))
+        wind.hourlies['wind'] = [(datetime(2011, 9, 25, 0, 0, 0), (1.0, -2.0))]
+        wind.hourlies['wind'].extend([
+            (datetime(2011, 9, 25, 1 + i, 0, 0), (None, None)) for i in xrange(15)])
+        wind.hourlies['wind'].append(
+            (datetime(2011, 9, 25, 16, 0, 0), (1.0, -2.0)))
+        with patch('wind.log', Mock()) as mock_log:
+            wind.interpolate_values('wind', gap_start=1, gap_end=15)
+            mock_log.warning.assert_called_once_with(
+                'A wind forcing data gap > 11 hr starting at 2011-09-25 01:00 '
+                'has been patched by linear interpolation')
 
 
     def test_format_data(self):
