@@ -33,6 +33,10 @@ class Config(object):
             setattr(self.climate, attr, config_dict['climate'][attr])
         self._load_meteo_config(config_dict, infile_dict)
         self._load_wind_config(config_dict, infile_dict)
+        self.rivers = _Container()
+        for attr in 'url porams'.split():
+            setattr(self.rivers, attr, config_dict['rivers'][attr])
+        self._load_rivers_config(config_dict, infile_dict)
 
 
     def _load_meteo_config(self, config_dict, infile_dict):
@@ -59,6 +63,20 @@ class Config(object):
         forcing_data_files = infile_dict['forcing_data_files']
         self.climate.wind.output_files = {}
         self.climate.wind.output_files['wind'] = forcing_data_files['wind']
+
+
+    def _load_rivers_config(self, config_dict, infile_dict):
+        """Load Config values for river flows forcing data.
+        """
+        self.rivers.primary = _Container()
+        primary_river = config_dict['rivers']['primary']
+        self.rivers.primary.station_id = primary_river['station_id']
+        secondary_river = config_dict['rivers']['secondary']
+        self.rivers.secondary.station_id = secondary_river['station_id']
+        forcing_data_files = infile_dict['forcing_data_files']
+        self.rivers.output_files = {}
+        for river in 'primary secondary'.split():
+            self.rivers.output_files[river] = forcing_data_files[river]
 
 
     def _read_yaml_file(self, config_file):
