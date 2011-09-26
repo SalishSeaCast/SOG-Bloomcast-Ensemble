@@ -17,3 +17,13 @@ climate:
     cloud_fraction_mapping: cloud_fraction_mapping.yaml  # file containing mapping
   wind:
     station_id: 6831    # Sandheads
+
+rivers:
+  url: http://www.wateroffice.ec.gc.ca/graph/graph_e.html
+  params:
+    mode: text
+    prm1: 6              # discharge
+  primary:
+    station_id: 08MF005  # Fraser Rivar at Hope
+  secondary:
+    station_id: 0HBF002  # Englishman Rivar at Parksville
