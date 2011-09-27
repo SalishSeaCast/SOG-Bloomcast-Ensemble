@@ -68,15 +68,15 @@ class Config(object):
     def _load_rivers_config(self, config_dict, infile_dict):
         """Load Config values for river flows forcing data.
         """
-        self.rivers.primary = _Container()
-        primary_river = config_dict['rivers']['primary']
-        self.rivers.primary.station_id = primary_river['station_id']
-        self.rivers.secondary = _Container()
-        secondary_river = config_dict['rivers']['secondary']
-        self.rivers.secondary.station_id = secondary_river['station_id']
+        self.rivers.major = _Container()
+        major_river = config_dict['rivers']['major']
+        self.rivers.major.station_id = major_river['station_id']
+        self.rivers.minor = _Container()
+        minor_river = config_dict['rivers']['minor']
+        self.rivers.minor.station_id = minor_river['station_id']
         forcing_data_files = infile_dict['forcing_data_files']
         self.rivers.output_files = {}
-        for river in 'primary secondary'.split():
+        for river in 'major minor'.split():
             self.rivers.output_files[river] = forcing_data_files[river+'_river']
 
 
@@ -97,8 +97,8 @@ class Config(object):
                 'relative_humidity': 'YVR_relative_humidity',
                 'cloud_fraction': 'YVR_cloud_fraction',
                 'wind': 'Sandheads_wind',
-                'primary_river': 'Fraser_flow',
-                'secondary_river': 'Englishman_flow',
+                'major_river': 'Fraser_flow',
+                'minor_river': 'Englishman_flow',
             },
         }
         return infile_dict
