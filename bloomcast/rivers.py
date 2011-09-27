@@ -7,6 +7,8 @@ import logging
 import sys
 # HTTP Requests library:
 import requests
+# BeautifulSoup:
+from BeautifulSoup import BeautifulSoup
 # Bloomcast:
 from utils import Config
 
@@ -33,13 +35,15 @@ class RiversProcessor(object):
         """
         """
         params = self.config.rivers.params
-        river = 'primary'
+        river = 'major'
         params['stn'] = getattr(self.config.rivers, river).station_id
         params.update(self._date_params())
         with requests.session() as s:
             s.post(self.config.rivers.disclaimer_url,
                    data=self.config.rivers.accept_disclaimer)
             response = s.get(self.config.rivers.data_url, params=params)
+        soup = BeautifulSoup(response)
+        table = soup.find('table', id='dataTable')
 
 
     def _date_params(self):
@@ -52,7 +56,7 @@ class RiversProcessor(object):
             'sday': 1,
             'eyr': today.year,
             'emo': today.month,
-            'eday': today.day - 1,
+            'eday': 2,
         }
         return params
 
