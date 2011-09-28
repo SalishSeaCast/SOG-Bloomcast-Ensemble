@@ -147,8 +147,8 @@ class ClimateDataProcessor(object):
 
 
     def process_data(self, qty, end_date=date.today()):
-        """Process data from XML data records to a forcing data file in
-        the format that SOG expects.
+        """Process data from XML data records to a list of hourly
+        timestamps and data values.
         """
         reader = self.data_readers[qty]
         self.hourlies[qty] = []
