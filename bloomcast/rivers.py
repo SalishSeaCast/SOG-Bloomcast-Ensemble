@@ -4,6 +4,7 @@ from __future__ import absolute_import
 # Standard library:
 from datetime import date
 from datetime import datetime
+from itertools import izip
 import logging
 import sys
 # HTTP Requests library:
@@ -68,28 +69,28 @@ class RiversProcessor(object):
         """
         tds = self.data.findAll('td')
         timestamps = (td.string for td in tds[::2])
-        for timestamp in timestamps:
-            print self.read_datestamp(timestamp)
-        flows = [td.string for td in tds[1::2]]
-        print flows
-#         self.dailies = []
-#         for record in self.data.findAll('td'):
-#             timestamp = self.read_timestamp(record)
-#             if timestamp.date() > end_date:
-#                 break
-#             self.hourlies.append((timestamp, self.read_river_flow(record)))
+        flows = (td.string for td in tds[1::2])
+        data_day = self.read_datestamp(tds[0].string)
+        flow_sum = count = 0
+        self.dailies = []
+        for timestamp, flow in izip(timestamps, flows):
+            datestamp = self.read_datestamp(timestamp)
+            if datestamp == data_day:
+                flow_sum += float(flow)
+                count += 1
+            else:
+                self.dailies.append((data_day, flow_sum / count))
+                data_day = datestamp
+                flow_sum = float(flow)
+                count = 1
+        else:
+            self.dailies.append((data_day, flow_sum / count))
 
 
     def read_datestamp(self, string):
         """
         """
         return datetime.strptime(string, '%Y-%m-%d %H:%M:%S').date()
-
-
-    def read_river_flow(self):
-        """
-        """
-        return None
 
 
     def format_data(self):
