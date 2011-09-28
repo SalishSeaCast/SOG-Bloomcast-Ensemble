@@ -1,6 +1,7 @@
 """Unit tests for bloomcast modules.
 """
 from __future__ import absolute_import
+from BeautifulSoup import BeautifulSoup
 from datetime import date
 from datetime import datetime
 from mock import DEFAULT
@@ -351,6 +352,99 @@ class TestRiverProcessor(unittest.TestCase):
 
     def _make_one(self, *args, **kwargs):
         return self._get_target_class()(*args, **kwargs)
+
+
+    def test_process_data_1_row(self):
+        """process_data produces expected result for 1 row of data
+        """
+        rivers = self._make_one(Mock(name='config'))
+        test_data = [
+            '<table>',
+            '  <tr>',
+            '    <td>2011-09-27 21:11:00</td>',
+            '    <td>4200.0</td>',
+            '  </tr>',
+            '</table>',
+        ]
+        rivers.data = BeautifulSoup(''.join(test_data))
+        rivers.process_data()
+        self.assertEqual(rivers.dailies, [(date(2011, 9, 27), 4200.0)])
+
+
+    def test_process_data_2_rows_1_day(self):
+        """process_data produces expected result for 2 rows of data from same day
+        """
+        rivers = self._make_one(Mock(name='config'))
+        test_data = [
+            '<table>',
+            '  <tr>',
+            '    <td>2011-09-27 21:11:00</td>',
+            '    <td>4200.0</td>',
+            '  </tr>',
+            '  <tr>',
+            '    <td>2011-09-27 21:35:00</td>',
+            '    <td>4400.0</td>',
+            '  </tr>',
+            '</table>',
+        ]
+        rivers.data = BeautifulSoup(''.join(test_data))
+        rivers.process_data()
+        self.assertEqual(rivers.dailies, [(date(2011, 9, 27), 4300.0)])
+
+
+    def test_process_data_2_rows_2_days(self):
+        """process_data produces expected result for 2 rows of data from 2 days
+        """
+        rivers = self._make_one(Mock(name='config'))
+        test_data = [
+            '<table>',
+            '  <tr>',
+            '    <td>2011-09-27 21:11:00</td>',
+            '    <td>4200.0</td>',
+            '  </tr>',
+            '  <tr>',
+            '    <td>2011-09-28 21:35:00</td>',
+            '    <td>4400.0</td>',
+            '  </tr>',
+            '</table>',
+        ]
+        rivers.data = BeautifulSoup(''.join(test_data))
+        rivers.process_data()
+        self.assertEqual(
+            rivers.dailies, [
+                (date(2011, 9, 27), 4200.0),
+                (date(2011, 9, 28), 4400.0)])
+
+
+    def test_process_data_4_rows_2_days(self):
+        """process_data produces expected result for 4 rows of data from 2 days
+        """
+        rivers = self._make_one(Mock(name='config'))
+        test_data = [
+            '<table>',
+            '  <tr>',
+            '    <td>2011-09-27 21:11:00</td>',
+            '    <td>4200.0</td>',
+            '  </tr>',
+            '  <tr>',
+            '    <td>2011-09-27 21:35:00</td>',
+            '    <td>4400.0</td>',
+            '  <tr>',
+            '    <td>2011-09-28 21:11:00</td>',
+            '    <td>3200.0</td>',
+            '  </tr>',
+            '  <tr>',
+            '    <td>2011-09-28 21:35:00</td>',
+            '    <td>3400.0</td>',
+            '  </tr>',
+            '</table>',
+        ]
+        rivers.data = BeautifulSoup(''.join(test_data))
+        rivers.process_data()
+        self.assertEqual(
+            rivers.dailies, [
+                (date(2011, 9, 27), 4300.0),
+                (date(2011, 9, 28), 3300.0)])
 
 
     def test_format_data(self):
