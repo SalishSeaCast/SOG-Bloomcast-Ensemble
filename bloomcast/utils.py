@@ -1,7 +1,6 @@
-"""Utility classes and methods for SoG-bloomcast project.
+"""Utility classes for SoG-bloomcast project.
 
-A collection of classes and module that are used in other bloomcast
-modules.
+A collection of classes that are used in other bloomcast modules.
 """
 from __future__ import absolute_import
 # Standard library:
@@ -104,74 +103,11 @@ class Config(object):
         return infile_dict
 
 
-class ClimateDataProcessor(object):
-    """Climate forcing data processor base class.
+class ForcingDataProcessor(object):
+    """Base class for forcing data processors.
     """
-    def __init__(self, config, data_readers):
+    def __init__(self, config):
         self.config = config
-        self.data_readers = data_readers
-        self.hourlies = {}
-
-
-    def get_climate_data(self, data_type):
-        """Return a list of XML objects containing the specified type of
-        climate data.
-
-        The XML objects are :class:`ElementTree` subelement instances.
-        """
-        params = self.config.climate.params
-        params['StationID'] = getattr(self.config.climate, data_type).station_id
-        params.update(self._date_params())
-        response = requests.get(self.config.climate.url, params=params)
-        tree = ElementTree.parse(StringIO(response.content))
-        root = tree.getroot()
-        self.data = root.findall('stationdata')
-
-
-    def _date_params(self):
-        """Return an iterator of key/value pairs of the components of
-        today's date.
-
-        The keys are the component names in the format required for
-        requests to the :kbd:`climate.weatheroffice.gc.ca` site.
-
-        The values are today's date components as integers.
-        """
-        today = date.today()
-        params = {
-            'Year': today.year,
-            'Month': today.month,
-            'Day': today.day,
-        }
-        return params.iteritems()
-
-
-    def process_data(self, qty, end_date=date.today()):
-        """Process data from XML data records to a list of hourly
-        timestamps and data values.
-        """
-        reader = self.data_readers[qty]
-        self.hourlies[qty] = []
-        for record in self.data:
-            timestamp = self.read_timestamp(record)
-            if timestamp.date() > end_date:
-                break
-            self.hourlies[qty].append((timestamp, reader(record)))
-        self._trim_data(qty)
-        self.patch_data(qty)
-
-
-    def read_timestamp(self, record):
-        """Read timestamp from XML data object and return it as a
-        datetime instance.
-        """
-        timestamp = datetime(
-            int(record.get('year')),
-            int(record.get('month')),
-            int(record.get('day')),
-            int(record.get('hour')),
-        )
-        return timestamp
 
 
     def _valuegetter(self, data_item):
@@ -237,3 +173,73 @@ class ClimateDataProcessor(object):
             timestamp = self.hourlies[qty][gap_start + i][0]
             value = last_value + delta * (i + 1)
             self.hourlies[qty][gap_start + i] = (timestamp, value)
+
+
+class ClimateDataProcessor(ForcingDataProcessor):
+    """Climate forcing data processor base class.
+    """
+    def __init__(self, config, data_readers):
+        self.data_readers = data_readers
+        self.hourlies = {}
+        super(ClimateDataProcessor, self).__init__(config)
+
+
+    def get_climate_data(self, data_type):
+        """Return a list of XML objects containing the specified type of
+        climate data.
+
+        The XML objects are :class:`ElementTree` subelement instances.
+        """
+        params = self.config.climate.params
+        params['StationID'] = getattr(self.config.climate, data_type).station_id
+        params.update(self._date_params())
+        response = requests.get(self.config.climate.url, params=params)
+        tree = ElementTree.parse(StringIO(response.content))
+        root = tree.getroot()
+        self.data = root.findall('stationdata')
+
+
+    def _date_params(self):
+        """Return an iterator of key/value pairs of the components of
+        today's date.
+
+        The keys are the component names in the format required for
+        requests to the :kbd:`climate.weatheroffice.gc.ca` site.
+
+        The values are today's date components as integers.
+        """
+        today = date.today()
+        params = {
+            'Year': today.year,
+            'Month': today.month,
+            'Day': today.day,
+        }
+        return params.iteritems()
+
+
+    def process_data(self, qty, end_date=date.today()):
+        """Process data from XML data records to a list of hourly
+        timestamps and data values.
+        """
+        reader = self.data_readers[qty]
+        self.hourlies[qty] = []
+        for record in self.data:
+            timestamp = self.read_timestamp(record)
+            if timestamp.date() > end_date:
+                break
+            self.hourlies[qty].append((timestamp, reader(record)))
+        self._trim_data(qty)
+        self.patch_data(qty)
+
+
+    def read_timestamp(self, record):
+        """Read timestamp from XML data object and return it as a
+        datetime instance.
+        """
+        timestamp = datetime(
+            int(record.get('year')),
+            int(record.get('month')),
+            int(record.get('day')),
+            int(record.get('hour')),
+        )
+        return timestamp
