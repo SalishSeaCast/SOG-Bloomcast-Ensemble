@@ -3,6 +3,7 @@
 from __future__ import absolute_import
 # Standard library:
 from datetime import date
+from datetime import datetime
 import logging
 import sys
 # HTTP Requests library:
@@ -21,18 +22,18 @@ class RiversProcessor(object):
     """
     def __init__(self, config):
         self.config = config
-        self.data_readers = {'wind': self.read_river_flow}
-        self.hourlies = {}
 
 
     def make_forcing_data_files(self):
         """
         """
         self.get_river_data()
+        self.process_data()
 
 
     def get_river_data(self):
-        """
+        """Return a BeautifulSoup parser object containing the
+        river flow data table Environment Canada WaterOffice page.
         """
         params = self.config.rivers.params
         river = 'major'
@@ -43,7 +44,7 @@ class RiversProcessor(object):
                    data=self.config.rivers.accept_disclaimer)
             response = s.get(self.config.rivers.data_url, params=params)
         soup = BeautifulSoup(response)
-        table = soup.find('table', id='dataTable')
+        self.data = soup.find('table', id='dataTable')
 
 
     def _date_params(self):
@@ -61,10 +62,34 @@ class RiversProcessor(object):
         return params
 
 
+    def process_data(self, end_date=date.today()):
+        """Process data from BeautifulSoup parser object to a list of
+        hourly timestamps and data values.
+        """
+        tds = self.data.findAll('td')
+        timestamps = (td.string for td in tds[::2])
+        for timestamp in timestamps:
+            print self.read_datestamp(timestamp)
+        flows = [td.string for td in tds[1::2]]
+        print flows
+#         self.hourlies = []
+#         for record in self.data.findAll('td'):
+#             timestamp = self.read_timestamp(record)
+#             if timestamp.date() > end_date:
+#                 break
+#             self.hourlies.append((timestamp, self.read_river_flow(record)))
+
+
+    def read_datestamp(self, string):
+        """
+        """
+        return datetime.strptime(string, '%Y-%m-%d %H:%M:%S').date()
+
+
     def read_river_flow(self):
         """
         """
-
+        return None
 
 def run(config_file):
     """Process river flows forcing data into SOG forcing data files by
