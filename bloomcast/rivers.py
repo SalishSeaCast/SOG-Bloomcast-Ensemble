@@ -13,16 +13,17 @@ import requests
 from BeautifulSoup import BeautifulSoup
 # Bloomcast:
 from utils import Config
+from utils import ForcingDataProcessor
 
 
 log = logging.getLogger(__name__)
 
 
-class RiversProcessor(object):
+class RiversProcessor(ForcingDataProcessor):
     """River flows forcing data processor.
     """
     def __init__(self, config):
-        self.config = config
+        super(RiversProcessor, self).__init__(config)
 
 
     def make_forcing_data_files(self):

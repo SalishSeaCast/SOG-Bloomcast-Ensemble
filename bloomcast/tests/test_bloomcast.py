@@ -137,7 +137,7 @@ class TestConfig(unittest.TestCase):
 
 
     def test_load_wind_config_station_id(self):
-        """_load_wind_config puts expected value in config.climate.wind.station_id
+        """_load_wind_config puts value in config.climate.wind.station_id
         """
         test_station_id = 889
         mock_config_dict = self._make_mock_config_dict()
@@ -150,12 +150,12 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config.climate.wind.station_id, test_station_id)
 
 
-class TestClimateDataProcessor(unittest.TestCase):
-    """Unit tests for ClimateDataProcessor object.
+class TestForcingDataProcessor(unittest.TestCase):
+    """Unit tests for ForcingDataProcessor object.
     """
     def _get_target_class(self):
-        from utils import ClimateDataProcessor
-        return ClimateDataProcessor
+        from utils import ForcingDataProcessor
+        return ForcingDataProcessor
 
 
     def _make_one(self, *args, **kwargs):
@@ -165,42 +165,45 @@ class TestClimateDataProcessor(unittest.TestCase):
     def test_patch_data_1_hour_gap(self):
         """patch_data correctly interpolates value for 1 hour gap in hourlies
         """
-        meteo = self._make_one(Mock(name='config'), Mock(name='data_readers'))
-        meteo.hourlies['air_temperature'] = [
+        processor = self._make_one(Mock(name='config'))
+        processor.hourlies = {}
+        processor.hourlies['air_temperature'] = [
             (datetime(2011, 9, 25, 9, 0, 0), 215.0),
             (datetime(2011, 9, 25, 10, 0, 0), None),
             (datetime(2011, 9, 25, 11, 0, 0), 235.0),
         ]
-        meteo.patch_data('air_temperature')
+        processor.patch_data('air_temperature')
         self.assertEqual(
-            meteo.hourlies['air_temperature'][1],
+            processor.hourlies['air_temperature'][1],
             (datetime(2011, 9, 25, 10, 0, 0), 225.0))
 
 
     def test_patch_data_2_hour_gap(self):
         """patch_data correctly interpolates value for 2 hour gap in hourlies
         """
-        meteo = self._make_one(Mock(name='config'), Mock(name='data_readers'))
-        meteo.hourlies['air_temperature'] = [
+        processor = self._make_one(Mock(name='config'))
+        processor.hourlies = {}
+        processor.hourlies['air_temperature'] = [
             (datetime(2011, 9, 25, 9, 0, 0), 215.0),
             (datetime(2011, 9, 25, 10, 0, 0), None),
             (datetime(2011, 9, 25, 11, 0, 0), None),
             (datetime(2011, 9, 25, 12, 0, 0), 230.0),
         ]
-        meteo.patch_data('air_temperature')
+        processor.patch_data('air_temperature')
         self.assertEqual(
-            meteo.hourlies['air_temperature'][1],
+            processor.hourlies['air_temperature'][1],
             (datetime(2011, 9, 25, 10, 0, 0), 220.0))
         self.assertEqual(
-            meteo.hourlies['air_temperature'][2],
+            processor.hourlies['air_temperature'][2],
             (datetime(2011, 9, 25, 11, 0, 0), 225.0))
 
 
     def test_patch_data_2_gaps(self):
         """patch_data correctly interpolates value for 2 gaps in hourlies
         """
-        meteo = self._make_one(Mock(name='config'), Mock(name='data_readers'))
-        meteo.hourlies['air_temperature'] = [
+        processor = self._make_one(Mock(name='config'))
+        processor.hourlies = {}
+        processor.hourlies['air_temperature'] = [
             (datetime(2011, 9, 25, 9, 0, 0), 215.0),
             (datetime(2011, 9, 25, 10, 0, 0), None),
             (datetime(2011, 9, 25, 11, 0, 0), None),
@@ -208,15 +211,15 @@ class TestClimateDataProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 13, 0, 0), None),
             (datetime(2011, 9, 25, 14, 0, 0), 250.0),
         ]
-        meteo.patch_data('air_temperature')
+        processor.patch_data('air_temperature')
         self.assertEqual(
-            meteo.hourlies['air_temperature'][1],
+            processor.hourlies['air_temperature'][1],
             (datetime(2011, 9, 25, 10, 0, 0), 220.0))
         self.assertEqual(
-            meteo.hourlies['air_temperature'][2],
+            processor.hourlies['air_temperature'][2],
             (datetime(2011, 9, 25, 11, 0, 0), 225.0))
         self.assertEqual(
-            meteo.hourlies['air_temperature'][4],
+            processor.hourlies['air_temperature'][4],
             (datetime(2011, 9, 25, 13, 0, 0), 240.0))
 
 
