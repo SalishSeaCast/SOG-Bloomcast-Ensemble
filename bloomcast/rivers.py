@@ -72,7 +72,7 @@ class RiversProcessor(object):
             print self.read_datestamp(timestamp)
         flows = [td.string for td in tds[1::2]]
         print flows
-#         self.hourlies = []
+#         self.dailies = []
 #         for record in self.data.findAll('td'):
 #             timestamp = self.read_timestamp(record)
 #             if timestamp.date() > end_date:
@@ -90,6 +90,28 @@ class RiversProcessor(object):
         """
         """
         return None
+
+
+    def format_data(self):
+        """Generate lines of river flow forcing data in the format
+        expected by SOG.
+
+        Each line starts with 3 integers:
+
+        * Year
+        * Month
+        * Day
+
+        That is followed by a float in scientific notation:
+
+        * average flow for the day
+        """
+        for data in self.dailies:
+            datestamp = data[0]
+            flow = data[1]
+            line = '{0:%Y %m %d} {1:e}\n'.format(datestamp, flow)
+            yield line
+
 
 def run(config_file):
     """Process river flows forcing data into SOG forcing data files by

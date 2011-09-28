@@ -1,6 +1,7 @@
 """Unit tests for bloomcast modules.
 """
 from __future__ import absolute_import
+from datetime import date
 from datetime import datetime
 from mock import DEFAULT
 from mock import Mock
@@ -33,6 +34,23 @@ class TestConfig(unittest.TestCase):
                 },
                 'wind': {
                     'station_id': None
+                },
+            },
+            'rivers': {
+                'disclaimer_url': None,
+                'accept_disclaimer': {
+                    'disclaimer_action': None,
+                },
+                'data_url': None,
+                'params': {
+                    'mode': None,
+                    'prm1': None,
+                },
+                'major': {
+                    'station_id': None,
+                },
+                'minor': {
+                    'station_id': None,
                 },
         }}
         return mock_config_dict
@@ -320,3 +338,27 @@ class TestMeteoProcessor(unittest.TestCase):
             for i in xrange(24)]
         line = meteo.format_data('air_temperature').next()
         self.assertEqual(line, '889 2011 09 25 42' + ' 215.0' * 24 + '\n')
+
+
+
+class TestRiverProcessor(unittest.TestCase):
+    """Uni tests for RiverProcessor object.
+    """
+    def _get_target_class(self):
+        from rivers import RiversProcessor
+        return RiversProcessor
+
+
+    def _make_one(self, *args, **kwargs):
+        return self._get_target_class()(*args, **kwargs)
+
+
+    def test_format_data(self):
+        """format_data generator returns correctly formatted forcing data file line
+        """
+        rivers = self._make_one(Mock(name='config'))
+        rivers.dailies = [
+            (date(2011, 9, 27), 4200.0)
+        ]
+        line = rivers.format_data().next()
+        self.assertEqual(line, '2011 09 27 4.200000e+03\n')
