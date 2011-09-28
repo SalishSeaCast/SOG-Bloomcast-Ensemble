@@ -129,7 +129,7 @@ def run(config_file):
     config.load_config(config_file)
     config.data_date = date.today()
     meteo = MeteoProcessor(config)
-    meteo.make_forcing_data_file()
+    meteo.make_forcing_data_files()
 
 
 if __name__ == '__main__':
