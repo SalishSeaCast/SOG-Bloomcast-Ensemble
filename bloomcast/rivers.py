@@ -16,7 +16,7 @@ from utils import Config
 from utils import ForcingDataProcessor
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('bloomcast.' + __name__)
 
 
 class RiversProcessor(ForcingDataProcessor):

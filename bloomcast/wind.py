@@ -12,7 +12,7 @@ from utils import ClimateDataProcessor
 from utils import Config
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('bloomcast.' + __name__)
 
 
 class WindProcessor(ClimateDataProcessor):

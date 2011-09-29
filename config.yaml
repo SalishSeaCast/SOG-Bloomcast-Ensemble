@@ -30,3 +30,11 @@ rivers:
     station_id: 08MF005  # Fraser Rivar at Hope
   minor:
     station_id: 08HB002  # Englishman Rivar at Parksville
+
+logging:
+  debug: True
+  toaddrs:
+    - sallen@eos.ubc.ca
+  # Run "python -m smtpd -n -c DebuggingServer localhost:1025" to
+  # capture email messages for testing
+  use_test_smtpd: True

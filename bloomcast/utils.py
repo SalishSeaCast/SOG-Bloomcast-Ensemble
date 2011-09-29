@@ -25,6 +25,7 @@ class Config(object):
         attributes of the Config object.
         """
         config_dict = self._read_yaml_file(config_file)
+        self._load_logging_config(config_dict)
         self.infile = config_dict['infile']
         infile_dict = self._read_SOG_infile(self.infile)
         self.climate = _Container()
@@ -36,6 +37,14 @@ class Config(object):
         for attr in 'disclaimer_url accept_disclaimer data_url params'.split():
             setattr(self.rivers, attr, config_dict['rivers'][attr])
         self._load_rivers_config(config_dict, infile_dict)
+
+
+    def _load_logging_config(self, config_dict):
+        """Load Config values for logging.
+        """
+        self.logging = _Container()
+        for attr in 'debug toaddrs use_test_smtpd'.split():
+            setattr(self.logging, attr, config_dict['logging'][attr])
 
 
     def _load_meteo_config(self, config_dict, infile_dict):
