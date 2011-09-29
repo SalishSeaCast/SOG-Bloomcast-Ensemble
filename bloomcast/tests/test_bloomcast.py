@@ -53,7 +53,13 @@ class TestConfig(unittest.TestCase):
                 'minor': {
                     'station_id': None,
                 },
-        }}
+            },
+            'logging': {
+                'debug': None,
+                'toaddrs': [],
+                'use_test_smtpd':  None,
+            },
+        }
         return mock_config_dict
 
 
