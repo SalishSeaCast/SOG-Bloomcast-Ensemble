@@ -163,47 +163,42 @@ class TestForcingDataProcessor(unittest.TestCase):
 
 
     def test_patch_data_1_hour_gap(self):
-        """patch_data correctly interpolates value for 1 hour gap in hourlies
+        """patch_data correctly interpolates value for 1 hour gap in data
         """
         processor = self._make_one(Mock(name='config'))
-        processor.hourlies = {}
-        processor.hourlies['air_temperature'] = [
+        processor.data['air_temperature'] = [
             (datetime(2011, 9, 25, 9, 0, 0), 215.0),
             (datetime(2011, 9, 25, 10, 0, 0), None),
             (datetime(2011, 9, 25, 11, 0, 0), 235.0),
         ]
+        processor.interpolate_values = Mock()
         processor.patch_data('air_temperature')
-        self.assertEqual(
-            processor.hourlies['air_temperature'][1],
-            (datetime(2011, 9, 25, 10, 0, 0), 225.0))
+        processor.interpolate_values.assert_called_once_with(
+            'air_temperature', 1, 1)
 
 
     def test_patch_data_2_hour_gap(self):
-        """patch_data correctly interpolates value for 2 hour gap in hourlies
+        """patch_data correctly interpolates value for 2 hour gap in data
         """
         processor = self._make_one(Mock(name='config'))
-        processor.hourlies = {}
-        processor.hourlies['air_temperature'] = [
+        processor.data = {}
+        processor.data['air_temperature'] = [
             (datetime(2011, 9, 25, 9, 0, 0), 215.0),
             (datetime(2011, 9, 25, 10, 0, 0), None),
             (datetime(2011, 9, 25, 11, 0, 0), None),
             (datetime(2011, 9, 25, 12, 0, 0), 230.0),
         ]
+        processor.interpolate_values = Mock()
         processor.patch_data('air_temperature')
-        self.assertEqual(
-            processor.hourlies['air_temperature'][1],
-            (datetime(2011, 9, 25, 10, 0, 0), 220.0))
-        self.assertEqual(
-            processor.hourlies['air_temperature'][2],
-            (datetime(2011, 9, 25, 11, 0, 0), 225.0))
+        processor.interpolate_values.assert_called_once_with(
+            'air_temperature', 1, 2)
 
 
     def test_patch_data_2_gaps(self):
-        """patch_data correctly interpolates value for 2 gaps in hourlies
+        """patch_data correctly interpolates value for 2 gaps in data
         """
         processor = self._make_one(Mock(name='config'))
-        processor.hourlies = {}
-        processor.hourlies['air_temperature'] = [
+        processor.data['air_temperature'] = [
             (datetime(2011, 9, 25, 9, 0, 0), 215.0),
             (datetime(2011, 9, 25, 10, 0, 0), None),
             (datetime(2011, 9, 25, 11, 0, 0), None),
@@ -211,16 +206,47 @@ class TestForcingDataProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 13, 0, 0), None),
             (datetime(2011, 9, 25, 14, 0, 0), 250.0),
         ]
+        processor.interpolate_values = Mock()
         processor.patch_data('air_temperature')
         self.assertEqual(
-            processor.hourlies['air_temperature'][1],
+            processor.interpolate_values.call_args_list,
+            [(('air_temperature', 1, 2),), (('air_temperature', 4, 4),)])
+
+
+    def test_interpolate_values_1_hour_gap(self):
+        """interpolates correctly interpolates value for 1 hour gap in data
+        """
+        processor = self._make_one(Mock(name='config'))
+        processor.data = {}
+        processor.data['air_temperature'] = [
+            (datetime(2011, 9, 25, 9, 0, 0), 215.0),
+            (datetime(2011, 9, 25, 10, 0, 0), None),
+            (datetime(2011, 9, 25, 11, 0, 0), 235.0),
+        ]
+        processor.interpolate_values('air_temperature', 1, 1)
+        self.assertEqual(
+            processor.data['air_temperature'][1],
+            (datetime(2011, 9, 25, 10, 0, 0), 225.0))
+
+
+    def test_interpolate_values_2_hour_gap(self):
+        """interpolate_values correctly interpolates value for 2 hour gap in data
+        """
+        processor = self._make_one(Mock(name='config'))
+        processor.data = {}
+        processor.data['air_temperature'] = [
+            (datetime(2011, 9, 25, 9, 0, 0), 215.0),
+            (datetime(2011, 9, 25, 10, 0, 0), None),
+            (datetime(2011, 9, 25, 11, 0, 0), None),
+            (datetime(2011, 9, 25, 12, 0, 0), 230.0),
+        ]
+        processor.interpolate_values('air_temperature', 1, 2)
+        self.assertEqual(
+            processor.data['air_temperature'][1],
             (datetime(2011, 9, 25, 10, 0, 0), 220.0))
         self.assertEqual(
-            processor.hourlies['air_temperature'][2],
+            processor.data['air_temperature'][2],
             (datetime(2011, 9, 25, 11, 0, 0), 225.0))
-        self.assertEqual(
-            processor.hourlies['air_temperature'][4],
-            (datetime(2011, 9, 25, 13, 0, 0), 240.0))
 
 
 class TestWindProcessor(unittest.TestCase):
@@ -235,72 +261,48 @@ class TestWindProcessor(unittest.TestCase):
         return self._get_target_class()(*args, **kwargs)
 
 
-    def test_patch_data_1_hour_gap(self):
-        """patch_data correctly interpolates value for 1 hour gap in hourlies
+    def test_interpolate_values_1_hour_gap(self):
+        """interpolate_values correctly interpolates value for 1 hour gap in data
         """
         wind = self._make_one(Mock(name='config'))
-        wind.hourlies['wind'] = [
+        wind.data['wind'] = [
             (datetime(2011, 9, 25, 9, 0, 0), (1.0, -2.0)),
             (datetime(2011, 9, 25, 10, 0, 0), (None, None)),
             (datetime(2011, 9, 25, 11, 0, 0), (2.0, -1.0)),
         ]
-        wind.patch_data('wind')
+        wind.interpolate_values('wind', 1, 1)
         self.assertEqual(
-            wind.hourlies['wind'][1],
+            wind.data['wind'][1],
             (datetime(2011, 9, 25, 10, 0, 0), (1.5, -1.5)))
 
 
-    def test_patch_data_2_hour_gap(self):
-        """patch_data correctly interpolates value for 2 hour gap in hourlies
+    def test_interpolate_values_2_hour_gap(self):
+        """interpolate_values correctly interpolates value for 2 hour gap in data
         """
         wind = self._make_one(Mock(name='config'))
-        wind.hourlies['wind'] = [
+        wind.data['wind'] = [
             (datetime(2011, 9, 25, 9, 0, 0), (1.0, -2.0)),
             (datetime(2011, 9, 25, 10, 0, 0), (None, None)),
             (datetime(2011, 9, 25, 11, 0, 0), (None, None)),
             (datetime(2011, 9, 25, 12, 0, 0), (2.5, -0.5)),
         ]
-        wind.patch_data('wind')
+        wind.interpolate_values('wind', 1, 2)
         self.assertEqual(
-            wind.hourlies['wind'][1],
+            wind.data['wind'][1],
             (datetime(2011, 9, 25, 10, 0, 0), (1.5, -1.5)))
         self.assertEqual(
-            wind.hourlies['wind'][2],
+            wind.data['wind'][2],
             (datetime(2011, 9, 25, 11, 0, 0), (2.0, -1.0)))
-
-
-    def test_patch_data_2_gaps(self):
-        """patch_data correctly interpolates value for 2 gaps in hourlies
-        """
-        wind = self._make_one(Mock(name='config'))
-        wind.hourlies['wind'] = [
-            (datetime(2011, 9, 25, 9, 0, 0), (1.0, -2.0)),
-            (datetime(2011, 9, 25, 10, 0, 0), (None, None)),
-            (datetime(2011, 9, 25, 11, 0, 0), (None, None)),
-            (datetime(2011, 9, 25, 12, 0, 0), (2.5, -0.5)),
-            (datetime(2011, 9, 25, 13, 0, 0), (None, None)),
-            (datetime(2011, 9, 25, 14, 0, 0), (4.5, 0.5)),
-        ]
-        wind.patch_data('wind')
-        self.assertEqual(
-            wind.hourlies['wind'][1],
-            (datetime(2011, 9, 25, 10, 0, 0), (1.5, -1.5)))
-        self.assertEqual(
-            wind.hourlies['wind'][2],
-            (datetime(2011, 9, 25, 11, 0, 0), (2.0, -1.0)))
-        self.assertEqual(
-            wind.hourlies['wind'][4],
-            (datetime(2011, 9, 25, 13, 0, 0), (3.5, 0.0)))
 
 
     def test_interpolate_values_gap_gt_11_hr_logs_warning(self):
         """wind data gap >11 hr generates warning log message
         """
         wind = self._make_one(Mock(name='config'))
-        wind.hourlies['wind'] = [(datetime(2011, 9, 25, 0, 0, 0), (1.0, -2.0))]
-        wind.hourlies['wind'].extend([
+        wind.data['wind'] = [(datetime(2011, 9, 25, 0, 0, 0), (1.0, -2.0))]
+        wind.data['wind'].extend([
             (datetime(2011, 9, 25, 1 + i, 0, 0), (None, None)) for i in xrange(15)])
-        wind.hourlies['wind'].append(
+        wind.data['wind'].append(
             (datetime(2011, 9, 25, 16, 0, 0), (1.0, -2.0)))
         with patch('wind.log', Mock()) as mock_log:
             wind.interpolate_values('wind', gap_start=1, gap_end=15)
@@ -313,7 +315,7 @@ class TestWindProcessor(unittest.TestCase):
         """format_data generator returns correctly formatted forcing data file line
         """
         wind = self._make_one(Mock(name='config'))
-        wind.hourlies['wind'] = [
+        wind.data['wind'] = [
             (datetime(2011, 9, 25, 9, 0, 0), (1.0, 2.0)),
         ]
         line = wind.format_data().next()
@@ -337,7 +339,7 @@ class TestMeteoProcessor(unittest.TestCase):
         """
         meteo = self._make_one(Mock(name='config'))
         meteo.config.climate.meteo.station_id = '889'
-        meteo.hourlies['air_temperature'] = [
+        meteo.data['air_temperature'] = [
             (datetime(2011, 9, 25, i, 0, 0), 215.0)
             for i in xrange(24)]
         line = meteo.format_data('air_temperature').next()
@@ -369,9 +371,10 @@ class TestRiverProcessor(unittest.TestCase):
             '  </tr>',
             '</table>',
         ]
-        rivers.data = BeautifulSoup(''.join(test_data))
-        rivers.process_data()
-        self.assertEqual(rivers.dailies, [(date(2011, 9, 27), 4200.0)])
+        rivers.raw_data = {}
+        rivers.raw_data['major'] = BeautifulSoup(''.join(test_data))
+        rivers.process_data('major')
+        self.assertEqual(rivers.data['major'], [(date(2011, 9, 27), 4200.0)])
 
 
     def test_process_data_2_rows_1_day(self):
@@ -390,9 +393,10 @@ class TestRiverProcessor(unittest.TestCase):
             '  </tr>',
             '</table>',
         ]
-        rivers.data = BeautifulSoup(''.join(test_data))
-        rivers.process_data()
-        self.assertEqual(rivers.dailies, [(date(2011, 9, 27), 4300.0)])
+        rivers.raw_data = {}
+        rivers.raw_data['major'] = BeautifulSoup(''.join(test_data))
+        rivers.process_data('major')
+        self.assertEqual(rivers.data['major'], [(date(2011, 9, 27), 4300.0)])
 
 
     def test_process_data_2_rows_2_days(self):
@@ -411,10 +415,11 @@ class TestRiverProcessor(unittest.TestCase):
             '  </tr>',
             '</table>',
         ]
-        rivers.data = BeautifulSoup(''.join(test_data))
-        rivers.process_data()
+        rivers.raw_data = {}
+        rivers.raw_data['major'] = BeautifulSoup(''.join(test_data))
+        rivers.process_data('major')
         self.assertEqual(
-            rivers.dailies, [
+            rivers.data['major'], [
                 (date(2011, 9, 27), 4200.0),
                 (date(2011, 9, 28), 4400.0)])
 
@@ -442,10 +447,11 @@ class TestRiverProcessor(unittest.TestCase):
             '  </tr>',
             '</table>',
         ]
-        rivers.data = BeautifulSoup(''.join(test_data))
-        rivers.process_data()
+        rivers.raw_data = {}
+        rivers.raw_data['major'] = BeautifulSoup(''.join(test_data))
+        rivers.process_data('major')
         self.assertEqual(
-            rivers.dailies, [
+            rivers.data['major'], [
                 (date(2011, 9, 27), 4300.0),
                 (date(2011, 9, 28), 3300.0)])
 
@@ -454,8 +460,8 @@ class TestRiverProcessor(unittest.TestCase):
         """format_data generator returns correctly formatted forcing data file line
         """
         rivers = self._make_one(Mock(name='config'))
-        rivers.dailies = [
+        rivers.data['major'] = [
             (date(2011, 9, 27), 4200.0)
         ]
-        line = rivers.format_data().next()
+        line = rivers.format_data('major').next()
         self.assertEqual(line, '2011 09 27 4.200000e+03\n')

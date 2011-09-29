@@ -108,6 +108,7 @@ class ForcingDataProcessor(object):
     """
     def __init__(self, config):
         self.config = config
+        self.data = {}
 
 
     def _valuegetter(self, data_item):
@@ -121,7 +122,7 @@ class ForcingDataProcessor(object):
 
 
     def _trim_data(self, qty):
-        """Trim empty and incomplete days from the end of the hourlies
+        """Trim empty and incomplete days from the end of the data
         data list.
 
         Days without any data are deleted first, then days without
@@ -129,13 +130,13 @@ class ForcingDataProcessor(object):
         """
         while True:
             if any([self._valuegetter(data[1])
-                    for data in self.hourlies[qty][-24:]]):
+                    for data in self.data[qty][-24:]]):
                 break
             else:
-                del self.hourlies[qty][-24:]
+                del self.data[qty][-24:]
         while True:
-            if self._valuegetter(self.hourlies[qty][-1][1]) is None:
-                del self.hourlies[qty][-24:]
+            if self._valuegetter(self.data[qty][-1][1]) is None:
+                del self.data[qty][-24:]
             else:
                 break
 
@@ -144,7 +145,7 @@ class ForcingDataProcessor(object):
         """Patch missing data values by interpolation.
         """
         gap_start = gap_end = None
-        for i, data in enumerate(self.hourlies[qty]):
+        for i, data in enumerate(self.data[qty]):
             if self._valuegetter(data[1]) is None:
                 gap_start = i if gap_start is None else gap_start
                 gap_end = i
@@ -158,7 +159,7 @@ class ForcingDataProcessor(object):
 
         Override this method if:
 
-        * Data is stored in hourlies list in a type or data structure
+        * Data is stored in data list in a type or data structure
           other than a simple value; e.g. wind data is stored as a
           tuple of components.
 
@@ -166,13 +167,13 @@ class ForcingDataProcessor(object):
           data gaps that exceed 11 hours are to be patched but also
           reported via email.
         """
-        last_value = self.hourlies[qty][gap_start - 1][1]
-        next_value = self.hourlies[qty][gap_end + 1][1]
+        last_value = self.data[qty][gap_start - 1][1]
+        next_value = self.data[qty][gap_end + 1][1]
         delta = (next_value - last_value) / (gap_end - gap_start + 2)
         for i in xrange(gap_end - gap_start + 1):
-            timestamp = self.hourlies[qty][gap_start + i][0]
+            timestamp = self.data[qty][gap_start + i][0]
             value = last_value + delta * (i + 1)
-            self.hourlies[qty][gap_start + i] = (timestamp, value)
+            self.data[qty][gap_start + i] = (timestamp, value)
 
 
 class ClimateDataProcessor(ForcingDataProcessor):
@@ -180,7 +181,6 @@ class ClimateDataProcessor(ForcingDataProcessor):
     """
     def __init__(self, config, data_readers):
         self.data_readers = data_readers
-        self.hourlies = {}
         super(ClimateDataProcessor, self).__init__(config)
 
 
@@ -196,7 +196,7 @@ class ClimateDataProcessor(ForcingDataProcessor):
         response = requests.get(self.config.climate.url, params=params)
         tree = ElementTree.parse(StringIO(response.content))
         root = tree.getroot()
-        self.data = root.findall('stationdata')
+        self.raw_data = root.findall('stationdata')
 
 
     def _date_params(self):
@@ -222,12 +222,12 @@ class ClimateDataProcessor(ForcingDataProcessor):
         timestamps and data values.
         """
         reader = self.data_readers[qty]
-        self.hourlies[qty] = []
-        for record in self.data:
+        self.data[qty] = []
+        for record in self.raw_data:
             timestamp = self.read_timestamp(record)
             if timestamp.date() > end_date:
                 break
-            self.hourlies[qty].append((timestamp, reader(record)))
+            self.data[qty].append((timestamp, reader(record)))
         self._trim_data(qty)
         self.patch_data(qty)
 

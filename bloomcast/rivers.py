@@ -30,7 +30,7 @@ class RiversProcessor(ForcingDataProcessor):
         """
         """
         self.get_river_data()
-        self.process_data()
+        self.process_data('major')
 
 
     def get_river_data(self):
@@ -64,37 +64,38 @@ class RiversProcessor(ForcingDataProcessor):
         return params
 
 
-    def process_data(self, end_date=date.today()):
+    def process_data(self, qty, end_date=date.today()):
         """Process data from BeautifulSoup parser object to a list of
         hourly timestamps and data values.
         """
-        tds = self.data.findAll('td')
+        tds = self.raw_data[qty].findAll('td')
         timestamps = (td.string for td in tds[::2])
         flows = (td.string for td in tds[1::2])
         data_day = self.read_datestamp(tds[0].string)
         flow_sum = count = 0
-        self.dailies = []
+        self.data[qty] = []
         for timestamp, flow in izip(timestamps, flows):
             datestamp = self.read_datestamp(timestamp)
             if datestamp == data_day:
                 flow_sum += float(flow)
                 count += 1
             else:
-                self.dailies.append((data_day, flow_sum / count))
+                self.data[qty].append((data_day, flow_sum / count))
                 data_day = datestamp
                 flow_sum = float(flow)
                 count = 1
         else:
-            self.dailies.append((data_day, flow_sum / count))
+            self.data[qty].append((data_day, flow_sum / count))
 
 
     def read_datestamp(self, string):
-        """
+        """Read datestamp from BeautifulSoup parser object and return
+        it as a date instance.
         """
         return datetime.strptime(string, '%Y-%m-%d %H:%M:%S').date()
 
 
-    def format_data(self):
+    def format_data(self, qty):
         """Generate lines of river flow forcing data in the format
         expected by SOG.
 
@@ -108,7 +109,7 @@ class RiversProcessor(ForcingDataProcessor):
 
         * average flow for the day
         """
-        for data in self.dailies:
+        for data in self.data[qty]:
             datestamp = data[0]
             flow = data[1]
             line = '{0:%Y %m %d} {1:e}\n'.format(datestamp, flow)
