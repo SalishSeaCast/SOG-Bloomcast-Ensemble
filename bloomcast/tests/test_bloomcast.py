@@ -371,8 +371,7 @@ class TestRiverProcessor(unittest.TestCase):
             '  </tr>',
             '</table>',
         ]
-        rivers.raw_data = {}
-        rivers.raw_data['major'] = BeautifulSoup(''.join(test_data))
+        rivers.raw_data = BeautifulSoup(''.join(test_data))
         rivers.process_data('major')
         self.assertEqual(rivers.data['major'], [(date(2011, 9, 27), 4200.0)])
 
@@ -393,8 +392,7 @@ class TestRiverProcessor(unittest.TestCase):
             '  </tr>',
             '</table>',
         ]
-        rivers.raw_data = {}
-        rivers.raw_data['major'] = BeautifulSoup(''.join(test_data))
+        rivers.raw_data = BeautifulSoup(''.join(test_data))
         rivers.process_data('major')
         self.assertEqual(rivers.data['major'], [(date(2011, 9, 27), 4300.0)])
 
@@ -415,8 +413,7 @@ class TestRiverProcessor(unittest.TestCase):
             '  </tr>',
             '</table>',
         ]
-        rivers.raw_data = {}
-        rivers.raw_data['major'] = BeautifulSoup(''.join(test_data))
+        rivers.raw_data = BeautifulSoup(''.join(test_data))
         rivers.process_data('major')
         self.assertEqual(
             rivers.data['major'], [
@@ -447,8 +444,7 @@ class TestRiverProcessor(unittest.TestCase):
             '  </tr>',
             '</table>',
         ]
-        rivers.raw_data = {}
-        rivers.raw_data['major'] = BeautifulSoup(''.join(test_data))
+        rivers.raw_data = BeautifulSoup(''.join(test_data))
         rivers.process_data('major')
         self.assertEqual(
             rivers.data['major'], [

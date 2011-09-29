@@ -8,6 +8,7 @@ import sys
 from utils import Config
 from wind import WindProcessor
 from meteo import MeteoProcessor
+from rivers import RiversProcessor
 
 
 log = logging.getLogger('bloomcast')
@@ -25,6 +26,8 @@ def run(config_file):
               .format(config.data_date))
     meteo = MeteoProcessor(config)
     meteo.make_forcing_data_files()
+    rivers = RiversProcessor(config)
+    rivers.make_forcing_data_files()
 
 
 def configure_logging(config_file):
