@@ -200,8 +200,7 @@ class ClimateDataProcessor(ForcingDataProcessor):
 
 
     def _date_params(self):
-        """Return an iterator of key/value pairs of the components of
-        today's date.
+        """Return a dict of the components of today's date.
 
         The keys are the component names in the format required for
         requests to the :kbd:`climate.weatheroffice.gc.ca` site.
