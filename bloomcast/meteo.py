@@ -43,7 +43,7 @@ class MeteoProcessor(ClimateDataProcessor):
         with nested(*contexts):
             for qty in self.config.climate.meteo.quantities:
                 self.process_data(qty, end_date=self.config.data_date)
-                log.debug('latest {0} {1}'.format(qty, self.hourlies[qty][-1]))
+                log.debug('latest {0} {1}'.format(qty, self.data[qty][-1]))
                 file_objs[qty].writelines(self.format_data(qty))
 
 
@@ -109,8 +109,8 @@ class MeteoProcessor(ClimateDataProcessor):
         That is followed by 24 hourly values for the data quanity
         follow expressed as floats with 1 decimal place.
         """
-        for i in xrange(len(self.hourlies[qty]) / 24):
-            data = self.hourlies[qty][i * 24:(i + 1) *24]
+        for i in xrange(len(self.data[qty]) / 24):
+            data = self.data[qty][i * 24:(i + 1) *24]
             timestamp = data[0][0]
             line = '{0} {1:%Y %m %d} 42'.format(
                 self.config.climate.meteo.station_id, timestamp)

@@ -33,8 +33,8 @@ class WindProcessor(ClimateDataProcessor):
         """
         self.get_climate_data('wind')
         self.process_data('wind')
-        log.debug('latest wind {0}'.format(self.hourlies['wind'][-1]))
-        data_date = self.hourlies['wind'][-1][0].date()
+        log.debug('latest wind {0}'.format(self.data['wind'][-1]))
+        data_date = self.data['wind'][-1][0].date()
         output_file = self.config.climate.wind.output_files['wind']
         with open(output_file, 'wt') as file_obj:
             file_obj.writelines(self.format_data())
@@ -87,16 +87,16 @@ class WindProcessor(ClimateDataProcessor):
             log.warning(
                 'A wind forcing data gap > 11 hr starting at {0:%Y-%m-%d %H:00} '
                 'has been patched by linear interpolation'
-                .format(self.hourlies[qty][gap_start][0]))
-        last_cross_wind, last_along_wind = self.hourlies[qty][gap_start - 1][1]
-        next_cross_wind, next_along_wind = self.hourlies[qty][gap_end + 1][1]
+                .format(self.data[qty][gap_start][0]))
+        last_cross_wind, last_along_wind = self.data[qty][gap_start - 1][1]
+        next_cross_wind, next_along_wind = self.data[qty][gap_end + 1][1]
         delta_cross_wind = (next_cross_wind - last_cross_wind) / (gap_hours + 1)
         delta_along_wind = (next_along_wind - last_along_wind) / (gap_hours + 1)
         for i in xrange(gap_end - gap_start + 1):
-            timestamp = self.hourlies[qty][gap_start + i][0]
+            timestamp = self.data[qty][gap_start + i][0]
             cross_wind = last_cross_wind + delta_cross_wind * (i + 1)
             along_wind = last_along_wind + delta_along_wind * (i + 1)
-            self.hourlies[qty][gap_start + i] = (
+            self.data[qty][gap_start + i] = (
                 timestamp, (cross_wind, along_wind))
 
 
@@ -116,7 +116,7 @@ class WindProcessor(ClimateDataProcessor):
         * Cross-strait wind component
         * Along-strait wind component
         """
-        for data in self.hourlies['wind']:
+        for data in self.data['wind']:
             timestamp = data[0]
             wind = data[1]
             line = '{0:%d %m %Y} {1:.1f} {2:f} {3:f}\n'.format(
