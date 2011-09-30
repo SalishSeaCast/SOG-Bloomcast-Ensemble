@@ -6,6 +6,7 @@ from __future__ import absolute_import
 # Standard library:
 from datetime import date
 from datetime import datetime
+import re
 from StringIO import StringIO
 from xml.etree import cElementTree as ElementTree
 # HTTP Requests library:
@@ -27,7 +28,7 @@ class Config(object):
         config_dict = self._read_yaml_file(config_file)
         self._load_logging_config(config_dict)
         self.infile = config_dict['infile']
-        infile_dict = self._read_SOG_infile(self.infile)
+        infile_dict = self._read_SOG_infile()
         self.climate = _Container()
         for attr in 'url params'.split():
             setattr(self.climate, attr, config_dict['climate'][attr])
@@ -96,19 +97,38 @@ class Config(object):
             return yaml.load(file_obj.read())
 
 
-    def _read_SOG_infile(self, infile):
-        """Placeholder for method that will read data from SOG infile.
+    def _read_SOG_infile(self):
+        """Return a dict of selected values read from the SOG infile.
         """
-        infile_dict = {
-            'forcing_data_files': {
-                'air_temperature': 'YVR_air_temperature',
-                'relative_humidity': 'YVR_relative_humidity',
-                'cloud_fraction': 'YVR_cloud_fraction',
-                'wind': 'Sandheads_wind',
-                'major_river': 'Fraser_flow',
-                'minor_river': 'Englishman_flow',
-            },
+        # Mapping between SOG infile keys and Config object attribute
+        # names for forcing data files
+        forcing_data_files = {
+            'wind': 'wind',
+            'air temp': 'air_temperature',
+            'humidity': 'relative_humidity',
+            'cloud': 'cloud_fraction',
+            'major river': 'major_river',
+            'minor river': 'minor_river',
         }
+        infile_dict = {'forcing_data_files': {}}
+        # Keys, values and comments are separated by "+whitespace
+        sep = re.compile(r'"\s')
+        with open(self.infile, 'rt') as infile:
+            for i, line in enumerate(infile):
+                if line.startswith('\n') or line.startswith('!'):
+                    continue
+                split_line = sep.split(line)
+                infile_key = split_line[0].strip('"')
+                if infile_key in forcing_data_files:
+                    result_key = forcing_data_files[infile_key]
+                    value = split_line[1].strip('"').rstrip('\n')
+                    if value:
+                        # Value on same line as key
+                        infile_dict['forcing_data_files'][result_key] = value
+                    else:
+                        # Value on line after key
+                        infile_dict['forcing_data_files'][result_key] = (
+                            sep.split(infile[i+1])[0].strip().strip('"'))
         return infile_dict
 
 
