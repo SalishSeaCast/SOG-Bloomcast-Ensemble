@@ -17,7 +17,7 @@ import requests
 import yaml
 
 
-log = logging.getLogger('bloomcast.' + __name__)
+log = logging.getLogger('bloomcast.utils')
 
 
 class _Container(object): pass
@@ -238,7 +238,7 @@ class ClimateDataProcessor(ForcingDataProcessor):
         super(ClimateDataProcessor, self).__init__(config)
 
 
-    def get_climate_data(self, data_type):
+    def get_climate_data(self, data_type, data_month):
         """Return a list of XML objects containing the specified type of
         climate data.
 
@@ -246,11 +246,11 @@ class ClimateDataProcessor(ForcingDataProcessor):
         """
         params = self.config.climate.params
         params['StationID'] = getattr(self.config.climate, data_type).station_id
-        params.update(self._date_params())
+        params.update(self._date_params(data_month))
         response = requests.get(self.config.climate.url, params=params)
         tree = ElementTree.parse(StringIO(response.content))
         root = tree.getroot()
-        self.raw_data = root.findall('stationdata')
+        self.raw_data.extend(root.findall('stationdata'))
 
 
     def _date_params(self, data_month=None):

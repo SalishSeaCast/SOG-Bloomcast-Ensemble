@@ -11,7 +11,7 @@ from utils import ClimateDataProcessor
 from utils import Config
 
 
-log = logging.getLogger('bloomcast.' + __name__)
+log = logging.getLogger('bloomcast.meteo')
 
 
 class MeteoProcessor(ClimateDataProcessor):
@@ -39,7 +39,10 @@ class MeteoProcessor(ClimateDataProcessor):
             output_file = self.config.climate.meteo.output_files[qty]
             file_objs[qty] = open(output_file, 'wt')
             contexts.append(file_objs[qty])
-        self.get_climate_data('meteo')
+        self.raw_data = []
+        for data_month in self._get_data_months():
+            self.get_climate_data('meteo', data_month)
+            log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
         with nested(*contexts):
             for qty in self.config.climate.meteo.quantities:
                 self.process_data(qty, end_date=self.config.data_date)
