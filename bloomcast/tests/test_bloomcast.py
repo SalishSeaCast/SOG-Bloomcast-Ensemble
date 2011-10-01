@@ -329,23 +329,35 @@ class TestClimateDataProcessor(unittest.TestCase):
         return self._get_target_class()(*args, **kwargs)
 
 
-    def _make_mock_config(self):
-        class _Container(object): pass
-        mock_config = _Container()
-        mock_config.climate = _Container()
-        mock_config.climate.params = _Container()
-        mock_config.climate.wind = _Container()
-        mock_config.climate.wind.station_id = _Container()
-        return mock_config
-
-
-    def test_(self):
+    def test_get_data_months_run_start_date_same_year(self):
+        """_get_data_months returns data months for run start date in same year
         """
-        """
-        mock_config = self._make_mock_config()
+        mock_config = Mock()
+        mock_config.climate.params = {}
+        mock_config.run_start_date = date(2011, 9, 19)
         processor = self._make_one(mock_config, Mock(name='data_readers'))
-        processor.get_climate_data('wind')
-        processor._date_params.assert_called_once_with()
+        with patch('utils.date') as mock_date:
+            mock_date.today.return_value = date(2011, 9, 1)
+            mock_date.side_effect = date
+            data_months = processor._get_data_months()
+        self.assertEqual(data_months[0], date(2011, 1, 1))
+        self.assertEqual(data_months[-1], date(2011, 9, 1))
+
+
+    def test_get_data_months_run_start_date_prev_year(self):
+        """_get_data_months returns data months for run start date in previous yr
+        """
+        mock_config = Mock()
+        mock_config.climate.params = {}
+        mock_config.run_start_date = date(2011, 9, 19)
+        processor = self._make_one(mock_config, Mock(name='data_readers'))
+        with patch('utils.date') as mock_date:
+            mock_date.today.return_value = date(2012, 2, 1)
+            mock_date.side_effect = date
+            data_months = processor._get_data_months()
+        self.assertEqual(data_months[0], date(2011, 1, 1))
+        self.assertEqual(data_months[11], date(2011, 12, 1))
+        self.assertEqual(data_months[-1], date(2012, 2, 1))
 
 
 class TestWindProcessor(unittest.TestCase):
