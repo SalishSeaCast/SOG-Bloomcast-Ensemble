@@ -12,7 +12,7 @@ from utils import ClimateDataProcessor
 from utils import Config
 
 
-log = logging.getLogger('bloomcast.' + __name__)
+log = logging.getLogger('bloomcast.wind')
 
 
 class WindProcessor(ClimateDataProcessor):
@@ -31,7 +31,10 @@ class WindProcessor(ClimateDataProcessor):
 
         Return the date of the last day for which data was obtained.
         """
-        self.get_climate_data('wind')
+        self.raw_data = []
+        for data_month in self._get_data_months():
+            self.get_climate_data('wind', data_month)
+            log.debug('got wind data for {0:%Y-%m}'.format(data_month))
         self.process_data('wind')
         log.debug('latest wind {0}'.format(self.data['wind'][-1]))
         data_date = self.data['wind'][-1][0].date()
