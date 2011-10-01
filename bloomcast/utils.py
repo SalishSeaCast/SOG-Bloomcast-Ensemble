@@ -6,6 +6,7 @@ from __future__ import absolute_import
 # Standard library:
 from datetime import date
 from datetime import datetime
+import logging
 import re
 from StringIO import StringIO
 from xml.etree import cElementTree as ElementTree
@@ -13,6 +14,9 @@ from xml.etree import cElementTree as ElementTree
 import requests
 # YAML library:
 import yaml
+
+
+log = logging.getLogger('bloomcast.' + __name__)
 
 
 class _Container(object): pass
@@ -31,11 +35,13 @@ class Config(object):
         infile_dict = self._read_SOG_infile()
         self.run_start_date = infile_dict['run_start_date']
         self.climate = _Container()
+#         self.climate.__dict__.update(config_dict['climate'])
         for attr in 'url params'.split():
             setattr(self.climate, attr, config_dict['climate'][attr])
         self._load_meteo_config(config_dict, infile_dict)
         self._load_wind_config(config_dict, infile_dict)
         self.rivers = _Container()
+#         self.rivers.__dict__.update(config_dict['rivers'])
         for attr in 'disclaimer_url accept_disclaimer data_url params'.split():
             setattr(self.rivers, attr, config_dict['rivers'][attr])
         self._load_rivers_config(config_dict, infile_dict)
@@ -45,6 +51,7 @@ class Config(object):
         """Load Config values for logging.
         """
         self.logging = _Container()
+#         self.logging.__dict__.update(config_dict['logging'])
         for attr in 'debug toaddrs use_test_smtpd'.split():
             setattr(self.logging, attr, config_dict['logging'][attr])
 
@@ -170,17 +177,21 @@ class ForcingDataProcessor(object):
         Days without any data are deleted first, then days without
         data at 23:00 are deleted.
         """
-        while True:
+        while self.data[qty]:
             if any([self._valuegetter(data[1])
                     for data in self.data[qty][-24:]]):
                 break
             else:
                 del self.data[qty][-24:]
-        while True:
+        else:
+            raise ValueError('Forcing data list is empty')
+        while self.data[qty]:
             if self._valuegetter(self.data[qty][-1][1]) is None:
                 del self.data[qty][-24:]
             else:
                 break
+        else:
+            raise ValueError('Forcing data list is empty')
 
 
     def patch_data(self, qty):
