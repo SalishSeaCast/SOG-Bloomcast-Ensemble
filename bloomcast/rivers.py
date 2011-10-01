@@ -16,7 +16,7 @@ from utils import Config
 from utils import ForcingDataProcessor
 
 
-log = logging.getLogger('bloomcast.' + __name__)
+log = logging.getLogger('bloomcast.rivers')
 
 
 class RiversProcessor(ForcingDataProcessor):
@@ -50,31 +50,36 @@ class RiversProcessor(ForcingDataProcessor):
         """
         params = self.config.rivers.params
         params['stn'] = getattr(self.config.rivers, river).station_id
-        params.update(self._date_params())
+        today = date.today()
+        start_year = (today.year if self.config.run_start_date.year == today.year
+                      else today.year - 1)
+        params.update(self._date_params(start_year))
         with requests.session() as s:
             s.post(self.config.rivers.disclaimer_url,
                    data=self.config.rivers.accept_disclaimer)
             response = s.get(self.config.rivers.data_url, params=params)
+            log.debug('got {0} river data for {1}-01-01 to {2:%Y-%m-%d}'
+                      .format(river, start_year, self.config.data_date))
         soup = BeautifulSoup(response)
         self.raw_data = soup.find('table', id='dataTable')
 
 
-    def _date_params(self):
-        """Return a dict of the components of today's date.
+    def _date_params(self, start_year):
+        """Return a dict of the components of start and end dates for
+        river flow data based on the specified start year.
 
         The keys are the component names in the format required for
         requests to the :kbd:`wateroffice.gc.ca` site.
 
-        The values are today's date components as integers.
+        The values are date components as integers.
         """
-        today = date.today()
         params = {
-            'syr': today.year,
-            'smo': today.month,
+            'syr': start_year,
+            'smo': 1,
             'sday': 1,
-            'eyr': today.year,
-            'emo': today.month,
-            'eday': today.day,
+            'eyr': self.config.data_date.year,
+            'emo': self.config.data_date.month,
+            'eday': self.config.data_date.day + 1,
         }
         return params
 
