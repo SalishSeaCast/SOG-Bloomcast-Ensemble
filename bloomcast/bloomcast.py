@@ -53,7 +53,7 @@ def configure_logging(config):
         toaddrs=config.logging.toaddrs,
         subject='Warning Message from SoG-bloomcast')
     email.setFormatter(formatter)
-    email.setLevel(logging.INFO)
+    email.setLevel(logging.WARNING)
     log.addHandler(email)
 
 
