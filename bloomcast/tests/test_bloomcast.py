@@ -66,6 +66,7 @@ class TestConfig(unittest.TestCase):
 
     def _make_mock_infile_dict(self):
         mock_infile_dict = {
+            'run_start_date': None,
             'forcing_data_files': {
                 'air_temperature': None,
                 'relative_humidity': None,
@@ -314,6 +315,37 @@ class TestForcingDataProcessor(unittest.TestCase):
         self.assertEqual(
             processor.data['air_temperature'][2],
             (datetime(2011, 9, 25, 11, 0, 0), 225.0))
+
+
+class TestClimateDataProcessor(unittest.TestCase):
+    """Unit tests for ClimateDataProcessor object.
+    """
+    def _get_target_class(self):
+        from wind import ClimateDataProcessor
+        return ClimateDataProcessor
+
+
+    def _make_one(self, *args, **kwargs):
+        return self._get_target_class()(*args, **kwargs)
+
+
+    def _make_mock_config(self):
+        class _Container(object): pass
+        mock_config = _Container()
+        mock_config.climate = _Container()
+        mock_config.climate.params = _Container()
+        mock_config.climate.wind = _Container()
+        mock_config.climate.wind.station_id = _Container()
+        return mock_config
+
+
+    def test_(self):
+        """
+        """
+        mock_config = self._make_mock_config()
+        processor = self._make_one(mock_config, Mock(name='data_readers'))
+        processor.get_climate_data('wind')
+        processor._date_params.assert_called_once_with()
 
 
 class TestWindProcessor(unittest.TestCase):
