@@ -21,6 +21,7 @@ def run(config_file):
     config = Config()
     config.load_config(config_file)
     configure_logging(config)
+    log.debug('run start date is {0:%Y-%m-%d}'.format(config.run_start_date))
     wind = WindProcessor(config)
     config.data_date = wind.make_forcing_data_file()
     log.debug('based on wind data run data date is {0:%Y-%m-%d}'

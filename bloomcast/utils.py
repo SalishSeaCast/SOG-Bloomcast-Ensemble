@@ -29,6 +29,7 @@ class Config(object):
         self._load_logging_config(config_dict)
         self.infile = config_dict['infile']
         infile_dict = self._read_SOG_infile()
+        self.run_start_date = infile_dict['run_start_date']
         self.climate = _Container()
         for attr in 'url params'.split():
             setattr(self.climate, attr, config_dict['climate'][attr])
@@ -121,12 +122,27 @@ class Config(object):
                 infile_key = split_line[0].strip('"')
                 if infile_key in forcing_data_files:
                     result_key = forcing_data_files[infile_key]
-                    value = split_line[1].strip().strip('"').rstrip('\n')
-                    if not value:
-                        # Value on line after key
-                        value = sep.split(infile[i+1])[0].strip().strip('"')
+                    value = self._get_SOG_infile_value(
+                        split_line, infile, sep, i)
                     infile_dict['forcing_data_files'][result_key] = value
+                elif infile_key == 'init datetime':
+                    result_key = 'run_start_date'
+                    value = self._get_SOG_infile_value(
+                        split_line, infile, sep, i)
+                    infile_dict[result_key] = datetime.strptime(
+                        value, '%Y-%m-%d %H:%M:%S')
         return infile_dict
+
+
+    def _get_SOG_infile_value(self, split_line, infile, sep, i):
+        """Return the value from a SOG infile key, value, comment
+        triplet that may be split over multiple lines.
+        """
+        value = split_line[1].strip().strip('"').rstrip('\n')
+        if not value:
+            # Value on line after key
+            value = sep.split(infile[i+1])[0].strip().strip('"')
+        return value
 
 
 class ForcingDataProcessor(object):
