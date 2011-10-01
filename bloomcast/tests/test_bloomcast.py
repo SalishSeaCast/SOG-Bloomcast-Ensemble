@@ -5,6 +5,7 @@ from BeautifulSoup import BeautifulSoup
 from datetime import date
 from datetime import datetime
 from mock import DEFAULT
+from mock import MagicMock
 from mock import Mock
 from mock import patch
 import unittest2 as unittest
@@ -70,6 +71,8 @@ class TestConfig(unittest.TestCase):
                 'relative_humidity': None,
                 'cloud_fraction': None,
                 'wind': None,
+                'major_river': None,
+                'minor_river': None,
             },
         }
         return mock_infile_dict
@@ -81,8 +84,10 @@ class TestConfig(unittest.TestCase):
         test_url = 'http://example.com/climateData/bulkdata_e.html'
         mock_config_dict = self._make_mock_config_dict()
         mock_config_dict['climate']['url'] = test_url
+        mock_infile_dict = self._make_mock_infile_dict()
         config = self._make_one()
         config._read_yaml_file = Mock(return_value=mock_config_dict)
+        config._read_SOG_infile = Mock(return_value=mock_infile_dict)
         config.load_config('config_file')
         self.assertEqual(config.climate.url, test_url)
 
@@ -97,8 +102,10 @@ class TestConfig(unittest.TestCase):
         }
         mock_config_dict = self._make_mock_config_dict()
         mock_config_dict['climate']['params'] = test_params
+        mock_infile_dict = self._make_mock_infile_dict()
         config = self._make_one()
         config._read_yaml_file = Mock(return_value=mock_config_dict)
+        config._read_SOG_infile = Mock(return_value=mock_infile_dict)
         config.load_config('config_file')
         self.assertEqual(config.climate.params, test_params)
 
@@ -154,6 +161,42 @@ class TestConfig(unittest.TestCase):
         config._read_yaml_file = Mock(return_value=mock_config_dict)
         config._load_wind_config(mock_config_dict, mock_infile_dict)
         self.assertEqual(config.climate.wind.station_id, test_station_id)
+
+
+    def test_read_SOG_infile_multi_blanks(self):
+        """_read_SOG_infile works for multiple blanks between key and filename
+        """
+        config = self._make_one()
+        config.infile = 'foo'
+        with patch('utils.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(name='magic mock', spec=file)
+            mock_open.return_value.__enter__.return_value = [
+                '"wind"  "Sandheads_wind"  "wind forcing data"\n',
+            ]
+            infile_dict = config._read_SOG_infile()
+        self.assertEqual(
+            infile_dict,
+            {'forcing_data_files': {
+                'wind': 'Sandheads_wind'
+            }})
+
+
+    def test_read_SOG_infile_newlines(self):
+        """_read_SOG_infile works for newline between key and filename
+        """
+        config = self._make_one()
+        config.infile = 'foo'
+        with patch('utils.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(name='magic mock', spec=file)
+            mock_open.return_value.__enter__.return_value = [
+                '"wind"  \n  "Sandheads_wind"  \n  "wind forcing data"\n',
+            ]
+            infile_dict = config._read_SOG_infile()
+        self.assertEqual(
+            infile_dict,
+            {'forcing_data_files': {
+                'wind': 'Sandheads_wind'
+            }})
 
 
 class TestForcingDataProcessor(unittest.TestCase):

@@ -121,14 +121,11 @@ class Config(object):
                 infile_key = split_line[0].strip('"')
                 if infile_key in forcing_data_files:
                     result_key = forcing_data_files[infile_key]
-                    value = split_line[1].strip('"').rstrip('\n')
-                    if value:
-                        # Value on same line as key
-                        infile_dict['forcing_data_files'][result_key] = value
-                    else:
+                    value = split_line[1].strip().strip('"').rstrip('\n')
+                    if not value:
                         # Value on line after key
-                        infile_dict['forcing_data_files'][result_key] = (
-                            sep.split(infile[i+1])[0].strip().strip('"'))
+                        value = sep.split(infile[i+1])[0].strip().strip('"')
+                    infile_dict['forcing_data_files'][result_key] = value
         return infile_dict
 
 
