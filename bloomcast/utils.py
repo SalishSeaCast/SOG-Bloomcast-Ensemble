@@ -6,6 +6,7 @@ from __future__ import absolute_import
 # Standard library:
 from datetime import date
 from datetime import datetime
+from datetime import timedelta
 import logging
 import re
 from StringIO import StringIO
@@ -252,19 +253,24 @@ class ClimateDataProcessor(ForcingDataProcessor):
         self.raw_data = root.findall('stationdata')
 
 
-    def _date_params(self):
-        """Return a dict of the components of today's date.
+    def _date_params(self, data_month=None):
+        """Return a dict of the components of the specified data month
+        date.
 
         The keys are the component names in the format required for
         requests to the :kbd:`climate.weatheroffice.gc.ca` site.
 
-        The values are today's date components as integers.
+        The values are the data month date components as integers,
+        with the day set to 1.
+
+        The value of data_month defaults to yesterday's date.
         """
-        today = date.today()
+        if not data_month:
+            data_month = date.today() - timedelta(days=1)
         params = {
-            'Year': today.year,
-            'Month': today.month,
-            'Day': today.day,
+            'Year': data_month.year,
+            'Month': data_month.month,
+            'Day': 1,
         }
         return params.iteritems()
 
