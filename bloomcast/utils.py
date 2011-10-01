@@ -36,15 +36,11 @@ class Config(object):
         infile_dict = self._read_SOG_infile()
         self.run_start_date = infile_dict['run_start_date']
         self.climate = _Container()
-#         self.climate.__dict__.update(config_dict['climate'])
-        for attr in 'url params'.split():
-            setattr(self.climate, attr, config_dict['climate'][attr])
+        self.climate.__dict__.update(config_dict['climate'])
         self._load_meteo_config(config_dict, infile_dict)
         self._load_wind_config(config_dict, infile_dict)
         self.rivers = _Container()
-#         self.rivers.__dict__.update(config_dict['rivers'])
-        for attr in 'disclaimer_url accept_disclaimer data_url params'.split():
-            setattr(self.rivers, attr, config_dict['rivers'][attr])
+        self.rivers.__dict__.update(config_dict['rivers'])
         self._load_rivers_config(config_dict, infile_dict)
 
 
@@ -52,20 +48,17 @@ class Config(object):
         """Load Config values for logging.
         """
         self.logging = _Container()
-#         self.logging.__dict__.update(config_dict['logging'])
-        for attr in 'debug toaddrs use_test_smtpd'.split():
-            setattr(self.logging, attr, config_dict['logging'][attr])
+        self.logging.__dict__.update(config_dict['logging'])
 
 
     def _load_meteo_config(self, config_dict, infile_dict):
         """Load Config values for meteorological forcing data.
         """
         self.climate.meteo = _Container()
-        meteo = config_dict['climate']['meteo']
-        for attr in 'station_id quantities'.split():
-            setattr(self.climate.meteo, attr, meteo[attr])
+        self.climate.meteo.__dict__.update(
+            config_dict['climate']['meteo'])
         self.climate.meteo.cloud_fraction_mapping = self._read_yaml_file(
-            meteo['cloud_fraction_mapping'])
+            config_dict['climate']['meteo']['cloud_fraction_mapping'])
         forcing_data_files = infile_dict['forcing_data_files']
         self.climate.meteo.output_files = {}
         for qty in self.climate.meteo.quantities:
