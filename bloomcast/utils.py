@@ -272,7 +272,26 @@ class ClimateDataProcessor(ForcingDataProcessor):
             'Month': data_month.month,
             'Day': 1,
         }
-        return params.iteritems()
+        return params
+
+
+    def _get_data_months(self):
+        """Return a list of date objects that are the 1st day of the
+        months for which we want to get data from Environment Canada.
+
+        The list starts with January of the SOG run start date year,
+        and ends with the current month, wrapping through the end of
+        the run start date year if necessary.
+        """
+        today = date.today()
+        this_year = today.year
+        data_months = [date(this_year, month, 1)
+                       for month in xrange(1, today.month + 1)]
+        if self.config.run_start_date.year != this_year:
+            last_year = self.config.run_start_date.year
+            data_months = [date(last_year, month, 1)
+                           for month in xrange(1, 13)] + data_months
+        return data_months
 
 
     def process_data(self, qty, end_date=date.today()):
