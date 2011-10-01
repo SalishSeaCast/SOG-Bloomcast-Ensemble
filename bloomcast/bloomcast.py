@@ -46,7 +46,8 @@ def configure_logging(config):
     if config.logging.debug:
         console.setLevel(logging.DEBUG)
     log.addHandler(console)
-    mailhost = ('localhost', 1025) if config.logging.use_test_smtpd else 'localhost'
+    mailhost = (('localhost', 1025) if config.logging.use_test_smtpd
+                else 'localhost')
     email = logging.handlers.SMTPHandler(
         mailhost, fromaddr='SoG-bloomcast@eos.ubc.ca',
         toaddrs=config.logging.toaddrs,
