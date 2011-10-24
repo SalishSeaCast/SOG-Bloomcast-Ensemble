@@ -196,6 +196,7 @@ class ForcingDataProcessor(object):
             if self._valuegetter(data[1]) is None:
                 gap_start = i if gap_start is None else gap_start
                 gap_end = i
+                log.debug('{0} data patched for {1[0]}'.format(qty, data))
             elif gap_start is not None:
                 self.interpolate_values(qty, gap_start, gap_end)
                 gap_start = gap_end = None

@@ -240,7 +240,10 @@ class TestForcingDataProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 11, 0, 0), 235.0),
         ]
         processor.interpolate_values = Mock(name='interpolate_values')
-        processor.patch_data('air_temperature')
+        with patch('utils.log') as mock_log:
+            processor.patch_data('air_temperature')
+        mock_log.debug.assert_called_once_with(
+            'air_temperature data patched for 2011-09-25 10:00:00')
         processor.interpolate_values.assert_called_once_with(
             'air_temperature', 1, 1)
 
@@ -257,7 +260,12 @@ class TestForcingDataProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 12, 0, 0), 230.0),
         ]
         processor.interpolate_values = Mock()
-        processor.patch_data('air_temperature')
+        with patch('utils.log') as mock_log:
+            processor.patch_data('air_temperature')
+        self.assertEqual(
+            mock_log.debug.call_args_list,
+            [(('air_temperature data patched for 2011-09-25 10:00:00',),),
+             (('air_temperature data patched for 2011-09-25 11:00:00',),)])
         processor.interpolate_values.assert_called_once_with(
             'air_temperature', 1, 2)
 
@@ -275,7 +283,13 @@ class TestForcingDataProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 14, 0, 0), 250.0),
         ]
         processor.interpolate_values = Mock()
-        processor.patch_data('air_temperature')
+        with patch('utils.log') as mock_log:
+            processor.patch_data('air_temperature')
+        self.assertEqual(
+            mock_log.debug.call_args_list,
+            [(('air_temperature data patched for 2011-09-25 10:00:00',),),
+             (('air_temperature data patched for 2011-09-25 11:00:00',),),
+             (('air_temperature data patched for 2011-09-25 13:00:00',),)])
         self.assertEqual(
             processor.interpolate_values.call_args_list,
             [(('air_temperature', 1, 2),), (('air_temperature', 4, 4),)])
@@ -584,9 +598,12 @@ class TestRiverProcessor(unittest.TestCase):
             (date(2011, 10, 25), 4500.0),
         ]
         processor.interpolate_values = Mock(name='interpolate_values')
-        processor.patch_data('major')
+        with patch('rivers.log') as mock_log:
+            processor.patch_data('major')
         self.assertEqual(
             processor.data['major'][1], (date(2011, 10, 24), None))
+        mock_log.debug.assert_called_once_with(
+            'major river data patched for 2011-10-24')
         processor.interpolate_values.assert_called_once_with(
             'major', 1, 1)
 
@@ -600,10 +617,15 @@ class TestRiverProcessor(unittest.TestCase):
             (date(2011, 10, 26), 4600.0),
         ]
         processor.interpolate_values = Mock(name='interpolate_values')
-        processor.patch_data('major')
+        with patch('rivers.log') as mock_log:
+            processor.patch_data('major')
         self.assertEqual(
             processor.data['major'][1:3],
             [(date(2011, 10, 24), None), (date(2011, 10, 25), None)])
+        self.assertEqual(
+            mock_log.debug.call_args_list,
+            [(('major river data patched for 2011-10-24',),),
+             (('major river data patched for 2011-10-25',),),])
         processor.interpolate_values.assert_called_once_with(
             'major', 1, 2)
 
@@ -619,12 +641,18 @@ class TestRiverProcessor(unittest.TestCase):
             (date(2011, 10, 29), 4200.0),
         ]
         processor.interpolate_values = Mock(name='interpolate_values')
-        processor.patch_data('major')
+        with patch('rivers.log') as mock_log:
+            processor.patch_data('major')
         self.assertEqual(
             processor.data['major'][1], (date(2011, 10, 24), None))
         self.assertEqual(
             processor.data['major'][4:6],
             [(date(2011, 10, 27), None), (date(2011, 10, 28), None)])
+        self.assertEqual(
+            mock_log.debug.call_args_list,
+            [(('major river data patched for 2011-10-24',),),
+             (('major river data patched for 2011-10-27',),),
+             (('major river data patched for 2011-10-28',),),])
         self.assertEqual(
             processor.interpolate_values.call_args_list,
             [(('major', 1, 1),), (('major', 4, 5),)])
