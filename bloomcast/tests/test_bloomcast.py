@@ -231,7 +231,7 @@ class TestForcingDataProcessor(unittest.TestCase):
 
 
     def test_patch_data_1_hour_gap(self):
-        """patch_data correctly interpolates value for 1 hour gap in data
+        """patch_data correctly flags 1 hour gap in data for interpolation
         """
         processor = self._make_one(Mock(name='config'))
         processor.data['air_temperature'] = [
@@ -239,14 +239,14 @@ class TestForcingDataProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 10, 0, 0), None),
             (datetime(2011, 9, 25, 11, 0, 0), 235.0),
         ]
-        processor.interpolate_values = Mock()
+        processor.interpolate_values = Mock(name='interpolate_values')
         processor.patch_data('air_temperature')
         processor.interpolate_values.assert_called_once_with(
             'air_temperature', 1, 1)
 
 
     def test_patch_data_2_hour_gap(self):
-        """patch_data correctly interpolates value for 2 hour gap in data
+        """patch_data correctly flags 2 hour gap in data for interpolation
         """
         processor = self._make_one(Mock(name='config'))
         processor.data = {}
@@ -263,7 +263,7 @@ class TestForcingDataProcessor(unittest.TestCase):
 
 
     def test_patch_data_2_gaps(self):
-        """patch_data correctly interpolates value for 2 gaps in data
+        """patch_data correctly flags 2 gaps in data for interpolation
         """
         processor = self._make_one(Mock(name='config'))
         processor.data['air_temperature'] = [
@@ -282,7 +282,7 @@ class TestForcingDataProcessor(unittest.TestCase):
 
 
     def test_interpolate_values_1_hour_gap(self):
-        """interpolates correctly interpolates value for 1 hour gap in data
+        """interpolate_values correctly interpolates value for 1 hour gap in data
         """
         processor = self._make_one(Mock(name='config'))
         processor.data = {}
@@ -564,7 +564,7 @@ class TestRiverProcessor(unittest.TestCase):
 
 
     def test_format_data(self):
-        """format_data generator returns correctly formatted forcing data file line
+        """format_data generator returns formatted forcing data file line
         """
         rivers = self._make_one(Mock(name='config'))
         rivers.data['major'] = [
@@ -572,3 +572,91 @@ class TestRiverProcessor(unittest.TestCase):
         ]
         line = rivers.format_data('major').next()
         self.assertEqual(line, '2011 09 27 4.200000e+03\n')
+
+
+
+    def test_patch_data_1_day_gap(self):
+        """patch_data correctly flags 1 day gap in data for interpolation
+        """
+        processor = self._make_one(Mock(name='config'))
+        processor.data['major'] = [
+            (date(2011, 10, 23), 4300.0),
+            (date(2011, 10, 25), 4500.0),
+        ]
+        processor.interpolate_values = Mock(name='interpolate_values')
+        processor.patch_data('major')
+        self.assertEqual(
+            processor.data['major'][1], (date(2011, 10, 24), None))
+        processor.interpolate_values.assert_called_once_with(
+            'major', 1, 1)
+
+
+    def test_patch_data_2_day_gap(self):
+        """patch_data correctly flags 2 day gap in data for interpolation
+        """
+        processor = self._make_one(Mock(name='config'))
+        processor.data['major'] = [
+            (date(2011, 10, 23), 4300.0),
+            (date(2011, 10, 26), 4600.0),
+        ]
+        processor.interpolate_values = Mock(name='interpolate_values')
+        processor.patch_data('major')
+        self.assertEqual(
+            processor.data['major'][1:3],
+            [(date(2011, 10, 24), None), (date(2011, 10, 25), None)])
+        processor.interpolate_values.assert_called_once_with(
+            'major', 1, 2)
+
+
+    def test_patch_data_2_gaps(self):
+        """patch_data correctly flags 2 gaps in data for interpolation
+        """
+        processor = self._make_one(Mock(name='config'))
+        processor.data['major'] = [
+            (date(2011, 10, 23), 4300.0),
+            (date(2011, 10, 25), 4500.0),
+            (date(2011, 10, 26), 4500.0),
+            (date(2011, 10, 29), 4200.0),
+        ]
+        processor.interpolate_values = Mock(name='interpolate_values')
+        processor.patch_data('major')
+        self.assertEqual(
+            processor.data['major'][1], (date(2011, 10, 24), None))
+        self.assertEqual(
+            processor.data['major'][4:6],
+            [(date(2011, 10, 27), None), (date(2011, 10, 28), None)])
+        self.assertEqual(
+            processor.interpolate_values.call_args_list,
+            [(('major', 1, 1),), (('major', 4, 5),)])
+
+
+    def test_interpolate_values_1_day_gap(self):
+        """interpolate_values correctly interpolates value for 1 day gap in data
+        """
+        processor = self._make_one(Mock(name='config'))
+        processor.data = {}
+        processor.data['major'] = [
+            (date(2011, 10, 23), 4300.0),
+            (date(2011, 10, 24), None),
+            (date(2011, 10, 25), 4500.0),
+        ]
+        processor.interpolate_values('major', 1, 1)
+        self.assertEqual(
+            processor.data['major'][1], (date(2011, 10, 24), 4400.0))
+
+
+    def test_interpolate_values_2_day_gap(self):
+        """interpolate_values correctly interpolates value for 2 day gap in data
+        """
+        processor = self._make_one(Mock(name='config'))
+        processor.data = {}
+        processor.data['major'] = [
+            (date(2011, 10, 23), 4300.0),
+            (date(2011, 10, 24), None),
+            (date(2011, 10, 25), None),
+            (date(2011, 10, 26), 4600.0),
+        ]
+        processor.interpolate_values('major', 1, 2)
+        self.assertEqual(
+            processor.data['major'][1:3],
+            [(date(2011, 10, 24), 4400.0), (date(2011, 10, 25), 4500.0)])

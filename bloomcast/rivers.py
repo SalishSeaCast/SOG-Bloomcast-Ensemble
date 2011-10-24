@@ -4,6 +4,7 @@ from __future__ import absolute_import
 # Standard library:
 from datetime import date
 from datetime import datetime
+from datetime import timedelta
 from itertools import izip
 import logging
 import sys
@@ -107,6 +108,7 @@ class RiversProcessor(ForcingDataProcessor):
                 flow_sum = float(flow)
                 count = 1
         self.data[qty].append((data_day, flow_sum / count))
+        self.patch_data(qty)
 
 
     def read_datestamp(self, string):
@@ -114,6 +116,26 @@ class RiversProcessor(ForcingDataProcessor):
         it as a date instance.
         """
         return datetime.strptime(string, '%Y-%m-%d %H:%M:%S').date()
+
+
+    def patch_data(self, qty):
+        """Patch missing data values by interpolation.
+        """
+        i = 0
+        data = self.data[qty]
+        while True:
+            try:
+                delta = (data[i + 1][0] - data[i][0]).days
+            except IndexError:
+                break
+            if delta > 1:
+                gap_start = i + 1
+                for j in xrange(1, delta):
+                    data.insert(i + j,
+                                (data[i][0] + j * timedelta(days=1), None))
+                gap_end = i + delta - 1
+                self.interpolate_values(qty, gap_start, gap_end)
+            i += delta
 
 
     def format_data(self, qty):
