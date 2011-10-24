@@ -131,8 +131,10 @@ class RiversProcessor(ForcingDataProcessor):
             if delta > 1:
                 gap_start = i + 1
                 for j in xrange(1, delta):
-                    data.insert(i + j,
-                                (data[i][0] + j * timedelta(days=1), None))
+                    missing_date = data[i][0] + j * timedelta(days=1)
+                    data.insert(i + j, (missing_date, None))
+                    log.debug('{0} river data patched for {1}'
+                              .format(qty, missing_date))
                 gap_end = i + delta - 1
                 self.interpolate_values(qty, gap_start, gap_end)
             i += delta
