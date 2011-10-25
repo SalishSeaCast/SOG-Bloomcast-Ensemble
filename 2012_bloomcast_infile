@@ -16,6 +16,7 @@
 ! End of run date/time
 "end datetime"	"2012-05-01 00:49:00"	"end of run date/time"
 "dt"		900	 "time step [s]"
+"chem_dt"	900	 "internal chemistry time step [s]"
 ! Implicit solver iteration limit
 "max_iter"	30	"implicit solver max iterations"
 
@@ -37,8 +38,11 @@
   "../SOG-initial/stratogem_nuts/Nuts-39-2001-09-19.sog"
   "pre-processed nitrate & silicon profile data from STRATOGEM bottles"
 "botl_in"
-  "../SOG-initial/chem/Chem-SOGS-2010-73.sog"
+  "N/A"
   "IOS bottle data file"
+"chem_in"
+  "../SOG-initial/chem/Chem-SOGS-2010-73.sog"
+  "IOS chemistry bottle data file"
 "initial chl split"
   0.33d0 0.33d0 0.33d0
   "Ratios of 3 classes of phytoplankton based on chlorophyl (micro, nano, pico)"
@@ -98,14 +102,12 @@
 "Silicon"
   54.0d0 0.d0 0.d0 0.d0 0.d0 0.d0 0.d0
   "Silicon (constant)"
-!--- BEGIN CHEMISTRY BOTTOM BOUNDARY CONDITIONS
 "DIC"
   2124.2233d0 0.d0 0.d0 0.d0 0.d0 0.d0 0.d0
   "Dissolved Inorganic Carbon (constant)"
 "Oxy"
   148.3763d0 0.d0 0.d0 0.d0 0.d0 0.d0 0.d0
   "Dissolved Oxygen (constant)"
-!--- END CHEMISTRY BOTTOM BOUNDARY CONDITIONS
 "Ammonium"
   1.0d0 0.d0 0.d0 0.d0 0.d0 0.d0 0.d0
   "Ammonium (constant)"
@@ -399,6 +401,7 @@
 "bSi sink rate"         8d-5       "Biogenic Si detritus sinking rate [m/s]"
 
 ! File names and control variables for forcing data (wind, meteorology, river flows)
+"use average forcing data" "fill" "yes = use average forcing data only; no = fail if insufficient forcing data; fill = use forcing data below to end, then switch to average forcing data"
 "wind"         "Sandheads_wind"  "wind forcing data"
 "air temp"     "YVR_air_temperature"      "air temperature forcing data"
 "cloud"        "YVR_cloud_fraction"      "cloud fraction forcing data"
@@ -407,4 +410,4 @@
 "use river temp"  .true.  "Include cooling/heating effect of major river?"
 "minor river"  "Englishman_flow"  "minor river flow data"
 "minor river integ days"  20  "Days over which to integrate minor river flow"
-! end of file
+"alt minor river" "../SOG-forcing/rivers/NanimoNorm_historic.dat"  "alternative minor river flow data"
