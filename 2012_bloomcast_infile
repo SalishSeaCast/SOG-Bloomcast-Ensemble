@@ -68,19 +68,19 @@
 "noprof"	1		"no. of profiles to print"
 ! *** It would be nice to replace the yr-day and day-sec lists with a list
 ! *** of dates/times for profiles output
-"profday"	303		"yr-day for profile"
-"proftime"	43200.		"day-sec for profile"
+"profday"	60		"yr-day for profile"
+"proftime"	43200.	"day-sec for profile"
 "haloclinefile"	"profiles/halo_2012_bloomcast.out"	"file for halocline results"
 "profile_base"	"profiles/2012_bloomcast"	"profile file base (datetime will be added)"
 ! Hoffmueller diagram output (a collection of profiles at time intervals
 ! for contour or colourmap plotting)
 "Hoffmueller file"	"profiles/hoff_2012_bloomcast.dat"	"file for Hoffmueller results"
-"Hoffmueller start yr"	2004			"yr to start Hoff output"
-"Hoffmueller start day"	294			"yr-day to start Hoff output"
-"Hoffmueller start sec"	43200			"day-sec to start (midnight=0)"
-"Hoffmueller end yr"	2004			"yr to end Hoff output"
-"Hoffmueller end day"	305			"yr-day to end Hoff output"
-"Hoffmueller end sec"	43200			"day-sec to end (midnight=0)"
+"Hoffmueller start yr"	2011		"yr to start Hoff output"
+"Hoffmueller start day"	262			"yr-day to start Hoff output"
+"Hoffmueller start sec"	43200		"day-sec to start (midnight=0)"
+"Hoffmueller end yr"	2012		"yr to end Hoff output"
+"Hoffmueller end day"	122			"yr-day to end Hoff output"
+"Hoffmueller end sec"	43200		"day-sec to end (midnight=0)"
 "Hoffmueller interval"	1.			"days between Hoff outputs"
 
 ! Physics model parameters:
