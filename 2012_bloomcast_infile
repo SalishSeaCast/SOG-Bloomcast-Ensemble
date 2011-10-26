@@ -44,7 +44,7 @@
   "../SOG-initial/chem/Chem-SOGS-2010-73.sog"
   "IOS chemistry bottle data file"
 "initial chl split"
-  0.33d0 0.33d0 0.33d0
+ 1.0d0 0.d0 0.d0
   "Ratios of 3 classes of phytoplankton based on chlorophyl (micro, nano, pico)"
 
 ! Time series output files
@@ -83,15 +83,15 @@
 "Hoffmueller end sec"	43200			"day-sec to end (midnight=0)"
 "Hoffmueller interval"	1.			"days between Hoff outputs"
 
-! Physics model parameters
-! Bottom boundary conditions
+! Physics model parameters:
+! Bottom temperature constant
 "temp_constant"    .false.       "Is bottom temperature constant over time?"
 ! Fit parameters for core variables
 "salinity"
   29.62605865d0 0.10374454d0 -0.03562458d0 0.d0 -0.14156091d0 -0.06348989d0 0.d0
   "Salinity (constant, seasonal and biseasonal components)"
 "temperature"
-  9.3044d0 0.06384430d0 -0.84712324d0 0.d0 -0.05355254d0 -0.05775216d0 0.0292d0
+  9.07d0 -0.088d0 -0.906d0 0.d0 -0.030d0 -0.088d0 0.0d0
   "Temperature (constant, seasonal and biseasonal components)"
 "Phytoplankton"
   0.58316137d0 -0.11206845d0 0.26241523d0 0.d0 0.d0 0.d0 0.d0
@@ -119,20 +119,20 @@
 "Ly"            120.0d3         "Major axis (along-strait) of model domain [m]"
 "openEnd"       .false.         "Use an open basin system (true) or closed system basin (false)"
 ! Turbulence:
-"nu_w_m"        1.5d-4          "internal wave breaking momentum mixing"
-"nu_w_s"        1.5d-5          "internal wave breaking scalar mixing"
+"nu_w_m"        1.0d-4          "internal wave breaking momentum mixing"
+"nu_w_s"        1.0d-5          "internal wave breaking scalar mixing"
 "shear smooth"	0.375d0 0.5d0	"shear diffusivity smoothing parameters"
 ! Fresh water flux:
 "upwell_const"  2.5d-5         "maximum upwelling velocity [m/s]"
 "Qbar"          3624d0         "mean total freshwater"
 "F_SOG"         0.2d0         "exponential for SoG/RI common component of Ft"
 "F_RI"          1.0d0          "exponential for extra SoG term component of Ft"
-"Fw_scale"	11.67d-10       "fresh water scale factor for river flows"
-"Fw_surface"	.false.	       "add all of the fresh water on the surface?"
-"Fw_depth"      3.0d0          "interface thickness"
-"use_Fw_nutrients" .true.      "include influence of Fw nutrients"
-"northern_return_flow_on" .false. "include a return freshwater flow from the north?"
-! Salinity Fit
+"Fw_scale"	11.67d-10		"fresh water scale factor for river flows"
+"Fw_surface"	.false.		"add all of the fresh water on the surface?"
+"Fw_depth"      3.0d0             "interface thickness"
+"use_Fw_nutrients" .false.       "include influence of Fw nutrients"
+"northern_return_flow_on" .false.  "include back flow from the north?"
+! Salinity Fit 
 "cbottom"  30.0d0          "bottom salinity"
 "calpha"   2440.0d0             "alpha"
 "calpha2"  1.0d0              "alpha2"
@@ -152,42 +152,42 @@
 
 ! Biology model parameters:
 ! Model complexity flags:
-"flagellates_on"	.true.	"include flagellates in model?"
-"remineralization"	.true.	"include remineralization loop in model?"
-"use microzooplankton"  .true.  "include microzooplankton in model?"
-"single species light"  .false.  "high light limitation for single species case"
+"flagellates_on"	.false.	"include flagellates in model?"
+"remineralization"	.false.	"include remineralization loop in model?"
+"use microzooplankton"  .false. "include microzooplankton in model?"
+"single species light"  .true.  "high light limitation for single species case"
 ! Zooplankton values:
-! tuned
-"Mesozoo, winter conc"       0.1d0 "Mesozoo background concentration"
-"Mesozoo, summer conc"       0.1d0 "Mesozoo relative sumemr conc"
-"Mesozoo, summer peak mag"   2.5d0 8.0d0 0.0d0 "Height of summer peaks"
-"Mesozoo, summer peak pos"  110.d0 175.d0 280.d0 "Position (days) of summer peaks"
-"Mesozoo, summer peak wid" 25.d0 55.d0 50.d0 "Width of summer peaks"
+! fit from Dower et al
+"Mesozoo, winter conc"   0.073d0 "Mesozoo background concentration uMol/m"
+"Mesozoo, summer conc"       1.0d0 "Mesozoo relative summer conc"
+"Mesozoo, summer peak mag"   0.525d0 0.152d0 0.0318d0 "Height of summer peaks"
+"Mesozoo, summer peak pos"  112.d0 229.d0 316.d0 "Position (days) of summer peaks"
+"Mesozoo, summer peak wid" 53.8d0 51.6d0 14.6d0 "Width of summer peaks"
 ! Alain 0.3 d-1 at 0 degrees = 1.39e-5 at 20 degrees
 "Mesozoo, max ingestion"     1.39d-5 "Mesozoo, maximum intake rate"
 ! Alain 0.75
-"Mesozoo, pred slope"        0.2d0 "Mesozoo, limit on predation"
+"Mesozoo, pred slope"        0.0d0 "Mesozoo, limit on predation"
 ! Alain 2
-"Mesozoo, half-sat"          0.2d0 "Mesozoo, half sat const"
-! easier to catch diatoms and uZoo
-"Mesozoo, pref for diatoms"  0.20d0 "Mesozoo preference for diatoms"
-"Mesozoo, micro pred slope"  0.2d0 "Mesozoo, micro limit of predation"
-"Mesozoo, micro half-sat"    0.2d0 "Mesozoo, micro half-saturation"
-"Mesozoo, pref for nano"      0.15d0 "Mesozoo, preference for nano"
+"Mesozoo, half-sat"          1.0d0 "Mesozoo, half sat const"
+! easier to catch diatoms
+"Mesozoo, pref for diatoms"  1.0d0 "Mesozoo preference for diatoms"
+"Mesozoo, micro pred slope"  0.0d0 "Mesozoo, micro limit of predation"
+"Mesozoo, micro half-sat"    1.0d0 "Mesozoo, micro half-saturation"
+"Mesozoo, pref for nano"      0.0d0 "Mesozoo, preference for nano"
 "Mesozoo, nano pred slope"    0.4d0 "Mesozoo, nano limit of predation"
-"Mesozoo, nano half-sat"      0.4d0 "Mesozoo, nano half-saturation"
-"Mesozoo, pref for PON"      0.35d0 "Mesozoo, preference for PON"
+"Mesozoo, nano half-sat"      0.4d0 "Mesozoo, nano half-saturation" 
+"Mesozoo, pref for PON"      0.0d0 "Mesozoo, preference for PON"
 "Mesozoo, PON pred slope"    0.2d0 "Mesozoo, PON limit of predation"
-"Mesozoo, PON half-sat"      0.2d0 "Mesozoo, PON half-saturation"
-"Mesozoo, pref for uZoo"      0.20d0 "Mesozoo, preference for microzoo"
+"Mesozoo, PON half-sat"      0.2d0 "Mesozoo, PON half-saturation" 
+"Mesozoo, pref for uZoo"      0.0d0 "Mesozoo, preference for microzoo"
 "Mesozoo, uZoo pred slope"    0.2d0 "Mesozoo, microzoo limit of predation"
 "Mesozoo, uZoo half-sat"      0.2d0 "Mesozoo, microzoo half-saturation"
 
 ! mesodinium as zoo rates
 ! 0.24 growth / 0.6 efficiency = 4.63e-6
-"Mesorub, max ingestion"    1.0d-5   "Mesorub, max ingestion"
+"Mesorub, max ingestion"    4.63d-6   "Mesorub, max ingestion"
 "Mesorub, assimilation eff"  0.6d0    "Mesorub, assimiliation efficiency"
-"Mesorub, nano half-sat"     0.4d0    "Mesorub, nano half-saturation"
+"Mesorub, nano half-sat"     0.5d0    "Mesorub, nano half-saturation"
 "Mesorub, nano predslope"    0.2d0    "Mesorub, nano predation slope"
 ! Micro zoo rates
 "Microzoo, max ingestion"    2.32d-5   "Microzoo, max ingestion"
@@ -215,10 +215,12 @@
 
 ! Phytoplankton values:
 ! Hitchcock 1980, 1.4 d-1 for T. nordenskelii at 10degrees
-"Micro, max growth"	4.25d-05      "micro maximum growth (s-1)"
-! Yih 2004, 0.5 d-1 for Mesodinium rubrum (at 15 degrees) and Q10**2
-! tuned up and at Q10**1
-"Nano, max growth"      2.0d-05      "maximum growth (s-1)"
+"Micro, max growth"	5.165d-05      "micro maximum growth (s-1)"
+! Yih 2004, 0.5 d-1 for Mesodinium rubrum (at 15 degrees) and Q10**2 = 1.17d-5
+! Yih 2004, 0.36 d-1 for Meso rub no eating at 15 deg, Q10**1 = 5.91e-6
+! assume Yih figures are net growth... add in the Nat Mort. = 8.21e-6
+! add more 'cause it must be
+"Nano, max growth"      1.2d-05      "maximum growth (s-1)"
 ! a guess 1.5 d-1
 "Pico, max growth"      1.74d-05      "pico maximum growth (s-1)"
 ! Durbin, 1974 3.3 lg/s for T. nordenskelii at 10 degrees
@@ -228,32 +230,31 @@
 ! small
 "Pico, I_opt"           10.d0          "Pico, optimum light"
 ! Durbin, 1974 T. nordenskelli cannot grow at 18 degrees
-! general diatoms increase this
-"Micro, max temp"       25.d0          "Micro, max temp (oC)"
+"Micro, max temp"       18.d0          "Micro, max temp (oC)"
 ! Mesodinium, Cloern 1977
 "Nano, max temp"        28.d0          "Nano, max temp (oC)"
 "Pico, max temp"        35.d0          "Pico, max temp (oC)"
 ! equal growth at 10 and 15 so range down 8 (which Q10 should be about const)
-"Micro, temp range"     15.d0           "Micro, temp range (oC)"
+"Micro, temp range"     8.d0           "Micro, temp range (oC)"
 ! starts turning over earlier
 "Nano, temp range"      12.d0           "Nano, temp range (oC)"
 "Pico, temp range"       1.d0           "Pico, temp range (oC)"
 ! 1 for T. n.  but 2 is better for S.c.
 "Micro, Q10 exp"        1.d0           "Micro, temp Q10 exp"
-! Cloern 1977 data 2.0
-! not working try 1.0
+! Cloern 1977 data **2
+! that for the chlorophytt, lets try **1 for Meso rub
 "Nano, Q10 exp"         1.d0           "Nano, temp Q10 exp"
 "Pico, Q10 exp"         1.d0           "Pico, temp Q10 exp"
 ! set gamma loss to 0 for now
 "Micro, gamma loss"	0.d0          "Micro, gamma loss"
 "Nano, gamma loss"	0.d0          "Nano, gamma loss"
 "Pico, gamma loss"	0.d0          "Pico, gamma loss"
-"Micro, NO3 k"		0.5d0       "Micro, NO3 k"
-"Nano, NO3 k"		0.3d0       "Nano, NO3 k"
-"Pico, NO3 k"		0.05d0       "Pico, NO3 k"
-"Micro, kapa"		1.0d0       "Micro, kapa"
-"Nano, kapa"		0.6d0       "Nano, kapa"
-"Pico, kapa"		0.2d0       "Pico, kapa"
+"Micro, NO3 k"		0.5d0          "Micro, NO3 k"
+"Nano, NO3 k"		0.3d0          "Nano, NO3 k"
+"Pico, NO3 k"		0.3d0          "Pico, NO3 k"
+"Micro, kapa"		1.0d0          "Micro, kapa"
+"Nano, kapa"		0.6d0          "Nano, kapa"
+"Pico, kapa"		0.6d0          "Pico, kapa"
 "Micro, NH inhib"	0.d0           "Micro, NH inhib"
 "Nano, NH inhib"	0.d0           "Nano, NH inhib"
 "Pico, NH inhib"	0.d0           "Pico, NH inhib"
@@ -263,10 +264,11 @@
 "Micro, N_x"		0.d0           "Micro, N_x"
 "Nano, N_x"		0.d0           "Nano, N_x"
 "Pico, N_x"		0.d0           "Pico, N_x"
-"Micro, Si ratio"	2.2d0	     "Micro, ratio silicon/nitrogen"
+! NO Si limitation for Kate paper
+"Micro, Si ratio"	0.d0	     "Micro, ratio silicon/nitrogen"
 "Nano, Si ratio"	0.d0	     "Nano, ratio silicon/nitrogen"
 "Pico, Si ratio"	0.d0	     "Pico, ratio silicon/nitrogen"
-"Micro, K Si"           1.d0           "Micro, half-saturation Si"
+"Micro, K Si"           0.d0           "Micro, half-saturation Si"
 "Nano, K Si"            0.d0           "Nano, half-saturation Si"
 "Pico, K Si"            0.d0           "Pico, half-saturation Si"
 "Micro, nat mort"	2.3d-06       "Micro, natural mortality"
