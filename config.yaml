@@ -1,5 +1,7 @@
 # SoG bloomcast configuration file
 
+run_SOG: False
+
 infile: 2012_bloomcast_infile
 
 climate:

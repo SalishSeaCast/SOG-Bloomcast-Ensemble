@@ -32,6 +32,7 @@ class Config(object):
         """
         config_dict = self._read_yaml_file(config_file)
         self._load_logging_config(config_dict)
+        self.run_SOG = config_dict['run_SOG']
         self.infile = config_dict['infile']
         infile_dict = self._read_SOG_infile()
         self.run_start_date = infile_dict['run_start_date']
