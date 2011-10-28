@@ -35,25 +35,29 @@ def run(config_file):
     log.debug('run start date is {0:%Y-%m-%d}'.format(config.run_start_date))
     wind = WindProcessor(config)
     config.data_date = wind.make_forcing_data_file()
-    log.debug('based on wind data run data date is {0:%Y-%m-%d}'
+    log.info('based on wind data run data date is {0:%Y-%m-%d}'
               .format(config.data_date))
     meteo = MeteoProcessor(config)
     meteo.make_forcing_data_files()
     rivers = RiversProcessor(config)
     rivers.make_forcing_data_files()
-    run_SOG(config)
+    if config.run_SOG:
+        run_SOG(config)
+    else:
+        log.info('SOG run skipped')
 
 
 def run_SOG(config):
     """Run SOG.
     """
-    log.debug('SOG run started at {0:%Y-%m-%d %H:%M:%S}'.format(datetime.now())
+    log.info('SOG run started at {0:%Y-%m-%d %H:%M:%S}'.format(datetime.now()))
     with open(config.infile, 'rt') as infile_obj:
         with open(config.infile + '.stdout', 'wt') as stdout_obj:
             SOG = Popen('nice -19 ../SOG-code-ocean/SOG'.split(),
                         stdin=infile_obj, stdout=stdout_obj, stderr=STDOUT)
             SOG.wait()
-    log.debug('SOG run finished at {0:%Y-%m-%d %H:%M:%S}'.format(datetime.now()))
+    log.info(
+        'SOG run finished at {0:%Y-%m-%d %H:%M:%S}'.format(datetime.now()))
 
 
 def configure_logging(config):
