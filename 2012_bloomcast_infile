@@ -132,7 +132,7 @@
 "Fw_depth"      3.0d0             "interface thickness"
 "use_Fw_nutrients" .false.       "include influence of Fw nutrients"
 "northern_return_flow_on" .false.  "include back flow from the north?"
-! Salinity Fit 
+! Salinity Fit
 "cbottom"  30.0d0          "bottom salinity"
 "calpha"   2440.0d0             "alpha"
 "calpha2"  1.0d0              "alpha2"
@@ -175,10 +175,10 @@
 "Mesozoo, micro half-sat"    1.0d0 "Mesozoo, micro half-saturation"
 "Mesozoo, pref for nano"      0.0d0 "Mesozoo, preference for nano"
 "Mesozoo, nano pred slope"    0.4d0 "Mesozoo, nano limit of predation"
-"Mesozoo, nano half-sat"      0.4d0 "Mesozoo, nano half-saturation" 
+"Mesozoo, nano half-sat"      0.4d0 "Mesozoo, nano half-saturation"
 "Mesozoo, pref for PON"      0.0d0 "Mesozoo, preference for PON"
 "Mesozoo, PON pred slope"    0.2d0 "Mesozoo, PON limit of predation"
-"Mesozoo, PON half-sat"      0.2d0 "Mesozoo, PON half-saturation" 
+"Mesozoo, PON half-sat"      0.2d0 "Mesozoo, PON half-saturation"
 "Mesozoo, pref for uZoo"      0.0d0 "Mesozoo, preference for microzoo"
 "Mesozoo, uZoo pred slope"    0.2d0 "Mesozoo, microzoo limit of predation"
 "Mesozoo, uZoo half-sat"      0.2d0 "Mesozoo, microzoo half-saturation"
