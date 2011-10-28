@@ -2,8 +2,11 @@
 """
 from __future__ import absolute_import
 # Standard library:
+from datetime import datetime
 import logging
 import logging.handlers
+from subprocess import Popen
+from subprocess import STDOUT
 import sys
 # Bloomcast:
 from utils import Config
@@ -16,7 +19,15 @@ log = logging.getLogger('bloomcast')
 
 
 def run(config_file):
-    """
+    """Run the bloomcast process.
+
+    * Load the process configuration data.
+
+    * Get the wind forcing data.
+
+    * Get the meteorological and river flow forcing data.
+
+    * Run the SOG code.
     """
     config = Config()
     config.load_config(config_file)
@@ -30,6 +41,19 @@ def run(config_file):
     meteo.make_forcing_data_files()
     rivers = RiversProcessor(config)
     rivers.make_forcing_data_files()
+    run_SOG(config)
+
+
+def run_SOG(config):
+    """Run SOG.
+    """
+    log.debug('SOG run started at {0:%Y-%m-%d %H:%M:%S}'.format(datetime.now())
+    with open(config.infile, 'rt') as infile_obj:
+        with open(config.infile + '.stdout', 'wt') as stdout_obj:
+            SOG = Popen('nice -19 ../SOG-code-ocean/SOG'.split(),
+                        stdin=infile_obj, stdout=stdout_obj, stderr=STDOUT)
+            SOG.wait()
+    log.debug('SOG run finished at {0:%Y-%m-%d %H:%M:%S}'.format(datetime.now()))
 
 
 def configure_logging(config):
