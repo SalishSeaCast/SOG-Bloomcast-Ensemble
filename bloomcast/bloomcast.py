@@ -12,6 +12,7 @@ import sys
 from meteo import MeteoProcessor
 from rivers import RiversProcessor
 from utils import Config
+from utils import SOG_Timeseries
 from wind import WindProcessor
 
 
@@ -41,6 +42,8 @@ def run(config_file):
         run_SOG(config)
     else:
         log.info('Skipped running SOG')
+    nitrate = SOG_Timeseries(config.std_bio_ts_outfile)
+    nitrate.read_data('time', '3 m avg nitrate concentration')
 
 
 def get_forcing_data(config):
