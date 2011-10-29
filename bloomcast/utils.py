@@ -39,6 +39,7 @@ class Config(object):
         self.infile = config_dict['infile']
         infile_dict = self._read_SOG_infile()
         self.run_start_date = infile_dict['run_start_date']
+        self.std_bio_ts_outfile = infile_dict['std_bio_ts_outfile']
         self.climate = _Container()
         self.climate.__dict__.update(config_dict['climate'])
         self._load_meteo_config(config_dict, infile_dict)
@@ -136,6 +137,11 @@ class Config(object):
                         split_line, infile, sep, i)
                     infile_dict[result_key] = datetime.strptime(
                         value, '%Y-%m-%d %H:%M:%S')
+                elif infile_key == 'std_bio_ts_out':
+                    result_key = 'std_bio_ts_outfile'
+                    value = self._get_SOG_infile_value(
+                        split_line, infile, sep, i)
+                    infile_dict[result_key] = value
         return infile_dict
 
 
@@ -320,3 +326,75 @@ class ClimateDataProcessor(ForcingDataProcessor):
         return timestamp
 
 
+class SOG_Relation(object):
+    """A SOG_Relation object has a pair of NumPy arrays containing the
+    independent and dependent data values of a data set. It also has
+    attributes that contain the filespec from which the data is read,
+    and the units of the data arrays.
+
+    This is a base class for implementing specific types of relations
+    such as timeseries, or profiles. This class provides a
+    :meth:`read_data` method, but expects classes that inherit from it
+    to implement a :meth:`_read_header` method that returns lists of
+    field names and field units read from the SOG data file header.
+    """
+    def __init__(self, datafile):
+        """Create a SOG_Relation instance with its datafile attribute
+        initialized.
+        """
+        self.datafile = datafile
+
+
+    def _read_header(self, fobj):
+        """This method is expected to be implemented by classes based
+        on SOG_Relation.
+
+        It must return lists of field names and field units from the
+        SOG data file header.
+        """
+        raise NotImplementedError
+
+
+    def read_data(self, indep_field, dep_field):
+        """Read the data for the specified independent and dependent
+        fields from the data file.
+
+        Sets the indep_data and dep_data attributes to NumPy arrays,
+        and the indep_units and dep_units attributes to units strings
+        for the data fields.
+        """
+        with open(self.datafile, 'rt') as file_obj:
+            (field_names, field_units) = self._read_header(file_obj)
+            indep_col = field_names.index(indep_field)
+            dep_col = field_names.index(dep_field)
+            self.indep_units = field_units[indep_col]
+            self.dep_units = field_units[dep_col]
+            self.indep_data, self.dep_data = [], []
+            for line in file_obj:
+                self.indep_data.append(float(line.split()[indep_col]))
+                self.dep_data.append(float(line.split()[dep_col]))
+        self.indep_data = np.array(self.indep_data)
+        self.dep_data = np.array(self.dep_data)
+
+
+class SOG_Timeseries(SOG_Relation):
+    """SOG timeseries relation.
+    """
+    def _read_header(self, file_obj):
+        """Read a SOG timeseries file header, return the field_names
+        and field_units lists, and set attributes with the
+        run_datetime and initial_CTD_datetime values.
+        """
+        for line in file_obj:
+            line = line.strip()
+            if line.startswith('*FieldNames:'):
+                # Drop the *FieldNames: label and keep the
+                # comma-delimited list
+                field_names = line.split(': ', 1)[1].split(', ')
+            if line.startswith('*FieldUnits:'):
+                # Drop the *FieldUnits: label and keep the
+                # comma-delimited list
+                field_units = line.split(': ', 1)[1].split(', ')
+            if line.startswith('*EndOfHeader'):
+                break
+        return field_names, field_units
