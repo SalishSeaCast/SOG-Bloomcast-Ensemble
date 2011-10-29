@@ -9,10 +9,10 @@ from subprocess import Popen
 from subprocess import STDOUT
 import sys
 # Bloomcast:
-from utils import Config
-from wind import WindProcessor
 from meteo import MeteoProcessor
 from rivers import RiversProcessor
+from utils import Config
+from wind import WindProcessor
 
 
 log = logging.getLogger('bloomcast')
@@ -33,6 +33,19 @@ def run(config_file):
     config.load_config(config_file)
     configure_logging(config)
     log.debug('run start date is {0:%Y-%m-%d}'.format(config.run_start_date))
+    if config.get_forcing_data:
+        get_forcing_data(config)
+    else:
+        log.info('Skipped collection and processing of forcing data')
+    if config.run_SOG:
+        run_SOG(config)
+    else:
+        log.info('Skipped running SOG')
+
+
+def get_forcing_data(config):
+    """Collect and process forcing data.
+    """
     wind = WindProcessor(config)
     config.data_date = wind.make_forcing_data_file()
     log.info('based on wind data run data date is {0:%Y-%m-%d}'
@@ -41,10 +54,6 @@ def run(config_file):
     meteo.make_forcing_data_files()
     rivers = RiversProcessor(config)
     rivers.make_forcing_data_files()
-    if config.run_SOG:
-        run_SOG(config)
-    else:
-        log.info('SOG run skipped')
 
 
 def run_SOG(config):
