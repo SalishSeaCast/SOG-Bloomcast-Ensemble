@@ -15,6 +15,8 @@ from xml.etree import cElementTree as ElementTree
 import requests
 # YAML library:
 import yaml
+# NumPy:
+import numpy as np
 
 
 log = logging.getLogger('bloomcast.utils')
@@ -32,6 +34,7 @@ class Config(object):
         """
         config_dict = self._read_yaml_file(config_file)
         self._load_logging_config(config_dict)
+        self.get_forcing_data = config_dict['get_forcing_data']
         self.run_SOG = config_dict['run_SOG']
         self.infile = config_dict['infile']
         infile_dict = self._read_SOG_infile()
@@ -315,3 +318,5 @@ class ClimateDataProcessor(ForcingDataProcessor):
             int(record.get('hour')),
         )
         return timestamp
+
+
