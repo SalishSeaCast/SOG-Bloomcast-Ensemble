@@ -4,11 +4,17 @@
 # in a new virtualenv
 
 BeautifulSoup==3.2.0
+Jinja2==2.6
 PyYAML==3.10
+Pygments==1.4
 Sphinx==1.0.7
+distribute==0.6.14
+docutils==0.8
 ipython==0.11
 mock==0.7.2
 nose==1.1.2
 nosy==1.1.2
+numpy==1.6.1
 requests==0.6.1
 unittest2==0.5.1
+wsgiref==0.1.2
