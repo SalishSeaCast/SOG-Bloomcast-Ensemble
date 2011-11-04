@@ -1,6 +1,7 @@
 """Driver module for SoG-bloomcast project
 """
 from __future__ import absolute_import
+from __future__ import division
 # Standard library:
 from datetime import datetime
 import logging
@@ -42,8 +43,7 @@ def run(config_file):
         run_SOG(config)
     else:
         log.info('Skipped running SOG')
-    nitrate = SOG_Timeseries(config.std_bio_ts_outfile)
-    nitrate.read_data('time', '3 m avg nitrate concentration')
+    calc_bloom_date(config)
 
 
 def get_forcing_data(config):
@@ -71,6 +71,23 @@ def run_SOG(config):
     log.info(
         'SOG run finished at {0:%Y-%m-%d %H:%M:%S}'.format(datetime.now()))
 
+
+def calc_bloom_date(config):
+    """
+    """
+    nitrate = SOG_Timeseries(config.std_bio_ts_outfile)
+    nitrate.read_data('time', '3 m avg nitrate concentration')
+    micro_phyto = SOG_Timeseries(config.std_bio_ts_outfile)
+    micro_phyto.read_date('time', '3 m avg micro phytoplankton biomass')
+    jan1 = datetime(config.run_start_date.year + 1, 1, 1)
+    discard_hours = (jan1 - config.run_start_date)
+    discard_hours = discard_hours.days * 24 + discard_hours.seconds / 3600
+    selector = nitrate.indep_data >= discard_hours
+    nitrate.indep_data = nitrate.indep_data[selector]
+    nitrate.dep_data = nitrate.dep_data[selector]
+    micro_phyto.indep_data = micro_phyto.indep_data[selector]
+    micro_phyto.dep_data = micro_phyto.dep_data[selector]
+    
 
 def configure_logging(config):
     """Configure logging of debug & warning messages to console and email.
