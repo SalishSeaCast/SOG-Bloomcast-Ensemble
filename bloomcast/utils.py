@@ -120,28 +120,29 @@ class Config(object):
         infile_dict = {'forcing_data_files': {}}
         # Keys, values and comments are separated by "+whitespace
         sep = re.compile(r'"\s')
-        with open(self.infile, 'rt') as infile:
-            for i, line in enumerate(infile):
-                if line.startswith('\n') or line.startswith('!'):
-                    continue
-                split_line = sep.split(line)
-                infile_key = split_line[0].strip('"')
-                if infile_key in forcing_data_files:
-                    result_key = forcing_data_files[infile_key]
-                    value = self._get_SOG_infile_value(
-                        split_line, infile, sep, i)
-                    infile_dict['forcing_data_files'][result_key] = value
-                elif infile_key == 'init datetime':
-                    result_key = 'run_start_date'
-                    value = self._get_SOG_infile_value(
-                        split_line, infile, sep, i)
-                    infile_dict[result_key] = datetime.strptime(
-                        value, '%Y-%m-%d %H:%M:%S')
-                elif infile_key == 'std_bio_ts_out':
-                    result_key = 'std_bio_ts_outfile'
-                    value = self._get_SOG_infile_value(
-                        split_line, infile, sep, i)
-                    infile_dict[result_key] = value
+        with open(self.infile, 'rt') as file_obj:
+            infile = file_obj.readlines()
+        for i, line in enumerate(infile):
+            if line.startswith('\n') or line.startswith('!'):
+                continue
+            split_line = sep.split(line)
+            infile_key = split_line[0].strip('"')
+            if infile_key in forcing_data_files:
+                result_key = forcing_data_files[infile_key]
+                value = self._get_SOG_infile_value(
+                    split_line, infile, sep, i)
+                infile_dict['forcing_data_files'][result_key] = value
+            elif infile_key == 'init datetime':
+                result_key = 'run_start_date'
+                value = self._get_SOG_infile_value(
+                    split_line, infile, sep, i)
+                infile_dict[result_key] = datetime.strptime(
+                    value, '%Y-%m-%d %H:%M:%S')
+            elif infile_key == 'std_bio_ts_out':
+                result_key = 'std_bio_ts_outfile'
+                value = self._get_SOG_infile_value(
+                    split_line, infile, sep, i)
+                infile_dict[result_key] = value
         return infile_dict
 
 
