@@ -8,6 +8,7 @@ from mock import DEFAULT
 from mock import MagicMock
 from mock import Mock
 from mock import patch
+from StringIO import StringIO
 import unittest2 as unittest
 
 
@@ -25,6 +26,8 @@ class TestConfig(unittest.TestCase):
 
     def _make_mock_config_dict(self):
         mock_config_dict = {
+            'get_forcing_data': None,
+            'run_SOG': None,
             'infile': None,
             'climate': {
                 'url': None,
@@ -67,6 +70,7 @@ class TestConfig(unittest.TestCase):
     def _make_mock_infile_dict(self):
         mock_infile_dict = {
             'run_start_date': None,
+            'std_bio_ts_outfile': None,
             'forcing_data_files': {
                 'air_temperature': None,
                 'relative_humidity': None,
@@ -171,9 +175,8 @@ class TestConfig(unittest.TestCase):
         config.infile = 'foo'
         with patch('utils.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(name='magic mock', spec=file)
-            mock_open.return_value.__enter__.return_value = [
-                '"wind"  "Sandheads_wind"  "wind forcing data"\n',
-            ]
+            mock_open.return_value.__enter__.return_value = StringIO(
+                '"wind"  "Sandheads_wind"  "wind forcing data"\n')
             infile_dict = config._read_SOG_infile()
         self.assertEqual(
             infile_dict,
@@ -189,9 +192,8 @@ class TestConfig(unittest.TestCase):
         config.infile = 'foo'
         with patch('utils.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(name='magic mock', spec=file)
-            mock_open.return_value.__enter__.return_value = [
-                '"wind"  \n  "Sandheads_wind"  \n  "wind forcing data"\n',
-            ]
+            mock_open.return_value.__enter__.return_value = StringIO(
+                '"wind"  \n  "Sandheads_wind" "wind forcing data"\n')
             infile_dict = config._read_SOG_infile()
         self.assertEqual(
             infile_dict,
@@ -200,17 +202,16 @@ class TestConfig(unittest.TestCase):
             }})
 
 
-    def test_read_SOG_run_start_date(self):
+    def test_read_SOG_infile_run_start_date(self):
         """_read_SOG_infile returns expected run start date
         """
         config = self._make_one()
         config.infile = 'foo'
         with patch('utils.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(name='magic mock', spec=file)
-            mock_open.return_value.__enter__.return_value = [
+            mock_open.return_value.__enter__.return_value = StringIO(
                 '"init datetime" "2011-09-19 18:49:00" '
-                    '"initialization CTD profile date/time"\n',
-            ]
+                '  "initialization CTD profile date/time"\n')
             infile_dict = config._read_SOG_infile()
         self.assertEqual(
             infile_dict,
