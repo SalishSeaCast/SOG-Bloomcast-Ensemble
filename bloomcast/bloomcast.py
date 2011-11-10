@@ -35,20 +35,17 @@ def run(config_file):
     config.load_config(config_file)
     configure_logging(config)
     log.debug('run start date is {0:%Y-%m-%d}'.format(config.run_start_date))
-    if config.get_forcing_data:
-        get_forcing_data(config)
-    else:
-        log.info('Skipped collection and processing of forcing data')
-    if config.run_SOG:
-        run_SOG(config)
-    else:
-        log.info('Skipped running SOG')
+    get_forcing_data(config)
+    run_SOG(config)
     calc_bloom_date(config)
 
 
 def get_forcing_data(config):
     """Collect and process forcing data.
     """
+    if  not config.get_forcing_data:
+        log.info('Skipped collection and processing of forcing data')
+        return
     wind = WindProcessor(config)
     config.data_date = wind.make_forcing_data_file()
     log.info('based on wind data run data date is {0:%Y-%m-%d}'
@@ -62,6 +59,9 @@ def get_forcing_data(config):
 def run_SOG(config):
     """Run SOG.
     """
+    if not config.run_SOG:
+        log.info('Skipped running SOG')
+        return
     log.info('SOG run started at {0:%Y-%m-%d %H:%M:%S}'.format(datetime.now()))
     with open(config.infile, 'rt') as infile_obj:
         with open(config.infile + '.stdout', 'wt') as stdout_obj:
@@ -78,7 +78,7 @@ def calc_bloom_date(config):
     nitrate = SOG_Timeseries(config.std_bio_ts_outfile)
     nitrate.read_data('time', '3 m avg nitrate concentration')
     micro_phyto = SOG_Timeseries(config.std_bio_ts_outfile)
-    micro_phyto.read_date('time', '3 m avg micro phytoplankton biomass')
+    micro_phyto.read_data('time', '3 m avg micro phytoplankton biomass')
     jan1 = datetime(config.run_start_date.year + 1, 1, 1)
     discard_hours = (jan1 - config.run_start_date)
     discard_hours = discard_hours.days * 24 + discard_hours.seconds / 3600
@@ -87,7 +87,7 @@ def calc_bloom_date(config):
     nitrate.dep_data = nitrate.dep_data[selector]
     micro_phyto.indep_data = micro_phyto.indep_data[selector]
     micro_phyto.dep_data = micro_phyto.dep_data[selector]
-    
+
 
 def configure_logging(config):
     """Configure logging of debug & warning messages to console and email.
