@@ -101,11 +101,11 @@ def calc_bloom_date(config):
     PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH = 4  # days
     nitrate = SOG_Timeseries(config.std_bio_ts_outfile)
     nitrate.read_data('time', '3 m avg nitrate concentration')
-    micro_phyto = SOG_Timeseries(config.std_bio_ts_outfile)
-    micro_phyto.read_data('time', '3 m avg micro phytoplankton biomass')
-    nitrate, micro_phyto = clip_results_to_Jan1(config, nitrate, micro_phyto)
-    nitrate, micro_phyto = reduce_results_to_daily(
-        config, nitrate, micro_phyto)
+    diatoms = SOG_Timeseries(config.std_bio_ts_outfile)
+    diatoms.read_data('time', '3 m avg micro phytoplankton biomass')
+    nitrate, diatoms = clip_results_to_Jan1(config, nitrate, diatoms)
+    nitrate, diatoms = reduce_results_to_daily(
+        config, nitrate, diatoms)
 
     selector = nitrate.dep_data <= LOW_NITRATE_THRESHOLD
     nitrate.indep_data = nitrate.indep_data[selector]
@@ -125,20 +125,20 @@ def calc_bloom_date(config):
     late_bloom_date = low_nitrate_day_2 + half_width_days
     log.debug('Bloom window is between {0} and {1}'
               .format(early_bloom_date, late_bloom_date))
-    selector = micro_phyto.indep_data >= early_bloom_date
-    micro_phyto.indep_data = micro_phyto.indep_data[selector]
-    micro_phyto.dep_data = micro_phyto.dep_data[selector]
-    selector = micro_phyto.indep_data <= late_bloom_date
-    micro_phyto.indep_data = micro_phyto.indep_data[selector]
-    log.debug('Dates in bloom window:\n{0}'.format(micro_phyto.indep_data))
-    micro_phyto.dep_data = micro_phyto.dep_data[selector]
+    selector = diatoms.indep_data >= early_bloom_date
+    diatoms.indep_data = diatoms.indep_data[selector]
+    diatoms.dep_data = diatoms.dep_data[selector]
+    selector = diatoms.indep_data <= late_bloom_date
+    diatoms.indep_data = diatoms.indep_data[selector]
+    log.debug('Dates in bloom window:\n{0}'.format(diatoms.indep_data))
+    diatoms.dep_data = diatoms.dep_data[selector]
     log.debug('Micro phytoplankton biomass values in bloom window:\n{0}'
-              .format(micro_phyto.dep_data))
-    bloom_date = micro_phyto.indep_data[micro_phyto.dep_data.argmax()]
+              .format(diatoms.dep_data))
+    bloom_date = diatoms.indep_data[diatoms.dep_data.argmax()]
     log.info('Predicted bloom date is {0}'.format(bloom_date))
 
 
-def clip_results_to_Jan1(config, nitrate, micro_phyto):
+def clip_results_to_Jan1(config, nitrate, diatoms):
     """Clip the nitrate and micro phytoplankton biomass results so
     that they start on 1-Jan of the bloom year.
     """
@@ -148,12 +148,12 @@ def clip_results_to_Jan1(config, nitrate, micro_phyto):
     selector = nitrate.indep_data >= discard_hours
     nitrate.indep_data = nitrate.indep_data[selector]
     nitrate.dep_data = nitrate.dep_data[selector]
-    micro_phyto.indep_data = micro_phyto.indep_data[selector]
-    micro_phyto.dep_data = micro_phyto.dep_data[selector]
-    return nitrate, micro_phyto
+    diatoms.indep_data = diatoms.indep_data[selector]
+    diatoms.dep_data = diatoms.dep_data[selector]
+    return nitrate, diatoms
 
 
-def reduce_results_to_daily(config, nitrate, micro_phyto):
+def reduce_results_to_daily(config, nitrate, diatoms):
     """Reduce the nitrate concentration and micro phytoplankton
     biomass results to daily values.
 
@@ -173,14 +173,14 @@ def reduce_results_to_daily(config, nitrate, micro_phyto):
     nitrate.indep_data = np.array(
         [date.fromordinal(i+1).replace(year=year)
          for i in xrange(nitrate.dep_data.shape[0])])
-    micro_phyto.dep_data = np.array(
-        [micro_phyto.dep_data[i:i+day_slice].max()
-         for i in xrange(0, micro_phyto.dep_data.shape[0] - day_slice,
+    diatoms.dep_data = np.array(
+        [diatoms.dep_data[i:i+day_slice].max()
+         for i in xrange(0, diatoms.dep_data.shape[0] - day_slice,
                          day_slice)])
-    micro_phyto.indep_data = np.array(
+    diatoms.indep_data = np.array(
         [date.fromordinal(i+1).replace(year=year)
-         for i in xrange(micro_phyto.dep_data.shape[0])])
-    return nitrate, micro_phyto
+         for i in xrange(diatoms.dep_data.shape[0])])
+    return nitrate, diatoms
 
 
 def configure_logging(config):
