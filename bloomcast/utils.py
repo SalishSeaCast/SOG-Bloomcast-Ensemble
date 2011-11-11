@@ -398,3 +398,19 @@ class SOG_Timeseries(SOG_Relation):
             if line.startswith('*EndOfHeader'):
                 break
         return field_names, field_units
+
+
+    def boolean_slice(self, predicate, in_place=True):
+        """Slice the independent and dependent data arrays using the
+        Boolean ``predicate`` array.
+
+        If ``in_place`` is true, replace the independent and dependent
+        data arrays with the slices, otherwise, return the slices.
+        """
+        indep_slice = self.indep_data[predicate]
+        dep_slice = self.dep_data[predicate]
+        if in_place:
+            self.indep_data = indep_slice
+            self.dep_data = dep_slice
+        else:
+            return indep_slice, dep_slice

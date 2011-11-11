@@ -107,11 +107,9 @@ def calc_bloom_date(config):
     nitrate, diatoms = reduce_results_to_daily(
         config, nitrate, diatoms)
 
-    selector = nitrate.dep_data <= LOW_NITRATE_THRESHOLD
-    nitrate.indep_data = nitrate.indep_data[selector]
+    nitrate.boolean_slice(nitrate.dep_data <= LOW_NITRATE_THRESHOLD)
     log.debug('Dates on which nitrate was <= {0} uM:\n{1}'
               .format(LOW_NITRATE_THRESHOLD, nitrate.indep_data))
-    nitrate.dep_data = nitrate.dep_data[selector]
     log.debug('Nitrate <= {0} uM:\n{1}'
               .format(LOW_NITRATE_THRESHOLD, nitrate.dep_data))
 
@@ -125,13 +123,9 @@ def calc_bloom_date(config):
     late_bloom_date = low_nitrate_day_2 + half_width_days
     log.debug('Bloom window is between {0} and {1}'
               .format(early_bloom_date, late_bloom_date))
-    selector = diatoms.indep_data >= early_bloom_date
-    diatoms.indep_data = diatoms.indep_data[selector]
-    diatoms.dep_data = diatoms.dep_data[selector]
-    selector = diatoms.indep_data <= late_bloom_date
-    diatoms.indep_data = diatoms.indep_data[selector]
+    diatoms.boolean_slice(diatoms.indep_data >= early_bloom_date)
+    diatoms.boolean_slice(diatoms.indep_data <= late_bloom_date)
     log.debug('Dates in bloom window:\n{0}'.format(diatoms.indep_data))
-    diatoms.dep_data = diatoms.dep_data[selector]
     log.debug('Micro phytoplankton biomass values in bloom window:\n{0}'
               .format(diatoms.dep_data))
     bloom_date = diatoms.indep_data[diatoms.dep_data.argmax()]
@@ -145,11 +139,9 @@ def clip_results_to_Jan1(config, nitrate, diatoms):
     jan1 = datetime(config.run_start_date.year + 1, 1, 1)
     discard_hours = (jan1 - config.run_start_date)
     discard_hours = discard_hours.days * 24 + discard_hours.seconds / 3600
-    selector = nitrate.indep_data >= discard_hours
-    nitrate.indep_data = nitrate.indep_data[selector]
-    nitrate.dep_data = nitrate.dep_data[selector]
-    diatoms.indep_data = diatoms.indep_data[selector]
-    diatoms.dep_data = diatoms.dep_data[selector]
+    predicate = nitrate.indep_data >= discard_hours
+    nitrate.boolean_slice(predicate)
+    diatoms.boolean_slice(predicate)
     return nitrate, diatoms
 
 
@@ -175,8 +167,7 @@ def reduce_results_to_daily(config, nitrate, diatoms):
          for i in xrange(nitrate.dep_data.shape[0])])
     diatoms.dep_data = np.array(
         [diatoms.dep_data[i:i+day_slice].max()
-         for i in xrange(0, diatoms.dep_data.shape[0] - day_slice,
-                         day_slice)])
+         for i in xrange(0, diatoms.dep_data.shape[0] - day_slice, day_slice)])
     diatoms.indep_data = np.array(
         [date.fromordinal(i+1).replace(year=year)
          for i in xrange(diatoms.dep_data.shape[0])])
