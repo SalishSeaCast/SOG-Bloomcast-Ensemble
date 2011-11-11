@@ -106,21 +106,10 @@ def calc_bloom_date(config):
     nitrate, diatoms = clip_results_to_Jan1(config, nitrate, diatoms)
     nitrate, diatoms = reduce_results_to_daily(
         config, nitrate, diatoms)
-    first_low_nitrate_days = calc_low_nitrate_days(
+    first_low_nitrate_days = find_low_nitrate_days(
         nitrate, NITRATE_HALF_SATURATION_CONCENTRATION)
-
-    half_width_days = timedelta(days=PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
-    early_bloom_date = first_low_nitrate_days[0] - half_width_days
-    late_bloom_date = first_low_nitrate_days[1] + half_width_days
-    log.debug('Bloom window is between {0} and {1}'
-              .format(early_bloom_date, late_bloom_date))
-    diatoms.boolean_slice(diatoms.indep_data >= early_bloom_date)
-    diatoms.boolean_slice(diatoms.indep_data <= late_bloom_date)
-    log.debug('Dates in bloom window:\n{0}'.format(diatoms.indep_data))
-    log.debug('Micro phytoplankton biomass values in bloom window:\n{0}'
-              .format(diatoms.dep_data))
-    bloom_date = diatoms.indep_data[diatoms.dep_data.argmax()]
-    log.info('Predicted bloom date is {0}'.format(bloom_date))
+    bloom_date = find_phytoplankton_peak(
+        diatoms, first_low_nitrate_days, PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
 
 
 def clip_results_to_Jan1(config, nitrate, diatoms):
@@ -165,14 +154,14 @@ def reduce_results_to_daily(config, nitrate, diatoms):
     return nitrate, diatoms
 
 
-def calc_low_nitrate_days(nitrate, threshold):
+def find_low_nitrate_days(nitrate, threshold):
     """Return the start and end dates of the first 2 day period in
     which the ``nitrate`` concentration is below the ``threshold``.
     """
     nitrate.boolean_slice(nitrate.dep_data <= threshold)
-    log.debug('Dates on which nitrate was <= {0} uM:\n{1}'
+    log.debug('Dates on which nitrate was <= {0} uM N:\n{1}'
               .format(threshold, nitrate.indep_data))
-    log.debug('Nitrate <= {0} uM:\n{1}'
+    log.debug('Nitrate <= {0} uM N:\n{1}'
               .format(threshold, nitrate.dep_data))
     for i in xrange(nitrate.dep_data.shape[0]):
         low_nitrate_day_1 = nitrate.indep_data[i]
@@ -180,6 +169,30 @@ def calc_low_nitrate_days(nitrate, threshold):
             low_nitrate_day_2 = nitrate.indep_data[i+1]
             break
     return low_nitrate_day_1, low_nitrate_day_2
+
+
+def find_phytoplankton_peak(diatoms, first_low_nitrate_days, peak_half_width):
+    """Return the date with ``peak_half_width`` of the
+    ``first_low_nitrate_days`` on which the ``diatoms`` biomass is the
+    greatest.
+    """
+    half_width_days = timedelta(days=peak_half_width)
+    early_bloom_date = first_low_nitrate_days[0] - half_width_days
+    late_bloom_date = first_low_nitrate_days[1] + half_width_days
+    log.debug('Bloom window is between {0} and {1}'
+              .format(early_bloom_date, late_bloom_date))
+    diatoms.boolean_slice(diatoms.indep_data >= early_bloom_date)
+    diatoms.boolean_slice(diatoms.indep_data <= late_bloom_date)
+    log.debug('Dates in bloom window:\n{0}'.format(diatoms.indep_data))
+    log.debug('Micro phytoplankton biomass values in bloom window:\n{0}'
+              .format(diatoms.dep_data))
+    bloom_date_index = diatoms.dep_data.argmax()
+    bloom_date = diatoms.indep_data[bloom_date_index]
+    log.info('Predicted bloom date is {0}'.format(bloom_date))
+    log.debug(
+        'Phytoplankton biomass on bloom date is {0} uM N'
+        .format(diatoms.dep_data[bloom_date_index]))
+    return bloom_date
 
 
 def configure_logging(config):
