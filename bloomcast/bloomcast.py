@@ -104,15 +104,9 @@ def calc_bloom_date(config):
     micro_phyto = SOG_Timeseries(config.std_bio_ts_outfile)
     micro_phyto.read_data('time', '3 m avg micro phytoplankton biomass')
     nitrate, micro_phyto = clip_results_to_Jan1(config, nitrate, micro_phyto)
+    nitrate, micro_phyto = reduce_results_to_daily(
+        config, nitrate, micro_phyto)
 
-    day_slice = 96
-    year = config.run_start_date.year + 1
-    nitrate.dep_data = np.array(
-        [nitrate.dep_data[i:i+day_slice].min()
-         for i in xrange(0, nitrate.dep_data.shape[0] - day_slice, day_slice)])
-    nitrate.indep_data = np.array(
-        [date.fromordinal(i+1).replace(year=year)
-         for i in xrange(nitrate.dep_data.shape[0])])
     selector = nitrate.dep_data <= LOW_NITRATE_THRESHOLD
     nitrate.indep_data = nitrate.indep_data[selector]
     log.debug('Dates on which nitrate was <= {0} uM:\n{1}'
@@ -120,13 +114,7 @@ def calc_bloom_date(config):
     nitrate.dep_data = nitrate.dep_data[selector]
     log.debug('Nitrate <= {0} uM:\n{1}'
               .format(LOW_NITRATE_THRESHOLD, nitrate.dep_data))
-    micro_phyto.dep_data = np.array(
-        [micro_phyto.dep_data[i:i+day_slice].max()
-         for i in xrange(0, micro_phyto.dep_data.shape[0] - day_slice,
-                         day_slice)])
-    micro_phyto.indep_data = np.array(
-        [date.fromordinal(i+1).replace(year=year)
-         for i in xrange(micro_phyto.dep_data.shape[0])])
+
     for i in xrange(nitrate.dep_data.shape[0]):
         low_nitrate_day_1 = nitrate.indep_data[i]
         if nitrate.indep_data[i+1] - low_nitrate_day_1 == timedelta(days=1):
@@ -162,6 +150,36 @@ def clip_results_to_Jan1(config, nitrate, micro_phyto):
     nitrate.dep_data = nitrate.dep_data[selector]
     micro_phyto.indep_data = micro_phyto.indep_data[selector]
     micro_phyto.dep_data = micro_phyto.dep_data[selector]
+    return nitrate, micro_phyto
+
+
+def reduce_results_to_daily(config, nitrate, micro_phyto):
+    """Reduce the nitrate concentration and micro phytoplankton
+    biomass results to daily values.
+
+    Nitrate concentrations are daily minimum values.
+
+    Micro phytoplankton biomasses are daily maximum values.
+
+    Independent data values are dates.
+    """
+    # Assume that there are an integral nummber of SOG time steps in a
+    # day
+    day_slice = 86400 // config.SOG_timestep
+    year = config.run_start_date.year + 1
+    nitrate.dep_data = np.array(
+        [nitrate.dep_data[i:i+day_slice].min()
+         for i in xrange(0, nitrate.dep_data.shape[0] - day_slice, day_slice)])
+    nitrate.indep_data = np.array(
+        [date.fromordinal(i+1).replace(year=year)
+         for i in xrange(nitrate.dep_data.shape[0])])
+    micro_phyto.dep_data = np.array(
+        [micro_phyto.dep_data[i:i+day_slice].max()
+         for i in xrange(0, micro_phyto.dep_data.shape[0] - day_slice,
+                         day_slice)])
+    micro_phyto.indep_data = np.array(
+        [date.fromordinal(i+1).replace(year=year)
+         for i in xrange(micro_phyto.dep_data.shape[0])])
     return nitrate, micro_phyto
 
 
