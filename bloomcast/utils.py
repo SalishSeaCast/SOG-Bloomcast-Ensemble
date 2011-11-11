@@ -38,7 +38,9 @@ class Config(object):
         self.run_SOG = config_dict['run_SOG']
         self.infile = config_dict['infile']
         infile_dict = self._read_SOG_infile()
-        self.run_start_date = infile_dict['run_start_date']
+        self.run_start_date = datetime.strptime(
+            infile_dict['run_start_date'], '%Y-%m-%d %H:%M:%S')
+        self.SOG_timestep = int(infile_dict['SOG_timestep'])
         self.std_bio_ts_outfile = infile_dict['std_bio_ts_outfile']
         self.climate = _Container()
         self.climate.__dict__.update(config_dict['climate'])
@@ -107,8 +109,12 @@ class Config(object):
     def _read_SOG_infile(self):
         """Return a dict of selected values read from the SOG infile.
         """
-        # Mapping between SOG infile keys and Config object attribute
-        # names for forcing data files
+        # Mappings between SOG infile keys and Config object attribute
+        infile_values = {
+            'init datetime': 'run_start_date',
+            'dt': 'SOG_timestep',
+            'std_bio_ts_out': 'std_bio_ts_outfile',
+        }
         forcing_data_files = {
             'wind': 'wind',
             'air temp': 'air_temperature',
@@ -118,42 +124,35 @@ class Config(object):
             'minor river': 'minor_river',
         }
         infile_dict = {'forcing_data_files': {}}
-        # Keys, values and comments are separated by "+whitespace
-        sep = re.compile(r'"\s')
         with open(self.infile, 'rt') as file_obj:
-            infile = file_obj.readlines()
-        for i, line in enumerate(infile):
+            lines = file_obj.readlines()
+        for i, line in enumerate(lines):
             if line.startswith('\n') or line.startswith('!'):
                 continue
-            split_line = sep.split(line)
+            split_line = re.split(r'"\s', line)
             infile_key = split_line[0].strip('"')
+            if infile_key in infile_values:
+                result_key = infile_values[infile_key]
+                value = self._get_SOG_infile_value(split_line, lines, i)
+                infile_dict[result_key] = value
             if infile_key in forcing_data_files:
                 result_key = forcing_data_files[infile_key]
-                value = self._get_SOG_infile_value(
-                    split_line, infile, sep, i)
+                value = self._get_SOG_infile_value(split_line, lines, i)
                 infile_dict['forcing_data_files'][result_key] = value
-            elif infile_key == 'init datetime':
-                result_key = 'run_start_date'
-                value = self._get_SOG_infile_value(
-                    split_line, infile, sep, i)
-                infile_dict[result_key] = datetime.strptime(
-                    value, '%Y-%m-%d %H:%M:%S')
-            elif infile_key == 'std_bio_ts_out':
-                result_key = 'std_bio_ts_outfile'
-                value = self._get_SOG_infile_value(
-                    split_line, infile, sep, i)
-                infile_dict[result_key] = value
         return infile_dict
 
 
-    def _get_SOG_infile_value(self, split_line, infile, sep, i):
+    def _get_SOG_infile_value(self, split_line, lines, i):
         """Return the value from a SOG infile key, value, comment
         triplet that may be split over multiple lines.
         """
         value = split_line[1].strip().strip('"').rstrip('\n')
         if not value:
             # Value on line after key
-            value = sep.split(infile[i+1])[0].strip().strip('"')
+            value = re.split(r'"\s', lines[i+1])[0].strip().strip('"')
+        trailing_separator = re.compile(r'\s"')
+        if trailing_separator.search(value):
+            value = trailing_separator.split(value)[0]
         return value
 
 
