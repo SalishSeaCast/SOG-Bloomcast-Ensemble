@@ -69,7 +69,8 @@ class TestConfig(unittest.TestCase):
 
     def _make_mock_infile_dict(self):
         mock_infile_dict = {
-            'run_start_date': None,
+            'run_start_date': '2011-11-11 12:33:42',
+            'SOG_timestep': '900',
             'std_bio_ts_outfile': None,
             'forcing_data_files': {
                 'air_temperature': None,
@@ -215,7 +216,23 @@ class TestConfig(unittest.TestCase):
             infile_dict = config._read_SOG_infile()
         self.assertEqual(
             infile_dict,
-            {'run_start_date': datetime(2011, 9, 19, 18, 49),
+            {'run_start_date': "2011-09-19 18:49:00",
+             'forcing_data_files': {}})
+
+
+    def test_read_SOG_infile_dt(self):
+        """_read_SOG_infile returns expected SOG timestep
+        """
+        config = self._make_one()
+        config.infile = 'foo'
+        with patch('utils.open', create=True) as mock_open:
+            mock_open.return_value = MagicMock(name='magic mock', spec=file)
+            mock_open.return_value.__enter__.return_value = StringIO(
+                '"dt" 900 "time step [s]"\n')
+            infile_dict = config._read_SOG_infile()
+        self.assertEqual(
+            infile_dict,
+            {'SOG_timestep': '900',
              'forcing_data_files': {}})
 
 
