@@ -97,8 +97,8 @@ def calc_bloom_date(config):
     going below 0.5 uM (the half-saturation concentration) for two
     consecutive days."
     """
-    LOW_NITRATE_THRESHOLD = 0.5               # uM
-    PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH = 4  # days
+    NITRATE_HALF_SATURATION_CONCENTRATION = 0.5  # uM
+    PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH = 4     # days
     nitrate = SOG_Timeseries(config.std_bio_ts_outfile)
     nitrate.read_data('time', '3 m avg nitrate concentration')
     diatoms = SOG_Timeseries(config.std_bio_ts_outfile)
@@ -106,21 +106,12 @@ def calc_bloom_date(config):
     nitrate, diatoms = clip_results_to_Jan1(config, nitrate, diatoms)
     nitrate, diatoms = reduce_results_to_daily(
         config, nitrate, diatoms)
+    first_low_nitrate_days = calc_low_nitrate_days(
+        nitrate, NITRATE_HALF_SATURATION_CONCENTRATION)
 
-    nitrate.boolean_slice(nitrate.dep_data <= LOW_NITRATE_THRESHOLD)
-    log.debug('Dates on which nitrate was <= {0} uM:\n{1}'
-              .format(LOW_NITRATE_THRESHOLD, nitrate.indep_data))
-    log.debug('Nitrate <= {0} uM:\n{1}'
-              .format(LOW_NITRATE_THRESHOLD, nitrate.dep_data))
-
-    for i in xrange(nitrate.dep_data.shape[0]):
-        low_nitrate_day_1 = nitrate.indep_data[i]
-        if nitrate.indep_data[i+1] - low_nitrate_day_1 == timedelta(days=1):
-            low_nitrate_day_2 = nitrate.indep_data[i+1]
-            break
     half_width_days = timedelta(days=PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
-    early_bloom_date = low_nitrate_day_1 - half_width_days
-    late_bloom_date = low_nitrate_day_2 + half_width_days
+    early_bloom_date = first_low_nitrate_days[0] - half_width_days
+    late_bloom_date = first_low_nitrate_days[1] + half_width_days
     log.debug('Bloom window is between {0} and {1}'
               .format(early_bloom_date, late_bloom_date))
     diatoms.boolean_slice(diatoms.indep_data >= early_bloom_date)
@@ -172,6 +163,23 @@ def reduce_results_to_daily(config, nitrate, diatoms):
         [date.fromordinal(i+1).replace(year=year)
          for i in xrange(diatoms.dep_data.shape[0])])
     return nitrate, diatoms
+
+
+def calc_low_nitrate_days(nitrate, threshold):
+    """Return the start and end dates of the first 2 day period in
+    which the ``nitrate`` concentration is below the ``threshold``.
+    """
+    nitrate.boolean_slice(nitrate.dep_data <= threshold)
+    log.debug('Dates on which nitrate was <= {0} uM:\n{1}'
+              .format(threshold, nitrate.indep_data))
+    log.debug('Nitrate <= {0} uM:\n{1}'
+              .format(threshold, nitrate.dep_data))
+    for i in xrange(nitrate.dep_data.shape[0]):
+        low_nitrate_day_1 = nitrate.indep_data[i]
+        if nitrate.indep_data[i+1] - low_nitrate_day_1 == timedelta(days=1):
+            low_nitrate_day_2 = nitrate.indep_data[i+1]
+            break
+    return low_nitrate_day_1, low_nitrate_day_2
 
 
 def configure_logging(config):
