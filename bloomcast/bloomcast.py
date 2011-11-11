@@ -3,12 +3,16 @@
 from __future__ import absolute_import
 from __future__ import division
 # Standard library:
+from datetime import date
 from datetime import datetime
+from datetime import timedelta
 import logging
 import logging.handlers
 from subprocess import Popen
 from subprocess import STDOUT
 import sys
+# NumPy:
+import numpy as np
 # Bloomcast:
 from meteo import MeteoProcessor
 from rivers import RiversProcessor
@@ -73,12 +77,83 @@ def run_SOG(config):
 
 
 def calc_bloom_date(config):
+    """Calculate the predicted spring bloom date.
+
+    From Allen & Wolfe, in preparation:
+
+    "Although the idea of a spring bloom is well-defined, the exact
+    timing of a real spring bloom is not.  In C09 the peak of the
+    bloom was defined as the highest concentration of phytoplankton
+    unless an earlier bloom (more than 5 days earlier) was associated
+    with nitrate going to zero.  J.Gower using satellite data chooses
+    a measure of the start of the bloom as the time when the whole
+    Strait of Georgia has high chlorophyll.  The nutritional quality
+    of the phytoplankton appears to change when they become nutrient
+    limited \citep{SastriDower2009}.  Thus here we use a definition
+    that should delineate between nutrient replete spring conditions
+    and nutrient stressed summer conditions.  We use the peak
+    phytoplankton concentration (averaged from the surface to 3 m
+    depth) within four days of the average 0-3~m nitrate concentration
+    going below 0.5 uM (the half-saturation concentration) for two
+    consecutive days."
     """
-    """
+    LOW_NITRATE_THRESHOLD = 0.5               # uM
+    PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH = 4  # days
     nitrate = SOG_Timeseries(config.std_bio_ts_outfile)
     nitrate.read_data('time', '3 m avg nitrate concentration')
     micro_phyto = SOG_Timeseries(config.std_bio_ts_outfile)
     micro_phyto.read_data('time', '3 m avg micro phytoplankton biomass')
+    nitrate, micro_phyto = clip_results_to_Jan1(config, nitrate, micro_phyto)
+
+    day_slice = 96
+    year = config.run_start_date.year + 1
+    nitrate.dep_data = np.array(
+        [nitrate.dep_data[i:i+day_slice].min()
+         for i in xrange(0, nitrate.dep_data.shape[0] - day_slice, day_slice)])
+    nitrate.indep_data = np.array(
+        [date.fromordinal(i+1).replace(year=year)
+         for i in xrange(nitrate.dep_data.shape[0])])
+    selector = nitrate.dep_data <= LOW_NITRATE_THRESHOLD
+    nitrate.indep_data = nitrate.indep_data[selector]
+    log.debug('Dates on which nitrate was <= {0} uM:\n{1}'
+              .format(LOW_NITRATE_THRESHOLD, nitrate.indep_data))
+    nitrate.dep_data = nitrate.dep_data[selector]
+    log.debug('Nitrate <= {0} uM:\n{1}'
+              .format(LOW_NITRATE_THRESHOLD, nitrate.dep_data))
+    micro_phyto.dep_data = np.array(
+        [micro_phyto.dep_data[i:i+day_slice].max()
+         for i in xrange(0, micro_phyto.dep_data.shape[0] - day_slice,
+                         day_slice)])
+    micro_phyto.indep_data = np.array(
+        [date.fromordinal(i+1).replace(year=year)
+         for i in xrange(micro_phyto.dep_data.shape[0])])
+    for i in xrange(nitrate.dep_data.shape[0]):
+        low_nitrate_day_1 = nitrate.indep_data[i]
+        if nitrate.indep_data[i+1] - low_nitrate_day_1 == timedelta(days=1):
+            low_nitrate_day_2 = nitrate.indep_data[i+1]
+            break
+    half_width_days = timedelta(days=PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
+    early_bloom_date = low_nitrate_day_1 - half_width_days
+    late_bloom_date = low_nitrate_day_2 + half_width_days
+    log.debug('Bloom window is between {0} and {1}'
+              .format(early_bloom_date, late_bloom_date))
+    selector = micro_phyto.indep_data >= early_bloom_date
+    micro_phyto.indep_data = micro_phyto.indep_data[selector]
+    micro_phyto.dep_data = micro_phyto.dep_data[selector]
+    selector = micro_phyto.indep_data <= late_bloom_date
+    micro_phyto.indep_data = micro_phyto.indep_data[selector]
+    log.debug('Dates in bloom window:\n{0}'.format(micro_phyto.indep_data))
+    micro_phyto.dep_data = micro_phyto.dep_data[selector]
+    log.debug('Micro phytoplankton biomass values in bloom window:\n{0}'
+              .format(micro_phyto.dep_data))
+    bloom_date = micro_phyto.indep_data[micro_phyto.dep_data.argmax()]
+    log.info('Predicted bloom date is {0}'.format(bloom_date))
+
+
+def clip_results_to_Jan1(config, nitrate, micro_phyto):
+    """Clip the nitrate and micro phytoplankton biomass results so
+    that they start on 1-Jan of the bloom year.
+    """
     jan1 = datetime(config.run_start_date.year + 1, 1, 1)
     discard_hours = (jan1 - config.run_start_date)
     discard_hours = discard_hours.days * 24 + discard_hours.seconds / 3600
@@ -87,6 +162,7 @@ def calc_bloom_date(config):
     nitrate.dep_data = nitrate.dep_data[selector]
     micro_phyto.indep_data = micro_phyto.indep_data[selector]
     micro_phyto.dep_data = micro_phyto.dep_data[selector]
+    return nitrate, micro_phyto
 
 
 def configure_logging(config):
