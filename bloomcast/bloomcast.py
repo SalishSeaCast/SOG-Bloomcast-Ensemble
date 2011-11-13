@@ -13,6 +13,8 @@ from subprocess import STDOUT
 import sys
 # NumPy:
 import numpy as np
+# Mako:
+from mako.template import Template
 # Bloomcast:
 from meteo import MeteoProcessor
 from rivers import RiversProcessor
@@ -54,6 +56,19 @@ class Bloomcast(object):
         self._get_forcing_data()
         self._run_SOG()
         self._calc_bloom_date()
+        self._render_results()
+
+
+    def _render_results(self):
+        """Render bloomcast results as HTML and write them to a file.
+        """
+        template = Template(filename='bloomcast/html/results.mako')
+        context = {
+            'data_date': self.config.data_date,
+            'bloom_date': self.bloom_date,
+        }
+        with open('bloomcast/html/results.html', 'wt') as file_obj:
+            file_obj.write(template.render(**context))
 
 
     def _configure_logging(self):
@@ -145,7 +160,7 @@ class Bloomcast(object):
         self._reduce_results_to_daily()
         first_low_nitrate_days = self._find_low_nitrate_days(
             NITRATE_HALF_SATURATION_CONCENTRATION)
-        self.bloom_date = self._find_phytoplankton_peak(
+        self._find_phytoplankton_peak(
             first_low_nitrate_days, PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
 
 
@@ -225,8 +240,8 @@ class Bloomcast(object):
         log.debug('Micro phytoplankton biomass values in bloom window:\n{0}'
                   .format(self.diatoms.dep_data))
         bloom_date_index = self.diatoms.dep_data.argmax()
-        bloom_date = self.diatoms.indep_data[bloom_date_index]
-        log.info('Predicted bloom date is {0}'.format(bloom_date))
+        self.bloom_date = self.diatoms.indep_data[bloom_date_index]
+        log.info('Predicted bloom date is {0}'.format(self.bloom_date))
         log.debug(
             'Phytoplankton biomass on bloom date is {0} uM N'
             .format(self.diatoms.dep_data[bloom_date_index]))
