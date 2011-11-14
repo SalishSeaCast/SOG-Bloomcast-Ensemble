@@ -1,6 +1,6 @@
 # SoG bloomcast configuration file
 
-get_forcing_data: True
+get_forcing_data: False
 run_SOG: False
 
 infile: 2012_bloomcast_infile
@@ -43,3 +43,5 @@ logging:
   # Run "python -m smtpd -n -c DebuggingServer localhost:1025" to
   # capture email messages for testing
   use_test_smtpd: True
+
+results_dir: /home/sallen/public_html/SoG-bloomcast
