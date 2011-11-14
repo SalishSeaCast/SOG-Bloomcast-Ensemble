@@ -1,0 +1,17 @@
+syntax: glob
+2012_bloomcast_infile.stdout
+Englishman_flow
+Fraser_flow
+S_riv_check
+Sandheads_wind
+YVR_air_temperature
+YVR_cloud_fraction
+YVR_relative_humidity
+bloom_date_evolution.log
+bloomcast.log
+bloomcast/html/*.html
+profiles/
+salinity_check
+timeseries/
+total_check
+wind_data_date
