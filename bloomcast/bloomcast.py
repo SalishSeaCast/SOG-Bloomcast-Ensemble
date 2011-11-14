@@ -89,6 +89,15 @@ class Bloomcast(object):
             console.setLevel(logging.DEBUG)
         log.addHandler(console)
 
+        disk = logging.handlers.RotatingFileHandler(
+            self.config.logging.bloomcast_log_filename, maxBytes=1024 * 1024)
+        disk.setFormatter(
+            logging.Formatter(
+                '%(asctime)s %(levelname)s [%(name)s] %(message)s',
+                datefmt='%Y-%m-%d %H:%M'))
+        disk.setLevel(logging.DEBUG)
+        log.addHandler(disk)
+
         mailhost = (('localhost', 1025) if self.config.logging.use_test_smtpd
                     else 'localhost')
         email = logging.handlers.SMTPHandler(
@@ -101,7 +110,7 @@ class Bloomcast(object):
         log.addHandler(email)
 
         bloom_date_evolution = logging.FileHandler(
-            'bloom_date_evolution.log')
+            self.config.logging.bloom_date_log_filename)
         bloom_date_evolution.setFormatter(logging.Formatter('%(message)s'))
         bloom_date_evolution.setLevel(logging.INFO)
         bloom_date_log.addHandler(bloom_date_evolution)
