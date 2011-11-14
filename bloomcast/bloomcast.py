@@ -27,6 +27,9 @@ log = logging.getLogger('bloomcast')
 bloom_date_log = logging.getLogger('bloomcast.bloom_date')
 
 
+class NoNewWindData(Exception): pass
+
+
 class Bloomcast(object):
     """Strait of Georgia spring diatom bloom predictor.
 
@@ -54,7 +57,12 @@ class Bloomcast(object):
         self._configure_logging()
         log.debug('run start date is {0:%Y-%m-%d}'
                   .format(self.config.run_start_date))
-        self._get_forcing_data()
+        try:
+            self._get_forcing_data()
+        except NoNewWindData:
+            log.info('Wind data date {0:%Y-%m-%d} is unchanged since last run'
+                     .format(self.config.data_date))
+            return
         self._run_SOG()
         self._calc_bloom_date()
         self._render_results()
@@ -131,6 +139,18 @@ class Bloomcast(object):
         self.config.data_date = wind.make_forcing_data_file()
         log.info('based on wind data run data date is {0:%Y-%m-%d}'
                   .format(self.config.data_date))
+        try:
+            with open('wind_data_date', 'rt') as file_obj:
+                last_data_date = datetime.strptime(
+                    file_obj.readline().strip(), '%Y-%m-%d').date()
+        except IOError:
+            # Don't worry if there is no stored data date
+            pass
+        if self.config.data_date == last_data_date:
+            raise NoNewWindData
+        else:
+            with open('wind_data_date', 'wt') as file_obj:
+                file_obj.write('{0:%Y-%m-%d}\n'.format(self.config.data_date))
         meteo = MeteoProcessor(self.config)
         meteo.make_forcing_data_files()
         rivers = RiversProcessor(self.config)
