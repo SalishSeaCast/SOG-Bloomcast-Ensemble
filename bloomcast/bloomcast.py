@@ -8,6 +8,8 @@ from datetime import datetime
 from datetime import timedelta
 import logging
 import logging.handlers
+import os
+import shutil
 from subprocess import Popen
 from subprocess import STDOUT
 import sys
@@ -84,6 +86,14 @@ class Bloomcast(object):
         }
         with open('bloomcast/html/results.html', 'wt') as file_obj:
             file_obj.write(template.render(**context))
+        if os.access(self.config.results_dir, os.F_OK):
+            shutil.copy('bloomcast/html/results.html', self.config.results_dir)
+            shutil.copy(
+                'bloomcast/html/css/style.css',
+                os.path.join(self.config.results_dir, 'css'))
+            shutil.copy(
+                'bloomcast/html/js/libs/modernizr-2.0.min.js',
+                os.path.join(self.config.results_dir, 'js/libs'))
 
 
     def _configure_logging(self):

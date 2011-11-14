@@ -37,6 +37,7 @@ class Config(object):
         self.get_forcing_data = config_dict['get_forcing_data']
         self.run_SOG = config_dict['run_SOG']
         self.infile = config_dict['infile']
+        self.results_dir = config_dict['results_dir']
         infile_dict = self._read_SOG_infile()
         self.run_start_date = datetime.strptime(
             infile_dict['run_start_date'], '%Y-%m-%d %H:%M:%S')
