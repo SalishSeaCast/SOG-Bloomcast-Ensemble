@@ -36,6 +36,8 @@ rivers:
 
 logging:
   debug: True
+  bloomcast_log_filename: bloomcast.log
+  bloom_date_log_filename: bloom_date_evolution.log
   toaddrs:
     - sallen@eos.ubc.ca
   # Run "python -m smtpd -n -c DebuggingServer localhost:1025" to
