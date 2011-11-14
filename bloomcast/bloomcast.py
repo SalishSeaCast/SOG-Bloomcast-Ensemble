@@ -24,6 +24,7 @@ from wind import WindProcessor
 
 
 log = logging.getLogger('bloomcast')
+bloom_date_log = logging.getLogger('bloomcast.bloom_date')
 
 
 class Bloomcast(object):
@@ -72,35 +73,50 @@ class Bloomcast(object):
 
 
     def _configure_logging(self):
-        """Configure logging of debug & warning messages to console and email.
+        """Configure logging of debug & warning messages to console
+        and email.
 
-        Debug logging on/off & email recipient(s) for warning messages are
-        set in config file.
+        Debug logging on/off & email recipient(s) for warning messages
+        are set in config file.
         """
         log.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
+
         console = logging.StreamHandler()
-        console.setFormatter(formatter)
+        console.setFormatter(
+            logging.Formatter('%(levelname)s:%(name)s:%(message)s'))
         console.setLevel(logging.INFO)
         if self.config.logging.debug:
             console.setLevel(logging.DEBUG)
         log.addHandler(console)
+
         mailhost = (('localhost', 1025) if self.config.logging.use_test_smtpd
                     else 'localhost')
         email = logging.handlers.SMTPHandler(
             mailhost, fromaddr='SoG-bloomcast@eos.ubc.ca',
             toaddrs=self.config.logging.toaddrs,
             subject='Warning Message from SoG-bloomcast')
-        email.setFormatter(formatter)
+        email.setFormatter(
+            logging.Formatter('%(levelname)s:%(name)s:%(message)s'))
         email.setLevel(logging.WARNING)
         log.addHandler(email)
+
+        bloom_date_evolution = logging.FileHandler(
+            'bloom_date_evolution.log')
+        bloom_date_evolution.setFormatter(logging.Formatter('%(message)s'))
+        bloom_date_evolution.setLevel(logging.INFO)
+        bloom_date_log.addHandler(bloom_date_evolution)
+        bloom_date_log.propagate = False
 
 
     def _get_forcing_data(self):
         """Collect and process forcing data.
         """
         if  not self.config.get_forcing_data:
-            log.info('Skipped collection and processing of forcing data')
+            self.config.data_date = date(1963, 11, 5)
+            log.info(
+                'Skipped collection and processing of forcing data; '
+                'run data date set to {0:%Y-%m-%d}'
+                .format(self.config.data_date))
             return
         wind = WindProcessor(self.config)
         self.config.data_date = wind.make_forcing_data_file()
@@ -162,6 +178,9 @@ class Bloomcast(object):
             NITRATE_HALF_SATURATION_CONCENTRATION)
         self._find_phytoplankton_peak(
             first_low_nitrate_days, PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
+        bloom_date_log.info(
+            '  {0}      {1}  {2}'
+            .format(self.config.data_date, self.bloom_date, self.bloom_biomass))
 
 
     def _clip_results_to_jan1(self):
@@ -241,10 +260,11 @@ class Bloomcast(object):
                   .format(self.diatoms.dep_data))
         bloom_date_index = self.diatoms.dep_data.argmax()
         self.bloom_date = self.diatoms.indep_data[bloom_date_index]
+        self.bloom_biomass = self.diatoms.dep_data[bloom_date_index]
         log.info('Predicted bloom date is {0}'.format(self.bloom_date))
         log.debug(
             'Phytoplankton biomass on bloom date is {0} uM N'
-            .format(self.diatoms.dep_data[bloom_date_index]))
+            .format(self.bloom_biomass))
 
 
 if __name__ == '__main__':
