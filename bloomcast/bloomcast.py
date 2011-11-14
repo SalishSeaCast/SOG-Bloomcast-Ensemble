@@ -72,9 +72,15 @@ class Bloomcast(object):
         """Render bloomcast results as HTML and write them to a file.
         """
         template = Template(filename='bloomcast/html/results.mako')
+        with open(
+            self.config.logging.bloom_date_log_filename, 'rt') as file_obj:
+            bloom_date_log = [line.split() for line in file_obj
+                              if not line.startswith('#')]
         context = {
+            'run_start_date': self.config.run_start_date,
             'data_date': self.config.data_date,
             'bloom_date': self.bloom_date,
+            'bloom_date_log': bloom_date_log,
         }
         with open('bloomcast/html/results.html', 'wt') as file_obj:
             file_obj.write(template.render(**context))

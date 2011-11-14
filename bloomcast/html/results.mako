@@ -36,15 +36,11 @@
         </p>
         <ul>
           <li>
-            Run start date/time: yyyy-mm-dd hh:mm
-          </li>
-          <li>
-            Initial water collumn conditions from CTD cast data file:
-            filename
+            Run start date/time: ${run_start_date}
           </li>
           <li>
             Actual wind, meteorological, and river flow forcing data
-            to yyyy-mm-dd, and averaged data thereafter
+            to ${data_date}, and averaged data thereafter
           </li>
         </ul>
 
@@ -67,6 +63,24 @@
 
       <header>
         <h2>Bloom Date Evolution</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Wind Data Date</th>
+              <th>Predicted Bloom Date</th>
+              <th>Diatom Biomas [uM N]</th>
+            </tr>
+          </thead>
+          <tbody>
+            %for row in bloom_date_log:
+              <tr>
+                %for i in xrange(3):
+                  <td>${row[i]}</td>
+                %endfor
+              </tr>
+            %endfor
+          </tbody>
+        </table>
       </header>
     </article>
   </div>
