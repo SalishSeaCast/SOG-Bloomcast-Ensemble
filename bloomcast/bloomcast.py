@@ -135,11 +135,8 @@ class Bloomcast(object):
         """Collect and process forcing data.
         """
         if  not self.config.get_forcing_data:
-            self.config.data_date = date(1963, 11, 5)
-            log.info(
-                'Skipped collection and processing of forcing data; '
-                'run data date set to {0:%Y-%m-%d}'
-                .format(self.config.data_date))
+            self.config.data_date = None
+            log.info('Skipped collection and processing of forcing data')
             return
         wind = WindProcessor(self.config)
         self.config.data_date = wind.make_forcing_data_file()
@@ -213,9 +210,10 @@ class Bloomcast(object):
             NITRATE_HALF_SATURATION_CONCENTRATION)
         self._find_phytoplankton_peak(
             first_low_nitrate_days, PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
-        bloom_date_log.info(
-            '  {0}      {1}  {2}'
-            .format(self.config.data_date, self.bloom_date, self.bloom_biomass))
+        if self.config.data_date is not None:
+            bloom_date_log.info('  {0}      {1}  {2}'
+                                .format(self.config.data_date, self.bloom_date,
+                                        self.bloom_biomass))
 
 
     def _clip_results_to_jan1(self):
