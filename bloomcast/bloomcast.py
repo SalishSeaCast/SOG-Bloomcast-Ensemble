@@ -17,6 +17,10 @@ import sys
 import numpy as np
 # Mako:
 from mako.template import Template
+# Matplotlib:
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 # Bloomcast:
 from meteo import MeteoProcessor
 from rivers import RiversProcessor
@@ -66,34 +70,10 @@ class Bloomcast(object):
                      .format(self.config.data_date))
             return
         self._run_SOG()
+        self._get_results_timeseries()
+        self._create_timeseries_graphs()
         self._calc_bloom_date()
         self._render_results()
-
-
-    def _render_results(self):
-        """Render bloomcast results as HTML and write them to a file.
-        """
-        template = Template(filename='bloomcast/html/results.mako')
-        with open(
-            self.config.logging.bloom_date_log_filename, 'rt') as file_obj:
-            bloom_date_log = [line.split() for line in file_obj
-                              if not line.startswith('#')]
-        context = {
-            'run_start_date': self.config.run_start_date,
-            'data_date': self.config.data_date,
-            'bloom_date': self.bloom_date,
-            'bloom_date_log': bloom_date_log,
-        }
-        with open('bloomcast/html/results.html', 'wt') as file_obj:
-            file_obj.write(template.render(**context))
-        if os.access(self.config.results_dir, os.F_OK):
-            shutil.copy('bloomcast/html/results.html', self.config.results_dir)
-            shutil.copy(
-                'bloomcast/html/css/style.css',
-                os.path.join(self.config.results_dir, 'css'))
-            shutil.copy(
-                'bloomcast/html/js/libs/modernizr-2.0.min.js',
-                os.path.join(self.config.results_dir, 'js/libs'))
 
 
     def _configure_logging(self):
@@ -187,6 +167,40 @@ class Bloomcast(object):
             'SOG run finished at {0:%Y-%m-%d %H:%M:%S}'.format(datetime.now()))
 
 
+    def _get_results_timeseries(self):
+        """Read SOG results of interest and create SOG_Timeseries
+        objects from them.
+        """
+        self.nitrate = SOG_Timeseries(self.config.std_bio_ts_outfile)
+        self.nitrate.read_data('time', '3 m avg nitrate concentration')
+        self.diatoms = SOG_Timeseries(self.config.std_bio_ts_outfile)
+        self.diatoms.read_data('time', '3 m avg micro phytoplankton biomass')
+
+
+    def _create_timeseries_graphs(self):
+        """Create time series graph objects.
+        """
+        fig = Figure((8, 3), facecolor='white')
+        ax_left = fig.add_subplot(1, 1, 1)
+        ax_right = ax_left.twinx()
+        Axes(fig, ax_left.get_position(), sharex=ax_right)
+        ax_left.plot(
+            self.nitrate.indep_data, self.nitrate.dep_data, color='cyan')
+        ax_left.set_ylabel(
+            '3 m Avg Nitrate Concentration [uM N]',
+            color='cyan', size='x-small')
+        ax_left.set_xlabel(
+            'Hours Since {0:%Y-%m-%d %H:%M}'.format(self.config.run_start_date),
+            size='small')
+        ax_right.plot(
+            self.diatoms.indep_data, self.diatoms.dep_data, color='green')
+        ax_right.set_ylabel(
+            '3 m Avg Diatom Biomass [uM N]', color='green', size='x-small')
+
+        canvas = FigureCanvasAgg(fig)
+        canvas.print_svg('bloomcast/html/nitrate_diatoms_timeseries.svg')
+
+
     def _calc_bloom_date(self):
         """Calculate the predicted spring bloom date.
 
@@ -210,10 +224,6 @@ class Bloomcast(object):
         """
         NITRATE_HALF_SATURATION_CONCENTRATION = 0.5  # uM
         PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH = 4     # days
-        self.nitrate = SOG_Timeseries(self.config.std_bio_ts_outfile)
-        self.nitrate.read_data('time', '3 m avg nitrate concentration')
-        self.diatoms = SOG_Timeseries(self.config.std_bio_ts_outfile)
-        self.diatoms.read_data('time', '3 m avg micro phytoplankton biomass')
         self._clip_results_to_jan1()
         self._reduce_results_to_daily()
         first_low_nitrate_days = self._find_low_nitrate_days(
@@ -308,6 +318,33 @@ class Bloomcast(object):
         log.debug(
             'Phytoplankton biomass on bloom date is {0} uM N'
             .format(self.bloom_biomass))
+
+
+    def _render_results(self):
+        """Render bloomcast results as HTML and write them to a file.
+        """
+        template = Template(filename='bloomcast/html/results.mako')
+        with open(
+            self.config.logging.bloom_date_log_filename, 'rt') as file_obj:
+            bloom_date_log = [line.split() for line in file_obj
+                              if not line.startswith('#')]
+        context = {
+            'run_start_date': self.config.run_start_date,
+            'data_date': self.config.data_date,
+            'bloom_date': self.bloom_date,
+            'bloom_date_log': bloom_date_log,
+        }
+        with open('bloomcast/html/results.html', 'wt') as file_obj:
+            file_obj.write(template.render(**context))
+
+        if os.access(self.config.results_dir, os.F_OK):
+            shutil.copy('bloomcast/html/results.html', self.config.results_dir)
+            shutil.copy(
+                'bloomcast/html/css/style.css',
+                os.path.join(self.config.results_dir, 'css'))
+            shutil.copy(
+                'bloomcast/html/js/libs/modernizr-2.0.min.js',
+                os.path.join(self.config.results_dir, 'js/libs'))
 
 
 if __name__ == '__main__':

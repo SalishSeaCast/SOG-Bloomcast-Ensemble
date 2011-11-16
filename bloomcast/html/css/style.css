@@ -255,6 +255,11 @@ article header{
 	        box-shadow:0 45px 60px -60px #AAA;
 }
 
+object.timeseries-graph {
+    width: 960px;
+    height: 380px;
+}
+
 th, td {
     padding: 5px;
 }
