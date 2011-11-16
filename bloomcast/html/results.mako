@@ -59,6 +59,9 @@
 
       <header>
         <h2>Time Series</h2>
+        <object class="timeseries-graph" type="image/svg+xml"
+                data="nitrate_diatoms_timeseries.svg">
+        </object>
       </header>
 
       <header>

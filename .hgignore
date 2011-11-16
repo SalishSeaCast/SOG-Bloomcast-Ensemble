@@ -10,6 +10,7 @@ YVR_relative_humidity
 bloom_date_evolution.log
 bloomcast.log
 bloomcast/html/*.html
+bloomcast/html/*.svg
 profiles/
 salinity_check
 timeseries/
