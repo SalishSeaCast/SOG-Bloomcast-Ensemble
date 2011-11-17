@@ -184,10 +184,10 @@ class Bloomcast(object):
         ax_right = ax_left.twinx()
         Axes(fig, ax_left.get_position(), sharex=ax_right)
         ax_left.plot(
-            self.nitrate.indep_data, self.nitrate.dep_data, color='cyan')
+            self.nitrate.indep_data, self.nitrate.dep_data, color='#30b8b8')
         ax_left.set_ylabel(
             '3 m Avg Nitrate Concentration [uM N]',
-            color='cyan', size='x-small')
+            color='#30b8b8', size='x-small')
         ax_left.set_xlabel(
             'Hours Since {0:%Y-%m-%d %H:%M}'.format(self.config.run_start_date),
             size='small')
