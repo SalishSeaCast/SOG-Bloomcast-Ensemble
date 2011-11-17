@@ -336,15 +336,9 @@ class Bloomcast(object):
         }
         with open('bloomcast/html/results.html', 'wt') as file_obj:
             file_obj.write(template.render(**context))
-
-        if os.access(self.config.results_dir, os.F_OK):
-            shutil.copy('bloomcast/html/results.html', self.config.results_dir)
-            shutil.copy(
-                'bloomcast/html/css/style.css',
-                os.path.join(self.config.results_dir, 'css'))
-            shutil.copy(
-                'bloomcast/html/js/libs/modernizr-2.0.min.js',
-                os.path.join(self.config.results_dir, 'js/libs'))
+        Popen(
+            'rsync -rq --exclude=results.mako bloomcast/html/ {0}'
+            .format(self.context.results_dir))
 
 
 if __name__ == '__main__':
