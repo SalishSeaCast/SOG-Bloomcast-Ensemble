@@ -179,10 +179,11 @@ class Bloomcast(object):
     def _create_timeseries_graphs(self):
         """Create time series graph objects.
         """
-        fig = Figure((8, 3), facecolor='white')
-        ax_left = fig.add_subplot(1, 1, 1)
+        self.fig_nitrate_diatoms_ts = Figure((8, 3), facecolor='white')
+        ax_left = self.fig_nitrate_diatoms_ts.add_subplot(1, 1, 1)
         ax_right = ax_left.twinx()
-        Axes(fig, ax_left.get_position(), sharex=ax_right)
+        Axes(self.fig_nitrate_diatoms_ts,
+             ax_left.get_position(), sharex=ax_right)
         ax_left.plot(
             self.nitrate.indep_data, self.nitrate.dep_data, color='#30b8b8')
         ax_left.set_ylabel(
@@ -195,9 +196,6 @@ class Bloomcast(object):
             self.diatoms.indep_data, self.diatoms.dep_data, color='green')
         ax_right.set_ylabel(
             '3 m Avg Diatom Biomass [uM N]', color='green', size='x-small')
-
-        canvas = FigureCanvasAgg(fig)
-        canvas.print_svg('bloomcast/html/nitrate_diatoms_timeseries.svg')
 
 
     def _calc_bloom_date(self):
@@ -335,6 +333,12 @@ class Bloomcast(object):
         }
         with open('bloomcast/html/results.html', 'wt') as file_obj:
             file_obj.write(template.render(**context))
+        graphs = [
+            ('fig_nitrate_diatoms_ts', 'nitrate_diatoms_timeseries.svg'),
+        ]
+        for fig_obj, filename in graphs:
+            canvas = FigureCanvasAgg(getattr(self, fig_obj))
+            canvas.print_svg(os.path.join('bloomcast/html', filename))
         if os.access(self.config.results_dir, os.F_OK):
             Popen(
                 'rsync -rq --exclude=results.mako bloomcast/html/ {0}'
