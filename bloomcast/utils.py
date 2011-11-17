@@ -43,6 +43,7 @@ class Config(object):
             infile_dict['run_start_date'], '%Y-%m-%d %H:%M:%S')
         self.SOG_timestep = int(infile_dict['SOG_timestep'])
         self.std_bio_ts_outfile = infile_dict['std_bio_ts_outfile']
+        self.std_phys_ts_outfile = infile_dict['std_phys_ts_outfile']
         self.climate = _Container()
         self.climate.__dict__.update(config_dict['climate'])
         self._load_meteo_config(config_dict, infile_dict)
@@ -115,6 +116,7 @@ class Config(object):
             'init datetime': 'run_start_date',
             'dt': 'SOG_timestep',
             'std_bio_ts_out': 'std_bio_ts_outfile',
+            'std_phys_ts_out': 'std_phys_ts_outfile',
         }
         forcing_data_files = {
             'wind': 'wind',

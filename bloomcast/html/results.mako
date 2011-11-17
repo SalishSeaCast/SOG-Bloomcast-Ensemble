@@ -62,6 +62,9 @@
         <object class="timeseries-graph" type="image/svg+xml"
                 data="nitrate_diatoms_timeseries.svg">
         </object>
+        <object class="timeseries-graph" type="image/svg+xml"
+                data="temperature_salinity_timeseries.svg">
+        </object>
       </header>
 
       <header>
