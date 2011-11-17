@@ -174,28 +174,43 @@ class Bloomcast(object):
         self.nitrate.read_data('time', '3 m avg nitrate concentration')
         self.diatoms = SOG_Timeseries(self.config.std_bio_ts_outfile)
         self.diatoms.read_data('time', '3 m avg micro phytoplankton biomass')
+        self.temperature = SOG_Timeseries(self.config.std_phys_ts_outfile)
+        self.temperature.read_data('time', '3 m avg temperature')
+        self.salinity = SOG_Timeseries(self.config.std_phys_ts_outfile)
+        self.salinity.read_data('time', '3 m avg salinity')
 
 
     def _create_timeseries_graphs(self):
         """Create time series graph objects.
         """
-        self.fig_nitrate_diatoms_ts = Figure((8, 3), facecolor='white')
-        ax_left = self.fig_nitrate_diatoms_ts.add_subplot(1, 1, 1)
+        self.fig_nitrate_diatoms_ts = self._two_axis_timeseries(
+            self.nitrate, self.diatoms,
+            titles=('3 m Avg Nitrate Concentration [uM N]',
+                    '3 m Avg Diatom Biomass [uM N]'),
+            colors=('#30b8b8', 'green'))
+        self.fig_temperature_salinity_ts = self._two_axis_timeseries(
+            self.temperature, self.salinity,
+            titles=('3 m Avg Temperature [deg C]',
+                   '3 m Avg Salinity [-]'),
+            colors=('red', 'blue'))
+
+
+    def _two_axis_timeseries(self, left_ts, right_ts, titles, colors):
+        """Create a time series graph figure object with 2 time series
+        plotted on the left and right y axes.
+        """
+        fig = Figure((8, 3), facecolor='white')
+        ax_left = fig.add_subplot(1, 1, 1)
         ax_right = ax_left.twinx()
-        Axes(self.fig_nitrate_diatoms_ts,
-             ax_left.get_position(), sharex=ax_right)
-        ax_left.plot(
-            self.nitrate.indep_data, self.nitrate.dep_data, color='#30b8b8')
-        ax_left.set_ylabel(
-            '3 m Avg Nitrate Concentration [uM N]',
-            color='#30b8b8', size='x-small')
+        Axes(fig, ax_left.get_position(), sharex=ax_right)
+        ax_left.plot(left_ts.indep_data, left_ts.dep_data, color=colors[0])
+        ax_left.set_ylabel(titles[0], color=colors[0], size='x-small')
         ax_left.set_xlabel(
             'Hours Since {0:%Y-%m-%d %H:%M}'.format(self.config.run_start_date),
             size='small')
-        ax_right.plot(
-            self.diatoms.indep_data, self.diatoms.dep_data, color='green')
-        ax_right.set_ylabel(
-            '3 m Avg Diatom Biomass [uM N]', color='green', size='x-small')
+        ax_right.plot(right_ts.indep_data, right_ts.dep_data, color=colors[1])
+        ax_right.set_ylabel(titles[1], color=colors[1], size='x-small')
+        return fig
 
 
     def _calc_bloom_date(self):
@@ -335,6 +350,8 @@ class Bloomcast(object):
             file_obj.write(template.render(**context))
         graphs = [
             ('fig_nitrate_diatoms_ts', 'nitrate_diatoms_timeseries.svg'),
+            ('fig_temperature_salinity_ts',
+             'temperature_salinity_timeseries.svg'),
         ]
         for fig_obj, filename in graphs:
             canvas = FigureCanvasAgg(getattr(self, fig_obj))
