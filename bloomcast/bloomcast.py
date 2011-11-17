@@ -9,7 +9,6 @@ from datetime import timedelta
 import logging
 import logging.handlers
 import os
-import shutil
 from subprocess import Popen
 from subprocess import STDOUT
 import sys
@@ -336,9 +335,10 @@ class Bloomcast(object):
         }
         with open('bloomcast/html/results.html', 'wt') as file_obj:
             file_obj.write(template.render(**context))
-        Popen(
-            'rsync -rq --exclude=results.mako bloomcast/html/ {0}'
-            .format(self.context.results_dir))
+        if os.access(self.config.results_dir, os.F_OK):
+            Popen(
+                'rsync -rq --exclude=results.mako bloomcast/html/ {0}'
+                .format(self.config.results_dir))
 
 
 if __name__ == '__main__':
