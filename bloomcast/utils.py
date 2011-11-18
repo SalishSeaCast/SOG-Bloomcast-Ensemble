@@ -17,6 +17,8 @@ import requests
 import yaml
 # NumPy:
 import numpy as np
+# Matplotlib:
+from matplotlib.dates import date2num
 
 
 log = logging.getLogger('bloomcast.utils')
@@ -417,3 +419,12 @@ class SOG_Timeseries(SOG_Relation):
             self.dep_data = dep_slice
         else:
             return indep_slice, dep_slice
+
+
+    def calc_mpl_dates(self, run_start_date):
+        """Calculate matplotlib dates from the independent data array
+        and the ``run_start_date``.
+        """
+        self.mpl_dates = np.array(date2num(
+            [run_start_date.replace(hour=0, minute=0) + timedelta(hours=hours)
+             for hours in self.indep_data]))
