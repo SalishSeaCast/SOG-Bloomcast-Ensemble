@@ -385,5 +385,4 @@ class Bloomcast(object):
 
 if __name__ == '__main__':
     bloomcast = Bloomcast(sys.argv[1])
-    # bloomcast.run()
-    bloomcast._push_results_to_web()
+    bloomcast.run()
