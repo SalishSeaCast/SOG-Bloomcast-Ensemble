@@ -76,6 +76,7 @@ class Bloomcast(object):
         self._create_timeseries_graphs()
         self._calc_bloom_date()
         self._render_results()
+        self._push_results_to_web()
 
 
     def _configure_logging(self):
@@ -346,7 +347,7 @@ class Bloomcast(object):
 
 
     def _render_results(self):
-        """Render bloomcast results as HTML and write them to a file.
+        """Render bloomcast results page and graphs to files.
         """
         template = Template(filename='bloomcast/html/results.mako')
         with open(
@@ -369,12 +370,20 @@ class Bloomcast(object):
         for fig_obj, filename in graphs:
             canvas = FigureCanvasAgg(getattr(self, fig_obj))
             canvas.print_svg(os.path.join('bloomcast/html', filename))
+
+
+    def _push_results_to_web(self):
+        """Push results page, graphs, styles, etc. to web server directory
+        via rsync.
+        """
         if os.access(self.config.results_dir, os.F_OK):
             Popen(
-                'rsync -rq --exclude=results.mako bloomcast/html/ {0}'
-                .format(self.config.results_dir))
+                'rsync -rq --exclude=results.mako {0}/ {1}'
+                .format(os.path.abspath('bloomcast/html'),
+                        self.config.results_dir).split())
 
 
 if __name__ == '__main__':
     bloomcast = Bloomcast(sys.argv[1])
-    bloomcast.run()
+    # bloomcast.run()
+    bloomcast._push_results_to_web()
