@@ -19,6 +19,7 @@ import numpy as np
 from mako.template import Template
 # Matplotlib:
 from matplotlib.axes import Axes
+from matplotlib.dates import date2num
 from matplotlib.dates import DateFormatter
 from matplotlib.dates import MonthLocator
 from matplotlib.figure import Figure
@@ -215,6 +216,14 @@ class Bloomcast(object):
         ax_left.set_ylabel(titles[0], color=colors[0], size='x-small')
         ax_right.plot(right_ts.mpl_dates, right_ts.dep_data, color=colors[1])
         ax_right.set_ylabel(titles[1], color=colors[1], size='x-small')
+        # Add line to mark switch from actual to averaged forcing data
+
+        self.config.data_date = date(2011, 11, 10)
+
+        ax_left.axvline(
+            date2num(self.config.data_date), color='black',
+            label='Actual -> Avg')
+        # Format x-axis
         ax_left.xaxis.set_major_locator(MonthLocator())
         ax_left.xaxis.set_major_formatter(DateFormatter('%j\n%b'))
         ax_left.set_xlim(
@@ -224,6 +233,7 @@ class Bloomcast(object):
             .format(self.config.run_start_date.year,
                     self.config.run_start_date.year + 1),
             size='small')
+        ax_left.legend(loc='upper left', prop={'size': 'xx-small'})
         return fig
 
 
