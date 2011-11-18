@@ -8,6 +8,7 @@ from datetime import datetime
 from datetime import timedelta
 import logging
 import logging.handlers
+from math import ceil
 import os
 from subprocess import Popen
 from subprocess import STDOUT
@@ -18,6 +19,8 @@ import numpy as np
 from mako.template import Template
 # Matplotlib:
 from matplotlib.axes import Axes
+from matplotlib.dates import DateFormatter
+from matplotlib.dates import MonthLocator
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 # Bloomcast:
@@ -172,12 +175,16 @@ class Bloomcast(object):
         """
         self.nitrate = SOG_Timeseries(self.config.std_bio_ts_outfile)
         self.nitrate.read_data('time', '3 m avg nitrate concentration')
+        self.nitrate.calc_mpl_dates(self.config.run_start_date)
         self.diatoms = SOG_Timeseries(self.config.std_bio_ts_outfile)
         self.diatoms.read_data('time', '3 m avg micro phytoplankton biomass')
+        self.diatoms.calc_mpl_dates(self.config.run_start_date)
         self.temperature = SOG_Timeseries(self.config.std_phys_ts_outfile)
         self.temperature.read_data('time', '3 m avg temperature')
+        self.temperature.calc_mpl_dates(self.config.run_start_date)
         self.salinity = SOG_Timeseries(self.config.std_phys_ts_outfile)
         self.salinity.read_data('time', '3 m avg salinity')
+        self.salinity.calc_mpl_dates(self.config.run_start_date)
 
 
     def _create_timeseries_graphs(self):
@@ -203,13 +210,19 @@ class Bloomcast(object):
         ax_left = fig.add_subplot(1, 1, 1)
         ax_right = ax_left.twinx()
         Axes(fig, ax_left.get_position(), sharex=ax_right)
-        ax_left.plot(left_ts.indep_data, left_ts.dep_data, color=colors[0])
+        ax_left.plot(left_ts.mpl_dates, left_ts.dep_data, color=colors[0])
         ax_left.set_ylabel(titles[0], color=colors[0], size='x-small')
-        ax_left.set_xlabel(
-            'Hours Since {0:%Y-%m-%d %H:%M}'.format(self.config.run_start_date),
-            size='small')
-        ax_right.plot(right_ts.indep_data, right_ts.dep_data, color=colors[1])
+        ax_right.plot(right_ts.mpl_dates, right_ts.dep_data, color=colors[1])
         ax_right.set_ylabel(titles[1], color=colors[1], size='x-small')
+        ax_left.xaxis.set_major_locator(MonthLocator())
+        ax_left.xaxis.set_major_formatter(DateFormatter('%j\n%b'))
+        ax_left.set_xlim(
+            (int(left_ts.mpl_dates[0]), ceil(left_ts.mpl_dates[-1])))
+        ax_left.set_xlabel(
+            'Year-days in {0} and {1}'
+            .format(self.config.run_start_date.year,
+                    self.config.run_start_date.year + 1),
+            size='small')
         return fig
 
 
