@@ -5,6 +5,7 @@ from __future__ import division
 # Standard library:
 from datetime import date
 from datetime import datetime
+from datetime import time
 from datetime import timedelta
 import logging
 import logging.handlers
@@ -210,6 +211,8 @@ class Bloomcast(object):
         """
         fig = Figure((8, 3), facecolor='white')
         ax_left = fig.add_subplot(1, 1, 1)
+        ax_left.set_position((0.125, 0.1, 0.775, 0.75))
+        fig.ax_left = ax_left
         ax_right = ax_left.twinx()
         Axes(fig, ax_left.get_position(), sharex=ax_right)
         ax_left.plot(left_ts.mpl_dates, left_ts.dep_data, color=colors[0])
@@ -217,12 +220,8 @@ class Bloomcast(object):
         ax_right.plot(right_ts.mpl_dates, right_ts.dep_data, color=colors[1])
         ax_right.set_ylabel(titles[1], color=colors[1], size='x-small')
         # Add line to mark switch from actual to averaged forcing data
-
-        self.config.data_date = date(2011, 11, 10)
-
-        ax_left.axvline(
-            date2num(self.config.data_date), color='black',
-            label='Actual -> Avg')
+        fig.data_date_line = ax_left.axvline(
+            date2num(self.config.data_date), color='black')
         # Format x-axis
         ax_left.xaxis.set_major_locator(MonthLocator())
         ax_left.xaxis.set_major_formatter(DateFormatter('%j\n%b'))
@@ -233,7 +232,6 @@ class Bloomcast(object):
             .format(self.config.run_start_date.year,
                     self.config.run_start_date.year + 1),
             size='small')
-        ax_left.legend(loc='upper left', prop={'size': 'xx-small'})
         return fig
 
 
@@ -373,12 +371,22 @@ class Bloomcast(object):
         with open('bloomcast/html/results.html', 'wt') as file_obj:
             file_obj.write(template.render(**context))
         graphs = [
-            ('fig_nitrate_diatoms_ts', 'nitrate_diatoms_timeseries.svg'),
-            ('fig_temperature_salinity_ts',
+            (self.fig_nitrate_diatoms_ts, 'nitrate_diatoms_timeseries.svg'),
+            (self.fig_temperature_salinity_ts,
              'temperature_salinity_timeseries.svg'),
         ]
-        for fig_obj, filename in graphs:
-            canvas = FigureCanvasAgg(getattr(self, fig_obj))
+        for fig, filename in graphs:
+            try:
+                bloom_date_line = fig.ax_left.axvline(
+                    date2num(datetime.combine(self.bloom_date, time(12))),
+                    color='green')
+                fig.legend(
+                    [fig.data_date_line, bloom_date_line],
+                    ['Actual to Avg', 'Diatom Bloom'],
+                    loc='upper right', prop={'size': 'xx-small'})
+            except AttributeError:
+                pass
+            canvas = FigureCanvasAgg(fig)
             canvas.print_svg(os.path.join('bloomcast/html', filename))
 
 
