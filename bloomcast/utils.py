@@ -41,8 +41,9 @@ class Config(object):
         self.infile = config_dict['infile']
         self.results_dir = config_dict['results_dir']
         infile_dict = self._read_SOG_infile()
-        self.run_start_date = datetime.strptime(
+        self.run_start_date = (datetime.strptime(
             infile_dict['run_start_date'], '%Y-%m-%d %H:%M:%S')
+            .replace(hour=0, minute=0, second=0, microsecond=0))
         self.SOG_timestep = int(infile_dict['SOG_timestep'])
         self.std_bio_ts_outfile = infile_dict['std_bio_ts_outfile']
         self.std_phys_ts_outfile = infile_dict['std_phys_ts_outfile']
@@ -426,5 +427,5 @@ class SOG_Timeseries(SOG_Relation):
         and the ``run_start_date``.
         """
         self.mpl_dates = np.array(date2num(
-            [run_start_date.replace(hour=0, minute=0) + timedelta(hours=hours)
+            [run_start_date + timedelta(hours=hours)
              for hours in self.indep_data]))

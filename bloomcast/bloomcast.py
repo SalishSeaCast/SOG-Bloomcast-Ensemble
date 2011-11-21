@@ -65,7 +65,7 @@ class Bloomcast(object):
         * Calculate the spring diatom bloom date.
         """
         self._configure_logging()
-        log.debug('run start date is {0:%Y-%m-%d}'
+        log.debug('run start date/time is {0:%Y-%m-%d %H:%M:%S}'
                   .format(self.config.run_start_date))
         try:
             self._get_forcing_data()
@@ -275,7 +275,7 @@ class Bloomcast(object):
         so that they start on 1-Jan of the bloom year.
         """
         jan1 = datetime(self.config.run_start_date.year + 1, 1, 1)
-        discard_hours = (jan1 - self.config.run_start_date)
+        discard_hours = jan1 - self.config.run_start_date
         discard_hours = discard_hours.days * 24 + discard_hours.seconds / 3600
         predicate = self.nitrate.indep_data >= discard_hours
         self.nitrate.boolean_slice(predicate)
@@ -294,22 +294,22 @@ class Bloomcast(object):
         """
         # Assume that there are an integral nummber of SOG time steps in a
         # day
-        year = self.config.run_start_date.year + 1
         day_slice = 86400 // self.config.SOG_timestep
         day_iterator = xrange(
             0, self.nitrate.dep_data.shape[0] - day_slice, day_slice)
+        jan1 = date(self.config.run_start_date.year + 1, 1, 1)
         self.nitrate.dep_data = np.array(
             [self.nitrate.dep_data[i:i+day_slice].min() for i in day_iterator])
         self.nitrate.indep_data = np.array(
-            [date.fromordinal(i+1).replace(year=year)
-             for i in xrange(self.nitrate.dep_data.shape[0])])
+            [jan1 + timedelta(days=i)
+             for i in xrange(len(self.nitrate.dep_data))])
         day_iterator = xrange(
             0, self.diatoms.dep_data.shape[0] - day_slice, day_slice)
         self.diatoms.dep_data = np.array(
             [self.diatoms.dep_data[i:i+day_slice].max() for i in day_iterator])
         self.diatoms.indep_data = np.array(
-            [date.fromordinal(i+1).replace(year=year)
-             for i in xrange(self.diatoms.dep_data.shape[0])])
+            [jan1 + timedelta(days=i)
+             for i in xrange(len(self.diatoms.dep_data))])
 
 
     def _find_low_nitrate_days(self, threshold):
