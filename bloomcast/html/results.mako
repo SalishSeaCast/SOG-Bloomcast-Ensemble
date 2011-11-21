@@ -74,7 +74,7 @@
             <tr>
               <th>Wind Data Date</th>
               <th>Predicted Bloom Date</th>
-              <th>Diatom Biomas [uM N]</th>
+              <th>Diatom Biomass [uM N]</th>
             </tr>
           </thead>
           <tbody>
