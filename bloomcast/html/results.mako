@@ -46,10 +46,11 @@
 
 		<h2>Disclaimer</h2>
 		<p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing
-		  elit. Aliquam sodales urna non odio egestas tempor. Nunc vel
-		  vehicula ante. Etiam bibendum iaculis libero, eget molestie
-		  nisl pharetra in.
+          This site presents output from a research project. Results
+          are not expected to be a robust prediction of the timing of
+          the spring bloom. At this point, we believe such a
+          prediction is not possible before mid-February using any
+          model and this model is not yet tested.
         </p>
 	  </header>
 
