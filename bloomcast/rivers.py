@@ -91,7 +91,7 @@ class RiversProcessor(ForcingDataProcessor):
         """
         tds = self.raw_data.findAll('td')
         timestamps = (td.string for td in tds[::2])
-        flows = (td.string for td in tds[1::2])
+        flows = (td.text for td in tds[1::2])
         data_day = self.read_datestamp(tds[0].string)
         flow_sum = count = 0
         self.data[qty] = []
@@ -100,15 +100,28 @@ class RiversProcessor(ForcingDataProcessor):
             if datestamp > end_date:
                 break
             if datestamp == data_day:
-                flow_sum += float(flow)
+                flow_sum += self._convert_flow(flow)
                 count += 1
             else:
                 self.data[qty].append((data_day, flow_sum / count))
                 data_day = datestamp
-                flow_sum = float(flow)
+                flow_sum = self._convert_flow(flow)
                 count = 1
         self.data[qty].append((data_day, flow_sum / count))
         self.patch_data(qty)
+
+
+    def _convert_flow(self, flow_string):
+        """Convert a flow data value from a string to a float.
+
+        Handles 'provisional values' which are marked with a `*` at
+        the end of the string.
+        """
+        try:
+            return float(flow_string)
+        except ValueError:
+            # Ignore training `*`
+            return float(flow_string[:-1])
 
 
     def read_datestamp(self, string):
