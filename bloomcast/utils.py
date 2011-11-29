@@ -47,6 +47,8 @@ class Config(object):
         self.SOG_timestep = int(infile_dict['SOG_timestep'])
         self.std_bio_ts_outfile = infile_dict['std_bio_ts_outfile']
         self.std_phys_ts_outfile = infile_dict['std_phys_ts_outfile']
+        self.Hoffmueller_profiles_outfile = infile_dict[
+            'Hoffmueller_profiles_outfile']
         self.climate = _Container()
         self.climate.__dict__.update(config_dict['climate'])
         self._load_meteo_config(config_dict, infile_dict)
@@ -120,6 +122,7 @@ class Config(object):
             'dt': 'SOG_timestep',
             'std_bio_ts_out': 'std_bio_ts_outfile',
             'std_phys_ts_out': 'std_phys_ts_outfile',
+            'Hoffmueller file': 'Hoffmueller_profiles_outfile',
         }
         forcing_data_files = {
             'wind': 'wind',
@@ -339,10 +342,11 @@ class SOG_Relation(object):
     and the units of the data arrays.
 
     This is a base class for implementing specific types of relations
-    such as timeseries, or profiles. This class provides a
-    :meth:`read_data` method, but expects classes that inherit from it
-    to implement a :meth:`_read_header` method that returns lists of
-    field names and field units read from the SOG data file header.
+    such as timeseries, or profiles. This class provides
+    :meth:`read_header` and :meth:`read_data` methods which may need
+    to be overridden for particular types of results files
+    (e.g. Hoffmueller profile file requires a custom :meth:`read_data`
+    method).
     """
     def __init__(self, datafile):
         """Create a SOG_Relation instance with its datafile attribute
@@ -351,45 +355,9 @@ class SOG_Relation(object):
         self.datafile = datafile
 
 
-    def _read_header(self, fobj):
-        """This method is expected to be implemented by classes based
-        on SOG_Relation.
-
-        It must return lists of field names and field units from the
-        SOG data file header.
-        """
-        raise NotImplementedError
-
-
-    def read_data(self, indep_field, dep_field):
-        """Read the data for the specified independent and dependent
-        fields from the data file.
-
-        Sets the indep_data and dep_data attributes to NumPy arrays,
-        and the indep_units and dep_units attributes to units strings
-        for the data fields.
-        """
-        with open(self.datafile, 'rt') as file_obj:
-            (field_names, field_units) = self._read_header(file_obj)
-            indep_col = field_names.index(indep_field)
-            dep_col = field_names.index(dep_field)
-            self.indep_units = field_units[indep_col]
-            self.dep_units = field_units[dep_col]
-            self.indep_data, self.dep_data = [], []
-            for line in file_obj:
-                self.indep_data.append(float(line.split()[indep_col]))
-                self.dep_data.append(float(line.split()[dep_col]))
-        self.indep_data = np.array(self.indep_data)
-        self.dep_data = np.array(self.dep_data)
-
-
-class SOG_Timeseries(SOG_Relation):
-    """SOG timeseries relation.
-    """
-    def _read_header(self, file_obj):
-        """Read a SOG timeseries file header, return the field_names
-        and field_units lists, and set attributes with the
-        run_datetime and initial_CTD_datetime values.
+    def read_header(self, file_obj):
+        """Read a SOG results file header, and return the
+        field_names and field_units lists.
         """
         for line in file_obj:
             line = line.strip()
@@ -406,6 +374,31 @@ class SOG_Timeseries(SOG_Relation):
         return field_names, field_units
 
 
+    def read_data(self, indep_field, dep_field):
+        """Read the data for the specified independent and dependent
+        fields from the data file.
+
+        Sets the indep_data and dep_data attributes to NumPy arrays,
+        and the indep_units and dep_units attributes to units strings
+        for the data fields.
+        """
+        with open(self.datafile, 'rt') as file_obj:
+            (field_names, field_units) = self.read_header(file_obj)
+            indep_col = field_names.index(indep_field)
+            dep_col = field_names.index(dep_field)
+            self.indep_units = field_units[indep_col]
+            self.dep_units = field_units[dep_col]
+            self.indep_data, self.dep_data = [], []
+            for line in file_obj:
+                self.indep_data.append(float(line.split()[indep_col]))
+                self.dep_data.append(float(line.split()[dep_col]))
+        self.indep_data = np.array(self.indep_data)
+        self.dep_data = np.array(self.dep_data)
+
+
+class SOG_Timeseries(SOG_Relation):
+    """SOG timeseries relation.
+    """
     def boolean_slice(self, predicate, in_place=True):
         """Slice the independent and dependent data arrays using the
         Boolean ``predicate`` array.
@@ -429,3 +422,38 @@ class SOG_Timeseries(SOG_Relation):
         self.mpl_dates = np.array(date2num(
             [run_start_date + timedelta(hours=hours)
              for hours in self.indep_data]))
+
+
+class SOG_HoffmuellerProfile(SOG_Relation):
+    """SOG profile relation with data read from a Hoffmueller diagram
+    results file.
+    """
+    def read_data(self, indep_field, dep_field, profile_number):
+        """Read the data for the specified independent and dependent
+        fields from the data file.
+
+        Sets the indep_data and dep_data attributes to NumPy arrays,
+        and the indep_units and dep_units attributes to units strings
+        for the data fields.
+        """
+        with open(self.datafile, 'rt') as file_obj:
+            (field_names, field_units) = self.read_header(file_obj)
+            indep_col = field_names.index(indep_field)
+            dep_col = field_names.index(dep_field)
+            self.indep_units = field_units[indep_col]
+            self.dep_units = field_units[dep_col]
+            self.indep_data, self.dep_data = [], []
+            profile_count = 1
+            for line in file_obj:
+                if line == '\n':
+                    profile_count += 1
+                    if profile_count < profile_number:
+                        continue
+                    if profile_count > profile_number:
+                        break
+                else:
+                    if profile_count == profile_number:
+                        self.indep_data.append(float(line.split()[indep_col]))
+                        self.dep_data.append(float(line.split()[dep_col]))
+        self.indep_data = np.array(self.indep_data)
+        self.dep_data = np.array(self.dep_data)

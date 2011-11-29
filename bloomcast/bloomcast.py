@@ -29,6 +29,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from meteo import MeteoProcessor
 from rivers import RiversProcessor
 from utils import Config
+from utils import SOG_HoffmuellerProfile
 from utils import SOG_Timeseries
 from wind import WindProcessor
 
@@ -76,6 +77,7 @@ class Bloomcast(object):
         self._run_SOG()
         self._get_results_timeseries()
         self._create_timeseries_graphs()
+        self._get_results_profiles()
         self._calc_bloom_date()
         self._render_results()
         self._push_results_to_web()
@@ -173,8 +175,8 @@ class Bloomcast(object):
 
 
     def _get_results_timeseries(self):
-        """Read SOG results of interest and create SOG_Timeseries
-        objects from them.
+        """Read SOG results time series of interest and create
+        SOG_Timeseries objects from them.
         """
         self.nitrate = SOG_Timeseries(self.config.std_bio_ts_outfile)
         self.nitrate.read_data('time', '3 m avg nitrate concentration')
@@ -233,6 +235,28 @@ class Bloomcast(object):
                     self.config.run_start_date.year + 1),
             size='small')
         return fig
+
+
+    def _get_results_profiles(self):
+        """Read SOG results profiles of interest and create
+        SOG_HoffmuellerProfile objects from them.
+        """
+        profile_number = (
+            self.config.data_date - self.config.run_start_date.date()).days
+        self.nitrate_profile = SOG_HoffmuellerProfile(
+            self.config.Hoffmueller_profiles_outfile)
+        self.nitrate_profile.read_data('depth', 'nitrate', profile_number)
+        self.diatoms_profile = SOG_HoffmuellerProfile(
+            self.config.Hoffmueller_profiles_outfile)
+        self.diatoms_profile.read_data(
+            'depth', 'micro phytoplankton', profile_number)
+        self.temperature_profile = SOG_HoffmuellerProfile(
+            self.config.Hoffmueller_profiles_outfile)
+        self.temperature_profile.read_data(
+            'depth', 'temperature', profile_number)
+        self.salinity_profile = SOG_HoffmuellerProfile(
+            self.config.Hoffmueller_profiles_outfile)
+        self.salinity_profile.read_data('depth', 'salinity', profile_number)
 
 
     def _calc_bloom_date(self):
