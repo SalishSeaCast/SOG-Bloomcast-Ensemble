@@ -75,9 +75,10 @@ class Bloomcast(object):
                      .format(self.config.data_date))
             return
         self._run_SOG()
+        self._get_results_profiles()
+        self._create_profile_graphs()
         self._get_results_timeseries()
         self._create_timeseries_graphs()
-        self._get_results_profiles()
         self._calc_bloom_date()
         self._render_results()
         self._push_results_to_web()
@@ -259,6 +260,45 @@ class Bloomcast(object):
         self.salinity_profile.read_data('depth', 'salinity', profile_number)
 
 
+    def _create_profile_graphs(self):
+        """Create profile graph objects.
+        """
+        self.fig_nitrate_diatoms_profile = self._two_axis_profile(
+            self.nitrate_profile, self.diatoms_profile,
+            titles=('Nitrate Concentration [uM N]', 'Diatom Biomass [uM N]'),
+            colors=('#30b8b8', 'green'))
+        self.fig_temperature_salinity_profile = self._two_axis_profile(
+            self.temperature_profile, self.salinity_profile,
+            titles=('Temperature [deg C]', 'Salinity [-]'),
+            colors=('red', 'blue'), limits=((4, 10), (25, 30)))
+
+
+    def _two_axis_profile(self, top_profile, bottom_profile, titles, colors,
+                          limits=None):
+        """Create a profile graph figure object with 2 profiles
+        plotted on the top and bottom x axes.
+        """
+        fig = Figure((3, 8), facecolor='white')
+        ax_bottom = fig.add_subplot(1, 1, 1)
+        ax_bottom.set_position((0.2, 0.1, 0.7, 0.8))
+        fig.ax_bottom = ax_bottom
+        ax_top = ax_bottom.twiny()
+        Axes(fig, ax_bottom.get_position(), sharex=ax_top)
+        ax_top.plot(
+            top_profile.dep_data, top_profile.indep_data, color=colors[0])
+        ax_top.set_xlabel(titles[0], color=colors[0], size='small')
+        ax_bottom.plot(bottom_profile.dep_data, bottom_profile.indep_data,
+                       color=colors[1])
+        ax_bottom.set_xlabel(titles[1], color=colors[1], size='small')
+        if limits is not None:
+            ax_top.set_xlim(limits[0])
+            ax_bottom.set_xlim(limits[1])
+        ax_bottom.set_ylim(
+            (bottom_profile.indep_data[-1], bottom_profile.indep_data[0]))
+        ax_bottom.set_ylabel('Depth [m]', size='small')
+        return fig
+
+
     def _calc_bloom_date(self):
         """Calculate the predicted spring bloom date.
 
@@ -395,6 +435,9 @@ class Bloomcast(object):
         with open('bloomcast/html/results.html', 'wt') as file_obj:
             file_obj.write(template.render(**context))
         graphs = [
+            (self.fig_nitrate_diatoms_profile, 'nitrate_diatoms_profiles.svg'),
+            (self.fig_temperature_salinity_profile,
+             'temperature_salinity_profiles.svg'),
             (self.fig_nitrate_diatoms_ts, 'nitrate_diatoms_timeseries.svg'),
             (self.fig_temperature_salinity_ts,
              'temperature_salinity_timeseries.svg'),

@@ -56,6 +56,12 @@
 
       <header>
         <h2>Profiles</h2>
+        <object class="profiles-graph" type="image/svg+xml"
+                data="temperature_salinity_profiles.svg">
+        </object>
+        <object class="profiles-graph" type="image/svg+xml"
+                data="nitrate_diatoms_profiles.svg">
+        </object>
       </header>
 
       <header>
