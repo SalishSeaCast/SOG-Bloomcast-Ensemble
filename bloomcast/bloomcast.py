@@ -145,8 +145,8 @@ class Bloomcast(object):
                 last_data_date = datetime.strptime(
                     file_obj.readline().strip(), '%Y-%m-%d').date()
         except IOError:
-            # Don't worry if there is no stored data date
-            pass
+            # Fake a wind data date to get things rolling
+            last_data_date = self.config.run_start_date.date()
         if self.config.data_date == last_data_date:
             raise NoNewWindData
         else:
