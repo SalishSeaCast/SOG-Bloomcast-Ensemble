@@ -56,15 +56,19 @@
 
       <header>
         <h2>Profiles</h2>
-        <object class="profiles-graph" type="image/svg+xml"
-                data="temperature_salinity_profiles.svg">
-        </object>
-        <object class="profiles-graph" type="image/svg+xml"
-                data="nitrate_diatoms_profiles.svg">
-        </object>
+        <div id="temperature-salinity-profile-graph">
+          <object class="profiles-graph" type="image/svg+xml"
+                  data="temperature_salinity_profiles.svg">
+          </object>
+        </div>
+        <div id="nitrate-diatoms-profile-graph">
+          <object class="profiles-graph" type="image/svg+xml"
+                  data="nitrate_diatoms_profiles.svg">
+          </object>
+        </div>
       </header>
 
-      <header>
+      <header id="time-series-section">
         <h2>Time Series</h2>
         <object class="timeseries-graph" type="image/svg+xml"
                 data="nitrate_diatoms_timeseries.svg">

@@ -249,7 +249,7 @@ h3{font-size: 30px;}
 article header{
 	margin-bottom:50px;
 	padding-bottom:30px;
-	width:700px;
+	width:900px;
 	-webkit-box-shadow:0 45px 60px -60px #AAA;
 	   -moz-box-shadow:0 45px 60px -60px #AAA;
 	        box-shadow:0 45px 60px -60px #AAA;
@@ -258,6 +258,19 @@ article header{
 object.timeseries-graph {
     width: 960px;
     height: 390px;
+}
+
+object.profiles-graph {
+    width: 400px;
+    height: 800px;
+}
+
+#temperature-salinity-profile-graph, #nitrate-diatoms-profile-graph {
+    float: left;
+    width: 200px;
+}
+#time-series-section {
+    float: clear;
 }
 
 th, td {
