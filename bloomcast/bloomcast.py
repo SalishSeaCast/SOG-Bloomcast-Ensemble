@@ -75,10 +75,10 @@ class Bloomcast(object):
                      .format(self.config.data_date))
             return
         self._run_SOG()
-        self._get_results_profiles()
-        self._create_profile_graphs()
         self._get_results_timeseries()
         self._create_timeseries_graphs()
+        self._get_results_profiles()
+        self._create_profile_graphs()
         self._calc_bloom_date()
         self._render_results()
         self._push_results_to_web()
@@ -191,6 +191,9 @@ class Bloomcast(object):
         self.salinity = SOG_Timeseries(self.config.std_phys_ts_outfile)
         self.salinity.read_data('time', '3 m avg salinity')
         self.salinity.calc_mpl_dates(self.config.run_start_date)
+        self.mixing_layer_depth = SOG_Timeseries(
+            self.config.std_phys_ts_outfile)
+        self.mixing_layer_depth.read_data('time', 'mixing layer depth')
 
 
     def _create_timeseries_graphs(self):
@@ -263,24 +266,30 @@ class Bloomcast(object):
     def _create_profile_graphs(self):
         """Create profile graph objects.
         """
+        profile_datetime = datetime.combine(self.config.data_date, time(12))
+        profile_dt = profile_datetime - self.config.run_start_date
+        profile_hour = profile_dt.days * 24 + profile_dt.seconds / 3600
+        self.mixing_layer_depth.boolean_slice(
+            self.mixing_layer_depth.indep_data >= profile_hour)
+        mixing_layer_depth = self.mixing_layer_depth.dep_data[0]
+        self.fig_temperature_salinity_profile = self._two_axis_profile(
+            self.temperature_profile, self.salinity_profile, mixing_layer_depth,
+            titles=('Temperature [deg C]', 'Salinity [-]'),
+            colors=('red', 'blue'), limits=((5, 10), (25, 30)))
         self.fig_nitrate_diatoms_profile = self._two_axis_profile(
-            self.nitrate_profile, self.diatoms_profile,
+            self.nitrate_profile, self.diatoms_profile, mixing_layer_depth,
             titles=('Nitrate Concentration [uM N]', 'Diatom Biomass [uM N]'),
             colors=('#30b8b8', 'green'))
-        self.fig_temperature_salinity_profile = self._two_axis_profile(
-            self.temperature_profile, self.salinity_profile,
-            titles=('Temperature [deg C]', 'Salinity [-]'),
-            colors=('red', 'blue'), limits=((4, 10), (25, 30)))
 
 
-    def _two_axis_profile(self, top_profile, bottom_profile, titles, colors,
-                          limits=None):
+    def _two_axis_profile(self, top_profile, bottom_profile, mixing_layer_depth,
+                          titles, colors, limits=None):
         """Create a profile graph figure object with 2 profiles
         plotted on the top and bottom x axes.
         """
-        fig = Figure((3, 8), facecolor='white')
+        fig = Figure((4, 8), facecolor='white')
         ax_bottom = fig.add_subplot(1, 1, 1)
-        ax_bottom.set_position((0.2, 0.1, 0.7, 0.8))
+        ax_bottom.set_position((0.2, 0.1, 0.5, 0.8))
         fig.ax_bottom = ax_bottom
         ax_top = ax_bottom.twiny()
         Axes(fig, ax_bottom.get_position(), sharex=ax_top)
@@ -293,6 +302,11 @@ class Bloomcast(object):
         if limits is not None:
             ax_top.set_xlim(limits[0])
             ax_bottom.set_xlim(limits[1])
+        ax_bottom.axhline(mixing_layer_depth, color='black')
+        ax_bottom.text(
+            x=ax_bottom.get_xlim()[1]  + 0.05, y=mixing_layer_depth,
+            s='Mixing Layer\nDepth = {0:.2f} m'.format(mixing_layer_depth),
+            verticalalignment='center', size='small')
         ax_bottom.set_ylim(
             (bottom_profile.indep_data[-1], bottom_profile.indep_data[0]))
         ax_bottom.set_ylabel('Depth [m]', size='small')
