@@ -74,13 +74,14 @@ class RiversProcessor(ForcingDataProcessor):
 
         The values are date components as integers.
         """
+        end_date = self.config.data_date + timedelta(days=1)
         params = {
             'syr': start_year,
             'smo': 1,
             'sday': 1,
-            'eyr': self.config.data_date.year,
-            'emo': self.config.data_date.month,
-            'eday': self.config.data_date.day + 1,
+            'eyr': end_date.year,
+            'emo': end_date.month,
+            'eday': end_date.day,
         }
         return params
 
