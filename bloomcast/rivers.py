@@ -35,13 +35,13 @@ class RiversProcessor(ForcingDataProcessor):
         files in the format that SOG expects.
         """
         for river in 'major minor'.split():
-            output_file = self.config.rivers.output_files[river]
-            file_obj = open(output_file, 'wt')
             self.get_river_data(river)
             self.process_data(river, end_date=self.config.data_date)
+            output_file = self.config.rivers.output_files[river]
+            with open(output_file, 'wt') as file_obj:
+                file_obj.writelines(self.format_data(river))
             log.debug(
                 'latest {0} river flow {1}'.format(river, self.data[river][-1]))
-            file_obj.writelines(self.format_data(river))
 
 
     def get_river_data(self, river):
