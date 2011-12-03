@@ -502,6 +502,23 @@ class TestRiverProcessor(unittest.TestCase):
         return self._get_target_class()(*args, **kwargs)
 
 
+    def test_date_params(self):
+        """_date_params handles month-end rollover correctly
+        """
+        rivers = self._make_one(Mock(name='config'))
+        rivers.config.data_date = date(2011, 11, 30)
+        params = rivers._date_params(2011)
+        self.assertEqual(
+            params, {
+                'syr': 2011,
+                'smo': 1,
+                'sday': 1,
+                'eyr': 2011,
+                'emo': 12,
+                'eday': 1,
+        })
+
+
     def test_process_data_1_row(self):
         """process_data produces expected result for 1 row of data
         """
