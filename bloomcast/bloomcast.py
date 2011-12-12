@@ -22,6 +22,8 @@ from mako.template import Template
 from matplotlib.axes import Axes
 from matplotlib.dates import date2num
 from matplotlib.dates import DateFormatter
+from matplotlib.dates import DayLocator
+from matplotlib.dates import HourLocator
 from matplotlib.dates import MonthLocator
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -195,6 +197,10 @@ class Bloomcast(object):
             self.config.std_phys_ts_outfile)
         self.mixing_layer_depth.read_data('time', 'mixing layer depth')
 
+        self.config.data_date = date(2011, 12, 10)
+
+        self.mixing_layer_depth.calc_mpl_dates(self.config.run_start_date)
+
 
     def _create_timeseries_graphs(self):
         """Create time series graph objects.
@@ -209,6 +215,7 @@ class Bloomcast(object):
             titles=('3 m Avg Temperature [deg C]',
                    '3 m Avg Salinity [-]'),
             colors=('red', 'blue'))
+        self.fig_mixing_layer_depth_ts = self._mixing_layer_depth_timeseries()
 
 
     def _two_axis_timeseries(self, left_ts, right_ts, titles, colors):
@@ -238,6 +245,29 @@ class Bloomcast(object):
             .format(self.config.run_start_date.year,
                     self.config.run_start_date.year + 1),
             size='small')
+        return fig
+
+
+    def _mixing_layer_depth_timeseries(self):
+        """Create a time series graph figure object of the mixing
+        layer depth on the wind data date and the 6 days preceding it.
+        """
+        fig = Figure((8, 3), facecolor='white')
+        ax = fig.add_subplot(1, 1, 1)
+        ax.set_position((0.125, 0.1, 0.775, 0.75))
+        predicate = np.logical_and(
+            self.mixing_layer_depth.mpl_dates
+            > date2num(self.config.data_date - timedelta(days=6)),
+            self.mixing_layer_depth.mpl_dates
+            <= date2num(self.config.data_date + timedelta(days=1)))
+        mpl_dates = self.mixing_layer_depth.mpl_dates[predicate]
+        dep_data = self.mixing_layer_depth.dep_data[predicate]
+        ax.plot(mpl_dates, dep_data, color='magenta')
+        ax.set_ylabel('Mixing Layer Depth [m]', color='magenta', size='x-small')
+        ax.xaxis.set_major_locator(DayLocator())
+        ax.xaxis.set_major_formatter(DateFormatter('%j\n%b'))
+        ax.xaxis.set_minor_locator(HourLocator(interval=6))
+        ax.set_xlim((int(mpl_dates[0]), ceil(mpl_dates[-1])))
         return fig
 
 
@@ -380,14 +410,14 @@ class Bloomcast(object):
             [self.nitrate.dep_data[i:i+day_slice].min() for i in day_iterator])
         self.nitrate.indep_data = np.array(
             [jan1 + timedelta(days=i)
-             for i in xrange(len(self.nitrate.dep_data))])
+             for i in xrange(self.nitrate.dep_data.size)])
         day_iterator = xrange(
             0, self.diatoms.dep_data.shape[0] - day_slice, day_slice)
         self.diatoms.dep_data = np.array(
             [self.diatoms.dep_data[i:i+day_slice].max() for i in day_iterator])
         self.diatoms.indep_data = np.array(
             [jan1 + timedelta(days=i)
-             for i in xrange(len(self.diatoms.dep_data))])
+             for i in xrange(self.diatoms.dep_data.size)])
 
 
     def _find_low_nitrate_days(self, threshold):
@@ -455,6 +485,8 @@ class Bloomcast(object):
             (self.fig_nitrate_diatoms_ts, 'nitrate_diatoms_timeseries.svg'),
             (self.fig_temperature_salinity_ts,
              'temperature_salinity_timeseries.svg'),
+            (self.fig_mixing_layer_depth_ts,
+             'mixing_layer_depth_timeseries.svg'),
         ]
         for fig, filename in graphs:
             try:
