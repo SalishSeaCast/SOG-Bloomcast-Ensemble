@@ -76,6 +76,9 @@
         <object class="timeseries-graph" type="image/svg+xml"
                 data="temperature_salinity_timeseries.svg">
         </object>
+        <object class="timeseries-graph" type="image/svg+xml"
+                data="mixing_layer_depth_timeseries.svg">
+        </object>
       </header>
 
       <header>
