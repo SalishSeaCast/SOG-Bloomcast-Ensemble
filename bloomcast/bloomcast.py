@@ -49,9 +49,12 @@ class Bloomcast(object):
     :arg config_file: Path for the bloomcast configuration file.
     :type config_file: string
     """
-    def __init__(self, config_file):
+    def __init__(self, config_file, data_date):
         self.config = Config()
         self.config.load_config(config_file)
+        # Wind data date for development and debugging; overwritten if
+        # wind forcing data is collected and processed
+        self.config.data_date = data_date
 
 
     def run(self):
@@ -135,7 +138,6 @@ class Bloomcast(object):
         """Collect and process forcing data.
         """
         if  not self.config.get_forcing_data:
-            self.config.data_date = None
             log.info('Skipped collection and processing of forcing data')
             return
         wind = WindProcessor(self.config)
@@ -196,9 +198,6 @@ class Bloomcast(object):
         self.mixing_layer_depth = SOG_Timeseries(
             self.config.std_phys_ts_outfile)
         self.mixing_layer_depth.read_data('time', 'mixing layer depth')
-
-        self.config.data_date = date(2011, 12, 10)
-
         self.mixing_layer_depth.calc_mpl_dates(self.config.run_start_date)
 
 
@@ -372,7 +371,7 @@ class Bloomcast(object):
             NITRATE_HALF_SATURATION_CONCENTRATION)
         self._find_phytoplankton_peak(
             first_low_nitrate_days, PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
-        if self.config.data_date is not None:
+        if self.config.get_forcing_data or self.config.run_SOG:
             bloom_date_log.info('  {0}      {1}  {2}'
                                 .format(self.config.data_date, self.bloom_date,
                                         self.bloom_biomass))
@@ -515,5 +514,12 @@ class Bloomcast(object):
 
 
 if __name__ == '__main__':
-    bloomcast = Bloomcast(sys.argv[1])
+    config_file = sys.argv[1]
+    try:
+        data_date = datetime.strptime(sys.argv[2], '%Y-%m-%d').date()
+    except ValueError:
+        print 'Expected %Y-%m-%d for data date, got: {0[2]}'.format(sys.argv)
+    except IndexError:
+        data_date = None
+    bloomcast = Bloomcast(config_file, data_date)
     bloomcast.run()
