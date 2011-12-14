@@ -304,7 +304,7 @@ class Bloomcast(object):
         self.fig_temperature_salinity_profile = self._two_axis_profile(
             self.temperature_profile, self.salinity_profile, mixing_layer_depth,
             titles=('Temperature [deg C]', 'Salinity [-]'),
-            colors=('red', 'blue'), limits=((5, 10), (25, 30)))
+            colors=('red', 'blue'), limits=((4, 10), (20, 30)))
         self.fig_nitrate_diatoms_profile = self._two_axis_profile(
             self.nitrate_profile, self.diatoms_profile, mixing_layer_depth,
             titles=('Nitrate Concentration [uM N]', 'Diatom Biomass [uM N]'),
