@@ -55,7 +55,7 @@
 	  </header>
 
       <header>
-        <h2>Profiles</h2>
+        <h2>Profiles at ${data_date} 12:00</h2>
         <div id="temperature-salinity-profile-graph">
           <object class="profiles-graph" type="image/svg+xml"
                   data="temperature_salinity_profiles.svg">
