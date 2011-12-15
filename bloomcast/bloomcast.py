@@ -172,7 +172,7 @@ class Bloomcast(object):
                  .format(datetime.now()))
         with open(self.config.infile, 'rt') as infile_obj:
             with open(self.config.infile + '.stdout', 'wt') as stdout_obj:
-                SOG = Popen('nice -19 ../SOG-code-ocean/SOG'.split(),
+                SOG = Popen('nice -19 ../SOG-code-bloomcast/SOG'.split(),
                             stdin=infile_obj, stdout=stdout_obj, stderr=STDOUT)
                 SOG.wait()
         log.info(
