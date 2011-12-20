@@ -237,13 +237,16 @@ class Bloomcast(object):
         # Format x-axis
         ax_left.xaxis.set_major_locator(MonthLocator())
         ax_left.xaxis.set_major_formatter(DateFormatter('%j\n%b'))
+        for axis in (ax_left, ax_right):
+            for label in axis.get_xticklabels() + axis.get_yticklabels():
+                label.set_size('x-small')
         ax_left.set_xlim(
             (int(left_ts.mpl_dates[0]), ceil(left_ts.mpl_dates[-1])))
         ax_left.set_xlabel(
             'Year-days in {0} and {1}'
             .format(self.config.run_start_date.year,
                     self.config.run_start_date.year + 1),
-            size='small')
+            size='x-small')
         return fig
 
 
@@ -264,8 +267,10 @@ class Bloomcast(object):
         ax.plot(mpl_dates, dep_data, color='magenta')
         ax.set_ylabel('Mixing Layer Depth [m]', color='magenta', size='x-small')
         ax.xaxis.set_major_locator(DayLocator())
-        ax.xaxis.set_major_formatter(DateFormatter('%j\n%b'))
+        ax.xaxis.set_major_formatter(DateFormatter('%j\n%d-%b'))
         ax.xaxis.set_minor_locator(HourLocator(interval=6))
+        for label in ax.get_xticklabels() + ax.get_yticklabels():
+            label.set_size('x-small')
         ax.set_xlim((int(mpl_dates[0]), ceil(mpl_dates[-1])))
         return fig
 
@@ -328,6 +333,9 @@ class Bloomcast(object):
         ax_bottom.plot(bottom_profile.dep_data, bottom_profile.indep_data,
                        color=colors[1])
         ax_bottom.set_xlabel(titles[1], color=colors[1], size='small')
+        for axis in (ax_bottom, ax_top):
+            for label in axis.get_xticklabels() + axis.get_yticklabels():
+                label.set_size('x-small')
         if limits is not None:
             ax_top.set_xlim(limits[0])
             ax_bottom.set_xlim(limits[1])
@@ -496,6 +504,8 @@ class Bloomcast(object):
                     [fig.data_date_line, bloom_date_line],
                     ['Actual to Avg', 'Diatom Bloom'],
                     loc='upper right', prop={'size': 'xx-small'})
+                for label in fig.ax_left.get_xticklabels():
+                    label.set_size('x-small')
             except AttributeError:
                 pass
             canvas = FigureCanvasAgg(fig)
