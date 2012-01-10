@@ -1,6 +1,6 @@
 ! -*- mode: f90 -*-  ! This line must be at the top of the file!
 
-! SOG code infile for 2012 bloomcast run
+! SOG code infile for 2012 bloomcast run with average forcing data
 
 ! Latitude of basin location
 "latitude"  49.1253d0  "latitude [deg] 49.0d0 + 7.517d0 / 60.0d0"
@@ -403,19 +403,38 @@
 "bSi sink rate"         8d-5       "Biogenic Si detritus sinking rate [m/s]"
 
 ! File names and control variables for forcing data (wind, meteorology, river flows)
-"use average forcing data" "fill" "yes = use average forcing data only; no = fail if insufficient forcing data; fill = use forcing data below to end, then switch to average forcing data"
-"average wind" "../SOG-forcing/wind/SHavg" "average wind forcing data"
-"wind"         "Sandheads_wind"  "wind forcing data"
-"average air temp"     "../SOG-forcing/met/YVRavgAT"      "average air temperature forcing data"
-"air temp"     "YVR_air_temperature"      "air temperature forcing data"
-"average cloud"        "../SOG-forcing/met/YVRavgCF"      "average cloud fraction forcing data"
-"cloud"        "YVR_cloud_fraction"      "cloud fraction forcing data"
-"average humidity"     "../SOG-forcing/met/YVRavgHum"     "average humidity forcing data"
-"humidity"     "YVR_relative_humidity"     "humidity forcing data"
-"average major river"  "../SOG-forcing/rivers/fraser_average"  "average major river flow data"
+"use average/hist forcing"
+    "fill"
+    "yes = use aver. forcing data only; no = fail if insufficient data; fill = use forcing data below to end, then switch to aver. data; histfill = use forcing data below to end, then switch to hist data"
+
+"average/hist wind"
+    "../SOG-forcing/wind/SHavg"
+    "average wind forcing data"
+"wind"  "Sandheads_wind"  "wind forcing data"
+"average/hist air temp"
+    "../SOG-forcing/met/YVRavgAT"
+    "average air temperature forcing data"
+"air temp"  "YVR_air_temperature"  "air temperature forcing data"
+"average/hist cloud"
+    "../SOG-forcing/met/YVRavgCF"
+    "average cloud fraction forcing data"
+"cloud"  "YVR_cloud_fraction"  "cloud fraction forcing data"
+"average/hist humidity"
+    "../SOG-forcing/met/YVRavgHum"
+    "average humidity forcing data"
+"humidity"  "YVR_relative_humidity"  "humidity forcing data"
+
+"average/hist major river"
+    "../SOG-forcing/rivers/fraser_average"
+    "average major river flow data"
 "major river"  "Fraser_flow"  "major river flow data"
 "use river temp"  .true.  "Include cooling/heating effect of major river?"
-"average minor river"  "../SOG-forcing/rivers/englishman_average"  "average minor river flow data"
-"minor river integ days"  20  "Days over which to integrate minor river flow"
+
+"average/hist minor river"
+    "../SOG-forcing/rivers/englishman_average"
+    "average minor river flow data"
 "minor river"  "Englishman_flow"  "minor river flow data"
-"alt minor river" "../SOG-forcing/rivers/NanimoNorm_historic.dat"  "alternative minor river flow data"
+"alt minor river"
+    "../SOG-forcing/rivers/NanimoNorm_historic.dat"
+    "alternative minor river flow data"
+"minor river integ days"  20  "Days over which to integrate minor river flow"
