@@ -38,17 +38,22 @@ class Config(object):
         self._load_logging_config(config_dict)
         self.get_forcing_data = config_dict['get_forcing_data']
         self.run_SOG = config_dict['run_SOG']
-        self.infile = config_dict['infile']
+        self.infiles = config_dict['infiles']
         self.results_dir = config_dict['results_dir']
-        infile_dict = self._read_SOG_infile()
-        self.run_start_date = (datetime.strptime(
-            infile_dict['run_start_date'], '%Y-%m-%d %H:%M:%S')
-            .replace(hour=0, minute=0, second=0, microsecond=0))
-        self.SOG_timestep = int(infile_dict['SOG_timestep'])
-        self.std_bio_ts_outfile = infile_dict['std_bio_ts_outfile']
-        self.std_phys_ts_outfile = infile_dict['std_phys_ts_outfile']
-        self.Hoffmueller_profiles_outfile = infile_dict[
-            'Hoffmueller_profiles_outfile']
+        self.std_bio_ts_outfiles = {}
+        self.std_phys_ts_outfiles = {}
+        self.Hoffmueller_profiles_outfiles = {}
+        for key in self.infiles:
+            infile_dict = self._read_SOG_infile(key)
+            if key == 'avg_forcing':
+                self.run_start_date = (datetime.strptime(
+                    infile_dict['run_start_date'], '%Y-%m-%d %H:%M:%S')
+                    .replace(hour=0, minute=0, second=0, microsecond=0))
+                self.SOG_timestep = int(infile_dict['SOG_timestep'])
+            self.std_bio_ts_outfiles[key] = infile_dict['std_bio_ts_outfile']
+            self.std_phys_ts_outfiles[key] = infile_dict['std_phys_ts_outfile']
+            self.Hoffmueller_profiles_outfiles[key] = infile_dict[
+                'Hoffmueller_profiles_outfile']
         self.climate = _Container()
         self.climate.__dict__.update(config_dict['climate'])
         self._load_meteo_config(config_dict, infile_dict)
@@ -113,7 +118,7 @@ class Config(object):
             return yaml.load(file_obj.read())
 
 
-    def _read_SOG_infile(self):
+    def _read_SOG_infile(self, key):
         """Return a dict of selected values read from the SOG infile.
         """
         # Mappings between SOG infile keys and Config object attribute
@@ -133,7 +138,7 @@ class Config(object):
             'minor river': 'minor_river',
         }
         infile_dict = {'forcing_data_files': {}}
-        with open(self.infile, 'rt') as file_obj:
+        with open(self.infiles[key], 'rt') as file_obj:
             lines = file_obj.readlines()
         for i, line in enumerate(lines):
             if line.startswith('\n') or line.startswith('!'):

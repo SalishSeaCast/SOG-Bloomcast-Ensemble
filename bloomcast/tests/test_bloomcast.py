@@ -28,7 +28,11 @@ class TestConfig(unittest.TestCase):
         mock_config_dict = {
             'get_forcing_data': None,
             'run_SOG': None,
-            'infile': None,
+            'infiles': {
+                'avg_forcing': None,
+                'early_bloom_forcing': None,
+                'late_bloom_forcing': None,
+            },
             'climate': {
                 'url': None,
                 'params': None,
@@ -176,12 +180,12 @@ class TestConfig(unittest.TestCase):
         """_read_SOG_infile works for multiple blanks between key and filename
         """
         config = self._make_one()
-        config.infile = 'foo'
+        config.infiles = {'avg_forcing': 'foo'}
         with patch('utils.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(name='magic mock', spec=file)
             mock_open.return_value.__enter__.return_value = StringIO(
                 '"wind"  "Sandheads_wind"  "wind forcing data"\n')
-            infile_dict = config._read_SOG_infile()
+            infile_dict = config._read_SOG_infile('avg_forcing')
         self.assertEqual(
             infile_dict,
             {'forcing_data_files': {
@@ -193,12 +197,12 @@ class TestConfig(unittest.TestCase):
         """_read_SOG_infile works for newline between key and filename
         """
         config = self._make_one()
-        config.infile = 'foo'
+        config.infiles = {'avg_forcing': 'foo'}
         with patch('utils.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(name='magic mock', spec=file)
             mock_open.return_value.__enter__.return_value = StringIO(
                 '"wind"  \n  "Sandheads_wind" "wind forcing data"\n')
-            infile_dict = config._read_SOG_infile()
+            infile_dict = config._read_SOG_infile('avg_forcing')
         self.assertEqual(
             infile_dict,
             {'forcing_data_files': {
@@ -210,13 +214,13 @@ class TestConfig(unittest.TestCase):
         """_read_SOG_infile returns expected run start date
         """
         config = self._make_one()
-        config.infile = 'foo'
+        config.infiles = {'avg_forcing': 'foo'}
         with patch('utils.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(name='magic mock', spec=file)
             mock_open.return_value.__enter__.return_value = StringIO(
                 '"init datetime" "2011-09-19 18:49:00" '
                 '  "initialization CTD profile date/time"\n')
-            infile_dict = config._read_SOG_infile()
+            infile_dict = config._read_SOG_infile('avg_forcing')
         self.assertEqual(
             infile_dict,
             {'run_start_date': "2011-09-19 18:49:00",
@@ -227,12 +231,12 @@ class TestConfig(unittest.TestCase):
         """_read_SOG_infile returns expected SOG timestep
         """
         config = self._make_one()
-        config.infile = 'foo'
+        config.infiles = {'avg_forcing': 'foo'}
         with patch('utils.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(name='magic mock', spec=file)
             mock_open.return_value.__enter__.return_value = StringIO(
                 '"dt" 900 "time step [s]"\n')
-            infile_dict = config._read_SOG_infile()
+            infile_dict = config._read_SOG_infile('avg_forcing')
         self.assertEqual(
             infile_dict,
             {'SOG_timestep': '900',

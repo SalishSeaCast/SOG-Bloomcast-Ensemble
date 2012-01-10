@@ -142,7 +142,7 @@ class Bloomcast(object):
             return
         wind = WindProcessor(self.config)
         self.config.data_date = wind.make_forcing_data_file()
-        log.info('based on wind data run data date is {0:%Y-%m-%d}'
+        log.info('based on wind data forcing data date is {0:%Y-%m-%d}'
                   .format(self.config.data_date))
         try:
             with open('wind_data_date', 'rt') as file_obj:
@@ -168,34 +168,36 @@ class Bloomcast(object):
         if not self.config.run_SOG:
             log.info('Skipped running SOG')
             return
-        log.info('SOG run started at {0:%Y-%m-%d %H:%M:%S}'
+        log.info('SOG run with average forcing started at {0:%Y-%m-%d %H:%M:%S}'
                  .format(datetime.now()))
-        with open(self.config.infile, 'rt') as infile_obj:
+        with open(self.config.infiles['avg_forcing'], 'rt') as infile_obj:
             with open(self.config.infile + '.stdout', 'wt') as stdout_obj:
                 check_call('nice -19 ../SOG-code-bloomcast/SOG'.split(),
                            stdin=infile_obj, stdout=stdout_obj, stderr=STDOUT)
         log.info(
-            'SOG run finished at {0:%Y-%m-%d %H:%M:%S}'.format(datetime.now()))
+            'SOG run with average forcing finished at {0:%Y-%m-%d %H:%M:%S}'
+            .format(datetime.now()))
 
 
     def _get_results_timeseries(self):
         """Read SOG results time series of interest and create
         SOG_Timeseries objects from them.
         """
-        self.nitrate = SOG_Timeseries(self.config.std_bio_ts_outfile)
+        std_bio_ts_outfile = self.config.std_bio_ts_outfiles['avg_forcing']
+        std_phys_ts_outfile = self.config.std_phys_ts_outfiles['avg_forcing']
+        self.nitrate = SOG_Timeseries(std_bio_ts_outfile)
         self.nitrate.read_data('time', '3 m avg nitrate concentration')
         self.nitrate.calc_mpl_dates(self.config.run_start_date)
-        self.diatoms = SOG_Timeseries(self.config.std_bio_ts_outfile)
+        self.diatoms = SOG_Timeseries(std_bio_ts_outfile)
         self.diatoms.read_data('time', '3 m avg micro phytoplankton biomass')
         self.diatoms.calc_mpl_dates(self.config.run_start_date)
-        self.temperature = SOG_Timeseries(self.config.std_phys_ts_outfile)
+        self.temperature = SOG_Timeseries(std_phys_ts_outfile)
         self.temperature.read_data('time', '3 m avg temperature')
         self.temperature.calc_mpl_dates(self.config.run_start_date)
-        self.salinity = SOG_Timeseries(self.config.std_phys_ts_outfile)
+        self.salinity = SOG_Timeseries(std_phys_ts_outfile)
         self.salinity.read_data('time', '3 m avg salinity')
         self.salinity.calc_mpl_dates(self.config.run_start_date)
-        self.mixing_layer_depth = SOG_Timeseries(
-            self.config.std_phys_ts_outfile)
+        self.mixing_layer_depth = SOG_Timeseries(std_phys_ts_outfile)
         self.mixing_layer_depth.read_data('time', 'mixing layer depth')
         self.mixing_layer_depth.calc_mpl_dates(self.config.run_start_date)
 
@@ -278,21 +280,19 @@ class Bloomcast(object):
         """Read SOG results profiles of interest and create
         SOG_HoffmuellerProfile objects from them.
         """
+        Hoffmueller_outfile = (
+            self.config.Hoffmueller_profiles_outfiles['avg_forcing'])
         profile_number = (
             self.config.data_date - self.config.run_start_date.date()).days
-        self.nitrate_profile = SOG_HoffmuellerProfile(
-            self.config.Hoffmueller_profiles_outfile)
+        self.nitrate_profile = SOG_HoffmuellerProfile(Hoffmueller_outfile)
         self.nitrate_profile.read_data('depth', 'nitrate', profile_number)
-        self.diatoms_profile = SOG_HoffmuellerProfile(
-            self.config.Hoffmueller_profiles_outfile)
+        self.diatoms_profile = SOG_HoffmuellerProfile(Hoffmueller_outfile)
         self.diatoms_profile.read_data(
             'depth', 'micro phytoplankton', profile_number)
-        self.temperature_profile = SOG_HoffmuellerProfile(
-            self.config.Hoffmueller_profiles_outfile)
+        self.temperature_profile = SOG_HoffmuellerProfile(Hoffmueller_outfile)
         self.temperature_profile.read_data(
             'depth', 'temperature', profile_number)
-        self.salinity_profile = SOG_HoffmuellerProfile(
-            self.config.Hoffmueller_profiles_outfile)
+        self.salinity_profile = SOG_HoffmuellerProfile(Hoffmueller_outfile)
         self.salinity_profile.read_data('depth', 'salinity', profile_number)
 
 
