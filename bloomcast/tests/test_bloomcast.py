@@ -63,6 +63,7 @@ class TestConfig(unittest.TestCase):
                 'toaddrs': [],
                 'use_test_smtpd':  None,
             },
+            'results_dir': None,
         }
         return mock_config_dict
 
@@ -71,7 +72,9 @@ class TestConfig(unittest.TestCase):
         mock_infile_dict = {
             'run_start_date': '2011-11-11 12:33:42',
             'SOG_timestep': '900',
+            'std_phys_ts_outfile': None,
             'std_bio_ts_outfile': None,
+            'Hoffmueller_profiles_outfile': None,
             'forcing_data_files': {
                 'air_temperature': None,
                 'relative_humidity': None,
