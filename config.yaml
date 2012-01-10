@@ -3,7 +3,10 @@
 get_forcing_data: False
 run_SOG: False
 
-infile: 2012_bloomcast_infile
+infiles:
+  avg_forcing: 2012_bloomcast_infile
+  early_bloom_forcing: 2012_bloomcast_early_infile
+  late_bloom_forcing: 2012_bloomcast_late_infile
 
 climate:
   url: http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html
