@@ -11,7 +11,7 @@ import logging
 import logging.handlers
 from math import ceil
 import os
-from subprocess import Popen
+from subprocess import check_call
 from subprocess import STDOUT
 import sys
 # NumPy:
@@ -172,9 +172,8 @@ class Bloomcast(object):
                  .format(datetime.now()))
         with open(self.config.infile, 'rt') as infile_obj:
             with open(self.config.infile + '.stdout', 'wt') as stdout_obj:
-                SOG = Popen('nice -19 ../SOG-code-bloomcast/SOG'.split(),
-                            stdin=infile_obj, stdout=stdout_obj, stderr=STDOUT)
-                SOG.wait()
+                check_call('nice -19 ../SOG-code-bloomcast/SOG'.split(),
+                           stdin=infile_obj, stdout=stdout_obj, stderr=STDOUT)
         log.info(
             'SOG run finished at {0:%Y-%m-%d %H:%M:%S}'.format(datetime.now()))
 
@@ -517,7 +516,7 @@ class Bloomcast(object):
         via rsync.
         """
         if os.access(self.config.results_dir, os.F_OK):
-            Popen(
+            check_call(
                 'rsync -rq --exclude=results.mako {0}/ {1}'
                 .format(os.path.abspath('bloomcast/html'),
                         self.config.results_dir).split())
