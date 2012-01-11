@@ -61,7 +61,7 @@ class RiversProcessor(ForcingDataProcessor):
             response = s.get(self.config.rivers.data_url, params=params)
             log.debug('got {0} river data for {1}-01-01 to {2:%Y-%m-%d}'
                       .format(river, start_year, self.config.data_date))
-        soup = BeautifulSoup(response)
+        soup = BeautifulSoup(response.content)
         self.raw_data = soup.find('table', id='dataTable')
 
 
