@@ -171,7 +171,7 @@ class Bloomcast(object):
         log.info('SOG run with average forcing started at {0:%Y-%m-%d %H:%M:%S}'
                  .format(datetime.now()))
         with open(self.config.infiles['avg_forcing'], 'rt') as infile_obj:
-            with open(self.config.infile + '.stdout', 'wt') as stdout_obj:
+            with open(self.config.infiles['avg_forcing'] + '.stdout', 'wt') as stdout_obj:
                 check_call('nice -19 ../SOG-code-bloomcast/SOG'.split(),
                            stdin=infile_obj, stdout=stdout_obj, stderr=STDOUT)
         log.info(
