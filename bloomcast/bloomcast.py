@@ -14,6 +14,8 @@ import os
 from subprocess import check_call
 from subprocess import STDOUT
 import sys
+# contextlib2:
+from contextlib2 import ContextStack
 # NumPy:
 import numpy as np
 # Mako:
@@ -168,15 +170,18 @@ class Bloomcast(object):
         if not self.config.run_SOG:
             log.info('Skipped running SOG')
             return
-        log.info('SOG run with average forcing started at {0:%Y-%m-%d %H:%M:%S}'
-                 .format(datetime.now()))
-        with open(self.config.infiles['avg_forcing'], 'rt') as infile_obj:
-            with open(self.config.infiles['avg_forcing'] + '.stdout', 'wt') as stdout_obj:
+        for key in self.config.infiles:
+            with ContextStack() as stack:
+                infile = stack.enter_context(
+                    open(self.config.infiles[key], 'rt'))
+                stdout = stack.enter_context(
+                    open(infile.name + '.stdout', 'wt'))
+                log.info('SOG run with {0} started at {1:%Y-%m-%d %H:%M:%S}'
+                         .format(infile.name, datetime.now()))
                 check_call('nice -19 ../SOG-code-bloomcast/SOG'.split(),
-                           stdin=infile_obj, stdout=stdout_obj, stderr=STDOUT)
-        log.info(
-            'SOG run with average forcing finished at {0:%Y-%m-%d %H:%M:%S}'
-            .format(datetime.now()))
+                           stdin=infile, stdout=stdout, stderr=STDOUT)
+                log.info('SOG run with {0} finished at {1:%Y-%m-%d %H:%M:%S}'
+                         .format(infile.name, datetime.now()))
 
 
     def _get_results_timeseries(self):
