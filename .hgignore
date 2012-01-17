@@ -1,5 +1,5 @@
 syntax: glob
-2012_bloomcast_infile.stdout
+*.stdout
 Englishman_flow
 Fraser_flow
 S_riv_check
