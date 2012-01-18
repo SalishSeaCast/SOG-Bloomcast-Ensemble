@@ -342,8 +342,8 @@ class Bloomcast(object):
             colors=('#30b8b8', 'green'))
 
 
-    def _two_axis_profile(self, top_profile, bottom_profile, mixing_layer_depth,
-                          titles, colors, limits=None):
+    def _two_axis_profile(self, top_profile, bottom_profile,
+                          mixing_layer_depth, titles, colors, limits=None):
         """Create a profile graph figure object with 2 profiles
         plotted on the top and bottom x axes.
         """
@@ -400,16 +400,24 @@ class Bloomcast(object):
         NITRATE_HALF_SATURATION_CONCENTRATION = 0.5  # uM
         PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH = 4     # days
         key = 'avg_forcing'
-        self._clip_results_to_jan1(key)
-        self._reduce_results_to_daily(key)
-        first_low_nitrate_days = self._find_low_nitrate_days(
-            key, NITRATE_HALF_SATURATION_CONCENTRATION)
-        self._find_phytoplankton_peak(
-            key, first_low_nitrate_days, PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
+        self.bloom_date, self.bloom_biomass = {}, {}
+        for key in self.config.infiles:
+            self._clip_results_to_jan1(key)
+            self._reduce_results_to_daily(key)
+            first_low_nitrate_days = self._find_low_nitrate_days(
+                key, NITRATE_HALF_SATURATION_CONCENTRATION)
+            self._find_phytoplankton_peak(
+                key, first_low_nitrate_days,
+                PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
         if self.config.get_forcing_data or self.config.run_SOG:
-            bloom_date_log.info('  {0}      {1}  {2}'
-                                .format(self.config.data_date, self.bloom_date,
-                                        self.bloom_biomass))
+            line = ('  {0}      {1}  {2:.4f}'
+                    .format(self.config.data_date,
+                            self.bloom_date['avg_forcing'],
+                            self.bloom_biomass['avg_forcing']))
+            for key in 'early_bloom_forcing late_bloom_forcing'.split():
+                line += ('         {0}  {1:.4f}'
+                         .format(self.bloom_date[key], self.bloom_biomass[key]))
+            bloom_date_log.info(line)
 
 
     def _clip_results_to_jan1(self, key):
@@ -460,12 +468,13 @@ class Bloomcast(object):
         """Return the start and end dates of the first 2 day period in
         which the nitrate concentration is below the ``threshold``.
         """
+        key_string = key.replace('_', ' ')
         self.nitrate[key].boolean_slice(
             self.nitrate[key].dep_data <= threshold)
-        log.debug('Dates on which nitrate was <= {0} uM N:\n{1}'
-                  .format(threshold, self.nitrate[key].indep_data))
-        log.debug('Nitrate <= {0} uM N:\n{1}'
-                  .format(threshold, self.nitrate[key].dep_data))
+        log.debug('Dates on which nitrate was <= {0} uM N with {1}:\n{2}'
+                  .format(threshold, key_string, self.nitrate[key].indep_data))
+        log.debug('Nitrate <= {0} uM N with {1}:\n{2}'
+                  .format(threshold, key_string, self.nitrate[key].dep_data))
         for i in xrange(self.nitrate[key].dep_data.shape[0]):
             low_nitrate_day_1 = self.nitrate[key].indep_data[i]
             days = self.nitrate[key].indep_data[i+1] - low_nitrate_day_1
@@ -481,26 +490,28 @@ class Bloomcast(object):
         ``first_low_nitrate_days`` on which the diatoms biomass is the
         greatest.
         """
+        key_string = key.replace('_', ' ')
         half_width_days = timedelta(days=peak_half_width)
         early_bloom_date = first_low_nitrate_days[0] - half_width_days
         late_bloom_date = first_low_nitrate_days[1] + half_width_days
-        log.debug('Bloom window is between {0} and {1}'
-                  .format(early_bloom_date, late_bloom_date))
+        log.debug('Bloom window for {0} is between {1} and {2}'
+                  .format(key_string, early_bloom_date, late_bloom_date))
         self.diatoms[key].boolean_slice(
             self.diatoms[key].indep_data >= early_bloom_date)
         self.diatoms[key].boolean_slice(
             self.diatoms[key].indep_data <= late_bloom_date)
-        log.debug('Dates in bloom window:\n{0}'
-                  .format(self.diatoms[key].indep_data))
-        log.debug('Micro phytoplankton biomass values in bloom window:\n{0}'
-                  .format(self.diatoms[key].dep_data))
+        log.debug('Dates in {0} bloom window:\n{1}'
+                  .format(key_string, self.diatoms[key].indep_data))
+        log.debug('Micro phytoplankton biomass values in {0} bloom window:\n{1}'
+                  .format(key_string, self.diatoms[key].dep_data))
         bloom_date_index = self.diatoms[key].dep_data.argmax()
-        self.bloom_date = self.diatoms[key].indep_data[bloom_date_index]
-        self.bloom_biomass = self.diatoms[key].dep_data[bloom_date_index]
-        log.info('Predicted bloom date is {0}'.format(self.bloom_date))
+        self.bloom_date[key] = self.diatoms[key].indep_data[bloom_date_index]
+        self.bloom_biomass[key] = self.diatoms[key].dep_data[bloom_date_index]
+        log.info('Predicted {0} bloom date is {1}'
+                 .format(key_string, self.bloom_date[key]))
         log.debug(
-            'Phytoplankton biomass on bloom date is {0} uM N'
-            .format(self.bloom_biomass))
+            'Phytoplankton biomass on {0} bloom date is {1} uM N'
+            .format(key_string, self.bloom_biomass[key]))
 
 
     def _render_results(self):
@@ -532,7 +543,8 @@ class Bloomcast(object):
         for fig, filename in graphs:
             try:
                 bloom_date_line = fig.ax_left.axvline(
-                    date2num(datetime.combine(self.bloom_date, time(12))),
+                    date2num(datetime.combine(self.bloom_date['avg_forcing'],
+                                              time(12))),
                     color='green')
                 fig.legend(
                     [fig.data_date_line, bloom_date_line],
