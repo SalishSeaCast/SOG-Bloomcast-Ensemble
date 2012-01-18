@@ -274,6 +274,7 @@ object.profiles-graph {
 
 th, td {
     padding: 5px;
+    text-align: center;
 }
 tbody tr:nth-child(even) {
     background: #f7e6db;

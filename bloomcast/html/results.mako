@@ -9,7 +9,7 @@
 
 	<title>SoG Bloomcast for ${data_date}</title>
 	<meta name="description"
-          content="Strait of Georgia spring diatom bloom prediction for ${bloom_date.year}">
+          content="Strait of Georgia spring diatom bloom prediction for ${bloom_date['avg_forcing'].year}">
 	<meta name="author" content="Susan Allen and Doug Latornell">
 
 	<meta name="viewport" content="width=device-width,initial-scale=1">
@@ -18,6 +18,7 @@
 
 	<script src="js/libs/modernizr-2.0.min.js"></script>
 </head>
+
 <body>
   <div id="header-container">
 	<header class="wrapper">
@@ -30,9 +31,10 @@
 	  <header>
         <p>
           The current best estimate of the first spring diatom bloom
-          in the Strait of Georgia is ${bloom_date}. That estimate is
-          based on a run of the SOG biophysical model for deep
-          estuaries with the following parameters:
+          in the Strait of Georgia is
+          ${bloom_date['avg_forcing']}. That estimate is based on a
+          run of the SOG biophysical model for deep estuaries with the
+          following parameters:
         </p>
         <ul>
           <li>
@@ -41,6 +43,24 @@
           <li>
             Actual wind, meteorological, and river flow forcing data
             to ${data_date}, and averaged data thereafter
+          </li>
+        </ul>
+
+        <p>
+          Best estimate bounds on the bloom date are:
+        </p>
+        <ul>
+          <li>
+            No earlier than ${bloom_date['early_bloom_forcing']} based
+            on using actual forcing data to ${data_date}, and data
+            from 1992/1993 thereafter. 1993 had the earliest spring
+            diatom bloom recorded since 1960.
+          </li>
+          <li>
+            No later than ${bloom_date['late_bloom_forcing']} based
+            on using actual forcing data to ${data_date}, and data
+            from 1998/1999 thereafter. 1999 had the latest spring
+            diatom bloom recorded since 1960.
           </li>
         </ul>
 
@@ -86,17 +106,30 @@
         <table>
           <thead>
             <tr>
-              <th>Wind Data Date</th>
-              <th>Predicted Bloom Date</th>
-              <th>Diatom Biomass [uM N]</th>
+              <th rowspan="2">Wind Data Date</th>
+              <th colspan="2">Average Forcing</th>
+              <th colspan="2">Early Bloom Forcing</th>
+              <th colspan="2">Late Bloom Forcing</th>
+            </tr>
+            <tr>
+              %for i in xrange(3):
+                <th>Predicted Bloom Date</th>
+                <th>Diatom Biomass [uM N]</th>
+              %endfor
             </tr>
           </thead>
           <tbody>
             %for row in bloom_date_log:
               <tr>
-                %for i in xrange(3):
-                  <td>${row[i]}</td>
+                %for value in row:
+                  <td>${value}</td>
                 %endfor
+                %if len(row) == 3:
+                  <td>N/A</td>
+                  <td>N/A</td>
+                  <td>N/A</td>
+                  <td>N/A</td>
+                %endif
               </tr>
             %endfor
           </tbody>
