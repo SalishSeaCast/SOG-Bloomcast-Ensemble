@@ -188,37 +188,45 @@ class Bloomcast(object):
         """Read SOG results time series of interest and create
         SOG_Timeseries objects from them.
         """
-        std_bio_ts_outfile = self.config.std_bio_ts_outfiles['avg_forcing']
-        std_phys_ts_outfile = self.config.std_phys_ts_outfiles['avg_forcing']
-        self.nitrate = SOG_Timeseries(std_bio_ts_outfile)
-        self.nitrate.read_data('time', '3 m avg nitrate concentration')
-        self.nitrate.calc_mpl_dates(self.config.run_start_date)
-        self.diatoms = SOG_Timeseries(std_bio_ts_outfile)
-        self.diatoms.read_data('time', '3 m avg micro phytoplankton biomass')
-        self.diatoms.calc_mpl_dates(self.config.run_start_date)
-        self.temperature = SOG_Timeseries(std_phys_ts_outfile)
-        self.temperature.read_data('time', '3 m avg temperature')
-        self.temperature.calc_mpl_dates(self.config.run_start_date)
-        self.salinity = SOG_Timeseries(std_phys_ts_outfile)
-        self.salinity.read_data('time', '3 m avg salinity')
-        self.salinity.calc_mpl_dates(self.config.run_start_date)
-        self.mixing_layer_depth = SOG_Timeseries(std_phys_ts_outfile)
-        self.mixing_layer_depth.read_data('time', 'mixing layer depth')
-        self.mixing_layer_depth.calc_mpl_dates(self.config.run_start_date)
+        self.nitrate, self.diatoms = {}, {}
+        self.temperature, self.salinity = {}, {}
+        self.mixing_layer_depth = {}
+        for key in self.config.infiles:
+            std_bio_ts_outfile = self.config.std_bio_ts_outfiles[key]
+            std_phys_ts_outfile = self.config.std_phys_ts_outfiles[key]
+            self.nitrate[key] = SOG_Timeseries(std_bio_ts_outfile)
+            self.nitrate[key].read_data(
+                'time', '3 m avg nitrate concentration')
+            self.nitrate[key].calc_mpl_dates(self.config.run_start_date)
+            self.diatoms[key] = SOG_Timeseries(std_bio_ts_outfile)
+            self.diatoms[key].read_data(
+                'time', '3 m avg micro phytoplankton biomass')
+            self.diatoms[key].calc_mpl_dates(self.config.run_start_date)
+            self.temperature[key] = SOG_Timeseries(std_phys_ts_outfile)
+            self.temperature[key].read_data('time', '3 m avg temperature')
+            self.temperature[key].calc_mpl_dates(self.config.run_start_date)
+            self.salinity[key] = SOG_Timeseries(std_phys_ts_outfile)
+            self.salinity[key].read_data('time', '3 m avg salinity')
+            self.salinity[key].calc_mpl_dates(self.config.run_start_date)
+            self.mixing_layer_depth[key] = SOG_Timeseries(std_phys_ts_outfile)
+            self.mixing_layer_depth[key].read_data(
+                'time', 'mixing layer depth')
+            self.mixing_layer_depth[key].calc_mpl_dates(
+                self.config.run_start_date)
 
 
     def _create_timeseries_graphs(self):
         """Create time series graph objects.
         """
         self.fig_nitrate_diatoms_ts = self._two_axis_timeseries(
-            self.nitrate, self.diatoms,
+            self.nitrate['avg_forcing'], self.diatoms['avg_forcing'],
             titles=('3 m Avg Nitrate Concentration [uM N]',
                     '3 m Avg Diatom Biomass [uM N]'),
             colors=('#30b8b8', 'green'))
         self.fig_temperature_salinity_ts = self._two_axis_timeseries(
-            self.temperature, self.salinity,
+            self.temperature['avg_forcing'], self.salinity['avg_forcing'],
             titles=('3 m Avg Temperature [deg C]',
-                   '3 m Avg Salinity [-]'),
+                    '3 m Avg Salinity [-]'),
             colors=('red', 'blue'))
         self.fig_mixing_layer_depth_ts = self._mixing_layer_depth_timeseries()
 
@@ -264,14 +272,15 @@ class Bloomcast(object):
         ax = fig.add_subplot(1, 1, 1)
         ax.set_position((0.125, 0.1, 0.775, 0.75))
         predicate = np.logical_and(
-            self.mixing_layer_depth.mpl_dates
+            self.mixing_layer_depth['avg_forcing'].mpl_dates
             > date2num(self.config.data_date - timedelta(days=6)),
-            self.mixing_layer_depth.mpl_dates
+            self.mixing_layer_depth['avg_forcing'].mpl_dates
             <= date2num(self.config.data_date + timedelta(days=1)))
-        mpl_dates = self.mixing_layer_depth.mpl_dates[predicate]
-        dep_data = self.mixing_layer_depth.dep_data[predicate]
+        mpl_dates = self.mixing_layer_depth['avg_forcing'].mpl_dates[predicate]
+        dep_data = self.mixing_layer_depth['avg_forcing'].dep_data[predicate]
         ax.plot(mpl_dates, dep_data, color='magenta')
-        ax.set_ylabel('Mixing Layer Depth [m]', color='magenta', size='x-small')
+        ax.set_ylabel(
+            'Mixing Layer Depth [m]', color='magenta', size='x-small')
         ax.xaxis.set_major_locator(DayLocator())
         ax.xaxis.set_major_formatter(DateFormatter('%j\n%d-%b'))
         ax.xaxis.set_minor_locator(HourLocator(interval=6))
@@ -285,20 +294,29 @@ class Bloomcast(object):
         """Read SOG results profiles of interest and create
         SOG_HoffmuellerProfile objects from them.
         """
-        Hoffmueller_outfile = (
-            self.config.Hoffmueller_profiles_outfiles['avg_forcing'])
-        profile_number = (
-            self.config.data_date - self.config.run_start_date.date()).days
-        self.nitrate_profile = SOG_HoffmuellerProfile(Hoffmueller_outfile)
-        self.nitrate_profile.read_data('depth', 'nitrate', profile_number)
-        self.diatoms_profile = SOG_HoffmuellerProfile(Hoffmueller_outfile)
-        self.diatoms_profile.read_data(
-            'depth', 'micro phytoplankton', profile_number)
-        self.temperature_profile = SOG_HoffmuellerProfile(Hoffmueller_outfile)
-        self.temperature_profile.read_data(
-            'depth', 'temperature', profile_number)
-        self.salinity_profile = SOG_HoffmuellerProfile(Hoffmueller_outfile)
-        self.salinity_profile.read_data('depth', 'salinity', profile_number)
+        self.nitrate_profile, self.diatoms_profile = {}, {}
+        self.temperature_profile, self.salinity_profile = {}, {}
+        for key in self.config.infiles:
+            Hoffmueller_outfile = (
+                self.config.Hoffmueller_profiles_outfiles[key])
+            profile_number = (
+                self.config.data_date - self.config.run_start_date.date()).days
+            self.nitrate_profile[key] = SOG_HoffmuellerProfile(
+                Hoffmueller_outfile)
+            self.nitrate_profile[key].read_data(
+                'depth', 'nitrate', profile_number)
+            self.diatoms_profile[key] = SOG_HoffmuellerProfile(
+                Hoffmueller_outfile)
+            self.diatoms_profile[key].read_data(
+                'depth', 'micro phytoplankton', profile_number)
+            self.temperature_profile[key] = SOG_HoffmuellerProfile(
+                Hoffmueller_outfile)
+            self.temperature_profile[key].read_data(
+                'depth', 'temperature', profile_number)
+            self.salinity_profile[key] = SOG_HoffmuellerProfile(
+                Hoffmueller_outfile)
+            self.salinity_profile[key].read_data(
+                'depth', 'salinity', profile_number)
 
 
     def _create_profile_graphs(self):
@@ -307,15 +325,19 @@ class Bloomcast(object):
         profile_datetime = datetime.combine(self.config.data_date, time(12))
         profile_dt = profile_datetime - self.config.run_start_date
         profile_hour = profile_dt.days * 24 + profile_dt.seconds / 3600
-        self.mixing_layer_depth.boolean_slice(
-            self.mixing_layer_depth.indep_data >= profile_hour)
-        mixing_layer_depth = self.mixing_layer_depth.dep_data[0]
+        self.mixing_layer_depth['avg_forcing'].boolean_slice(
+            self.mixing_layer_depth['avg_forcing'].indep_data >= profile_hour)
+        mixing_layer_depth = self.mixing_layer_depth['avg_forcing'].dep_data[0]
         self.fig_temperature_salinity_profile = self._two_axis_profile(
-            self.temperature_profile, self.salinity_profile, mixing_layer_depth,
+            self.temperature_profile['avg_forcing'],
+            self.salinity_profile['avg_forcing'],
+            mixing_layer_depth,
             titles=('Temperature [deg C]', 'Salinity [-]'),
             colors=('red', 'blue'), limits=((4, 10), (20, 30)))
         self.fig_nitrate_diatoms_profile = self._two_axis_profile(
-            self.nitrate_profile, self.diatoms_profile, mixing_layer_depth,
+            self.nitrate_profile['avg_forcing'],
+            self.diatoms_profile['avg_forcing'],
+            mixing_layer_depth,
             titles=('Nitrate Concentration [uM N]', 'Diatom Biomass [uM N]'),
             colors=('#30b8b8', 'green'))
 
@@ -377,31 +399,32 @@ class Bloomcast(object):
         """
         NITRATE_HALF_SATURATION_CONCENTRATION = 0.5  # uM
         PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH = 4     # days
-        self._clip_results_to_jan1()
-        self._reduce_results_to_daily()
+        key = 'avg_forcing'
+        self._clip_results_to_jan1(key)
+        self._reduce_results_to_daily(key)
         first_low_nitrate_days = self._find_low_nitrate_days(
-            NITRATE_HALF_SATURATION_CONCENTRATION)
+            key, NITRATE_HALF_SATURATION_CONCENTRATION)
         self._find_phytoplankton_peak(
-            first_low_nitrate_days, PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
+            key, first_low_nitrate_days, PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
         if self.config.get_forcing_data or self.config.run_SOG:
             bloom_date_log.info('  {0}      {1}  {2}'
                                 .format(self.config.data_date, self.bloom_date,
                                         self.bloom_biomass))
 
 
-    def _clip_results_to_jan1(self):
+    def _clip_results_to_jan1(self, key):
         """Clip the nitrate concentration and diatom biomass results
         so that they start on 1-Jan of the bloom year.
         """
         jan1 = datetime(self.config.run_start_date.year + 1, 1, 1)
         discard_hours = jan1 - self.config.run_start_date
         discard_hours = discard_hours.days * 24 + discard_hours.seconds / 3600
-        predicate = self.nitrate.indep_data >= discard_hours
-        self.nitrate.boolean_slice(predicate)
-        self.diatoms.boolean_slice(predicate)
+        predicate = self.nitrate[key].indep_data >= discard_hours
+        self.nitrate[key].boolean_slice(predicate)
+        self.diatoms[key].boolean_slice(predicate)
 
 
-    def _reduce_results_to_daily(self):
+    def _reduce_results_to_daily(self, key):
         """Reduce the nitrate concentration and diatom biomass results
         to daily values.
 
@@ -415,41 +438,45 @@ class Bloomcast(object):
         # day
         day_slice = 86400 // self.config.SOG_timestep
         day_iterator = xrange(
-            0, self.nitrate.dep_data.shape[0] - day_slice, day_slice)
+            0, self.nitrate[key].dep_data.shape[0] - day_slice, day_slice)
         jan1 = date(self.config.run_start_date.year + 1, 1, 1)
-        self.nitrate.dep_data = np.array(
-            [self.nitrate.dep_data[i:i+day_slice].min() for i in day_iterator])
-        self.nitrate.indep_data = np.array(
+        self.nitrate[key].dep_data = np.array(
+            [self.nitrate[key].dep_data[i:i+day_slice].min()
+             for i in day_iterator])
+        self.nitrate[key].indep_data = np.array(
             [jan1 + timedelta(days=i)
-             for i in xrange(self.nitrate.dep_data.size)])
+             for i in xrange(self.nitrate[key].dep_data.size)])
         day_iterator = xrange(
-            0, self.diatoms.dep_data.shape[0] - day_slice, day_slice)
-        self.diatoms.dep_data = np.array(
-            [self.diatoms.dep_data[i:i+day_slice].max() for i in day_iterator])
-        self.diatoms.indep_data = np.array(
+            0, self.diatoms[key].dep_data.shape[0] - day_slice, day_slice)
+        self.diatoms[key].dep_data = np.array(
+            [self.diatoms[key].dep_data[i:i+day_slice].max()
+             for i in day_iterator])
+        self.diatoms[key].indep_data = np.array(
             [jan1 + timedelta(days=i)
-             for i in xrange(self.diatoms.dep_data.size)])
+             for i in xrange(self.diatoms[key].dep_data.size)])
 
 
-    def _find_low_nitrate_days(self, threshold):
+    def _find_low_nitrate_days(self, key, threshold):
         """Return the start and end dates of the first 2 day period in
         which the nitrate concentration is below the ``threshold``.
         """
-        self.nitrate.boolean_slice(self.nitrate.dep_data <= threshold)
+        self.nitrate[key].boolean_slice(
+            self.nitrate[key].dep_data <= threshold)
         log.debug('Dates on which nitrate was <= {0} uM N:\n{1}'
-                  .format(threshold, self.nitrate.indep_data))
+                  .format(threshold, self.nitrate[key].indep_data))
         log.debug('Nitrate <= {0} uM N:\n{1}'
-                  .format(threshold, self.nitrate.dep_data))
-        for i in xrange(self.nitrate.dep_data.shape[0]):
-            low_nitrate_day_1 = self.nitrate.indep_data[i]
-            days = self.nitrate.indep_data[i+1] - low_nitrate_day_1
+                  .format(threshold, self.nitrate[key].dep_data))
+        for i in xrange(self.nitrate[key].dep_data.shape[0]):
+            low_nitrate_day_1 = self.nitrate[key].indep_data[i]
+            days = self.nitrate[key].indep_data[i+1] - low_nitrate_day_1
             if days == timedelta(days=1):
-                low_nitrate_day_2 = self.nitrate.indep_data[i+1]
+                low_nitrate_day_2 = self.nitrate[key].indep_data[i+1]
                 break
         return low_nitrate_day_1, low_nitrate_day_2
 
 
-    def _find_phytoplankton_peak(self, first_low_nitrate_days, peak_half_width):
+    def _find_phytoplankton_peak(self, key, first_low_nitrate_days,
+                                 peak_half_width):
         """Return the date with ``peak_half_width`` of the
         ``first_low_nitrate_days`` on which the diatoms biomass is the
         greatest.
@@ -459,14 +486,17 @@ class Bloomcast(object):
         late_bloom_date = first_low_nitrate_days[1] + half_width_days
         log.debug('Bloom window is between {0} and {1}'
                   .format(early_bloom_date, late_bloom_date))
-        self.diatoms.boolean_slice(self.diatoms.indep_data >= early_bloom_date)
-        self.diatoms.boolean_slice(self.diatoms.indep_data <= late_bloom_date)
-        log.debug('Dates in bloom window:\n{0}'.format(self.diatoms.indep_data))
+        self.diatoms[key].boolean_slice(
+            self.diatoms[key].indep_data >= early_bloom_date)
+        self.diatoms[key].boolean_slice(
+            self.diatoms[key].indep_data <= late_bloom_date)
+        log.debug('Dates in bloom window:\n{0}'
+                  .format(self.diatoms[key].indep_data))
         log.debug('Micro phytoplankton biomass values in bloom window:\n{0}'
-                  .format(self.diatoms.dep_data))
-        bloom_date_index = self.diatoms.dep_data.argmax()
-        self.bloom_date = self.diatoms.indep_data[bloom_date_index]
-        self.bloom_biomass = self.diatoms.dep_data[bloom_date_index]
+                  .format(self.diatoms[key].dep_data))
+        bloom_date_index = self.diatoms[key].dep_data.argmax()
+        self.bloom_date = self.diatoms[key].indep_data[bloom_date_index]
+        self.bloom_biomass = self.diatoms[key].dep_data[bloom_date_index]
         log.info('Predicted bloom date is {0}'.format(self.bloom_date))
         log.debug(
             'Phytoplankton biomass on bloom date is {0} uM N'
