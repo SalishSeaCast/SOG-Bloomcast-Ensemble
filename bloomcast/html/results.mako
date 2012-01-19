@@ -54,13 +54,13 @@
             No earlier than ${bloom_date['early_bloom_forcing']} based
             on using actual forcing data to ${data_date}, and data
             from 1992/1993 thereafter. 1993 had the earliest spring
-            diatom bloom recorded since 1960.
+            diatom bloom hindcast since 1968.
           </li>
           <li>
             No later than ${bloom_date['late_bloom_forcing']} based
             on using actual forcing data to ${data_date}, and data
             from 1998/1999 thereafter. 1999 had the latest spring
-            diatom bloom recorded since 1960.
+            diatom bloom hindcast since 1968.
           </li>
         </ul>
 
