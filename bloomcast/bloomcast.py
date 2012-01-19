@@ -219,15 +219,17 @@ class Bloomcast(object):
         """Create time series graph objects.
         """
         self.fig_nitrate_diatoms_ts = self._two_axis_timeseries(
-            self.nitrate['avg_forcing'], self.diatoms['avg_forcing'],
+            self.nitrate, self.diatoms,
             titles=('3 m Avg Nitrate Concentration [uM N]',
                     '3 m Avg Diatom Biomass [uM N]'),
-            colors=('#30b8b8', 'green'))
+            colors=({'avg': '#30b8b8', 'bounds': '#82dcdc'},
+                    {'avg': 'green', 'bounds': '#56c056'}))
         self.fig_temperature_salinity_ts = self._two_axis_timeseries(
-            self.temperature['avg_forcing'], self.salinity['avg_forcing'],
+            self.temperature, self.salinity,
             titles=('3 m Avg Temperature [deg C]',
                     '3 m Avg Salinity [-]'),
-            colors=('red', 'blue'))
+            colors=({'avg': 'red', 'bounds': '#ff7373'},
+                    {'avg': 'blue', 'bounds': '#7373ff'}))
         self.fig_mixing_layer_depth_ts = self._mixing_layer_depth_timeseries()
 
 
@@ -241,10 +243,23 @@ class Bloomcast(object):
         fig.ax_left = ax_left
         ax_right = ax_left.twinx()
         Axes(fig, ax_left.get_position(), sharex=ax_right)
-        ax_left.plot(left_ts.mpl_dates, left_ts.dep_data, color=colors[0])
-        ax_left.set_ylabel(titles[0], color=colors[0], size='x-small')
-        ax_right.plot(right_ts.mpl_dates, right_ts.dep_data, color=colors[1])
-        ax_right.set_ylabel(titles[1], color=colors[1], size='x-small')
+        predicate = (left_ts['avg_forcing'].mpl_dates
+                     >= date2num(self.config.data_date))
+        for key in 'early_bloom_forcing late_bloom_forcing'.split():
+            ax_left.plot(left_ts[key].mpl_dates[predicate],
+                         left_ts[key].dep_data[predicate],
+                         color=colors[0]['bounds'])
+            ax_right.plot(right_ts[key].mpl_dates[predicate],
+                          right_ts[key].dep_data[predicate],
+                         color=colors[1]['bounds'])
+        ax_left.plot(left_ts['avg_forcing'].mpl_dates,
+                     left_ts['avg_forcing'].dep_data,
+                     color=colors[0]['avg'])
+        ax_right.plot(right_ts['avg_forcing'].mpl_dates,
+                      right_ts['avg_forcing'].dep_data,
+                      color=colors[1]['avg'])
+        ax_left.set_ylabel(titles[0], color=colors[0]['avg'], size='x-small')
+        ax_right.set_ylabel(titles[1], color=colors[1]['avg'], size='x-small')
         # Add line to mark switch from actual to averaged forcing data
         fig.data_date_line = ax_left.axvline(
             date2num(self.config.data_date), color='black')
@@ -255,7 +270,8 @@ class Bloomcast(object):
             for label in axis.get_xticklabels() + axis.get_yticklabels():
                 label.set_size('x-small')
         ax_left.set_xlim(
-            (int(left_ts.mpl_dates[0]), ceil(left_ts.mpl_dates[-1])))
+            (int(left_ts['avg_forcing'].mpl_dates[0]),
+             ceil(left_ts['avg_forcing'].mpl_dates[-1])))
         ax_left.set_xlabel(
             'Year-days in {0} and {1}'
             .format(self.config.run_start_date.year,
