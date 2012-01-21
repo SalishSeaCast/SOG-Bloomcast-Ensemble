@@ -51,6 +51,13 @@ class Bloomcast(object):
     :arg config_file: Path for the bloomcast configuration file.
     :type config_file: string
     """
+    # Colours for graph lines
+    nitrate_colours = {'avg': '#30b8b8', 'bounds': '#82dcdc'}
+    diatoms_colours = {'avg': 'green', 'bounds': '#56c056'}
+    temperature_colours = {'avg': 'red', 'bounds': '#ff7373'}
+    salinity_colours = {'avg': 'blue', 'bounds': '#7373ff'}
+
+
     def __init__(self, config_file, data_date):
         self.config = Config()
         self.config.load_config(config_file)
@@ -222,14 +229,12 @@ class Bloomcast(object):
             self.nitrate, self.diatoms,
             titles=('3 m Avg Nitrate Concentration [uM N]',
                     '3 m Avg Diatom Biomass [uM N]'),
-            colors=({'avg': '#30b8b8', 'bounds': '#82dcdc'},
-                    {'avg': 'green', 'bounds': '#56c056'}))
+            colors=(self.nitrate_colours, self.diatoms_colours))
         self.fig_temperature_salinity_ts = self._two_axis_timeseries(
             self.temperature, self.salinity,
             titles=('3 m Avg Temperature [deg C]',
                     '3 m Avg Salinity [-]'),
-            colors=({'avg': 'red', 'bounds': '#ff7373'},
-                    {'avg': 'blue', 'bounds': '#7373ff'}))
+            colors=(self.temperature_colours, self.salinity_colours))
         self.fig_mixing_layer_depth_ts = self._mixing_layer_depth_timeseries()
 
 
@@ -349,13 +354,14 @@ class Bloomcast(object):
             self.salinity_profile['avg_forcing'],
             mixing_layer_depth,
             titles=('Temperature [deg C]', 'Salinity [-]'),
-            colors=('red', 'blue'), limits=((4, 10), (20, 30)))
+            colors=(self.temperature_colours, self.salinity_colours),
+            limits=((4, 10), (20, 30)))
         self.fig_nitrate_diatoms_profile = self._two_axis_profile(
             self.nitrate_profile['avg_forcing'],
             self.diatoms_profile['avg_forcing'],
             mixing_layer_depth,
             titles=('Nitrate Concentration [uM N]', 'Diatom Biomass [uM N]'),
-            colors=('#30b8b8', 'green'))
+            colors=(self.nitrate_colours, self.diatoms_colours))
 
 
     def _two_axis_profile(self, top_profile, bottom_profile,
@@ -370,11 +376,12 @@ class Bloomcast(object):
         ax_top = ax_bottom.twiny()
         Axes(fig, ax_bottom.get_position(), sharex=ax_top)
         ax_top.plot(
-            top_profile.dep_data, top_profile.indep_data, color=colors[0])
-        ax_top.set_xlabel(titles[0], color=colors[0], size='small')
+            top_profile.dep_data, top_profile.indep_data,
+            color=colors[0]['avg'])
+        ax_top.set_xlabel(titles[0], color=colors[0]['avg'], size='small')
         ax_bottom.plot(bottom_profile.dep_data, bottom_profile.indep_data,
-                       color=colors[1])
-        ax_bottom.set_xlabel(titles[1], color=colors[1], size='small')
+                       color=colors[1]['avg'])
+        ax_bottom.set_xlabel(titles[1], color=colors[1]['avg'], size='small')
         for axis in (ax_bottom, ax_top):
             for label in axis.get_xticklabels() + axis.get_yticklabels():
                 label.set_size('x-small')
@@ -561,7 +568,7 @@ class Bloomcast(object):
                 bloom_date_line = fig.ax_left.axvline(
                     date2num(datetime.combine(self.bloom_date['avg_forcing'],
                                               time(12))),
-                    color='green')
+                    color=self.diatoms_colours['avg'])
                 fig.legend(
                     [fig.data_date_line, bloom_date_line],
                     ['Actual to Avg', 'Diatom Bloom'],
