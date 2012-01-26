@@ -241,10 +241,15 @@ h3{font-size: 30px;}
 	float:left;
 }
 
-#main p{
+#main p {
 	font:16px/26px Helvetica, Helvetica Neue, Arial;
 	width:620px;
 }
+#main ul {
+	font:16px/26px Helvetica, Helvetica Neue, Arial;
+	width:580px;
+}
+
 
 article header{
 	margin-bottom:50px;
