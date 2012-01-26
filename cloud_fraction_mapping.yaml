@@ -6,6 +6,7 @@ Freezing Drizzle:      10
 Freezing Drizzle,Fog:  10
 Freezing Fog:          10
 Freezing Rain:         10
+Freezing Rain,Freezing Drizzle,Fog:  10
 Freezing Rain,Fog:     10
 Freezing Rain,Freezing Drizzle,Fog:  10
 Funnel Cloud:    5
