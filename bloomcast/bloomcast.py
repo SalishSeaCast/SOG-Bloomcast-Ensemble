@@ -371,7 +371,7 @@ class Bloomcast(object):
         """
         fig = Figure((4, 8), facecolor='white')
         ax_bottom = fig.add_subplot(1, 1, 1)
-        ax_bottom.set_position((0.2, 0.1, 0.5, 0.8))
+        ax_bottom.set_position((0.19, 0.1, 0.5, 0.8))
         fig.ax_bottom = ax_bottom
         ax_top = ax_bottom.twiny()
         Axes(fig, ax_bottom.get_position(), sharex=ax_top)
@@ -390,8 +390,8 @@ class Bloomcast(object):
             ax_bottom.set_xlim(limits[1])
         ax_bottom.axhline(mixing_layer_depth, color='black')
         ax_bottom.text(
-            x=ax_bottom.get_xlim()[1]  + 0.05, y=mixing_layer_depth,
-            s='Mixing Layer\nDepth = {0:.2f} m'.format(mixing_layer_depth),
+            x=ax_bottom.get_xlim()[1], y=mixing_layer_depth,
+            s=' Mixing Layer\n Depth = {0:.2f} m'.format(mixing_layer_depth),
             verticalalignment='center', size='small')
         ax_bottom.set_ylim(
             (bottom_profile.indep_data[-1], bottom_profile.indep_data[0]))
