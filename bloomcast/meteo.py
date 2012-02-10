@@ -1,10 +1,11 @@
 """Meteorolgical forcing data processing module for SoG-bloomcast project.
 """
 # Standard library:
-from contextlib import nested
 from datetime import date
 import logging
 import sys
+# contextlib2:
+from contextlib2 import ContextStack
 # Bloomcast:
 from utils import ClimateDataProcessor
 from utils import Config
@@ -41,11 +42,16 @@ class MeteoProcessor(ClimateDataProcessor):
         for data_month in self._get_data_months():
             self.get_climate_data('meteo', data_month)
             log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
-        with nested(*contexts):
+        with ContextStack() as stack:
+            files = dict(
+                [(qty,
+                  stack.enter_context(open(
+                      self.config.climate.meteo.output_files[qty], 'wt')))
+                 for qty in self.config.climate.meteo.quantities])
             for qty in self.config.climate.meteo.quantities:
                 self.process_data(qty, end_date=self.config.data_date)
                 log.debug('latest {0} {1}'.format(qty, self.data[qty][-1]))
-                file_objs[qty].writelines(self.format_data(qty))
+                files[qty].writelines(self.format_data(qty))
 
     def read_temperature(self, record):
         """Read air temperature from XML data object.
