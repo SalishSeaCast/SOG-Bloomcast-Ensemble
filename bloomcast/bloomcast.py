@@ -1,6 +1,5 @@
 """Driver module for SoG-bloomcast project
 """
-from __future__ import absolute_import
 from __future__ import division
 # Standard library:
 from datetime import date
@@ -42,7 +41,8 @@ log = logging.getLogger('bloomcast')
 bloom_date_log = logging.getLogger('bloomcast.bloom_date')
 
 
-class NoNewWindData(Exception): pass
+class NoNewWindData(Exception):
+    pass
 
 
 class Bloomcast(object):
@@ -57,14 +57,12 @@ class Bloomcast(object):
     temperature_colours = {'avg': 'red', 'bounds': '#ff7373'}
     salinity_colours = {'avg': 'blue', 'bounds': '#7373ff'}
 
-
     def __init__(self, config_file, data_date):
         self.config = Config()
         self.config.load_config(config_file)
         # Wind data date for development and debugging; overwritten if
         # wind forcing data is collected and processed
         self.config.data_date = data_date
-
 
     def run(self):
         """Execute the bloomcast prediction and report its results.
@@ -96,7 +94,6 @@ class Bloomcast(object):
         self._calc_bloom_date()
         self._render_results()
         self._push_results_to_web()
-
 
     def _configure_logging(self):
         """Configure logging of debug & warning messages to console
@@ -142,7 +139,6 @@ class Bloomcast(object):
         bloom_date_log.addHandler(bloom_date_evolution)
         bloom_date_log.propagate = False
 
-
     def _get_forcing_data(self):
         """Collect and process forcing data.
         """
@@ -170,7 +166,6 @@ class Bloomcast(object):
         rivers = RiversProcessor(self.config)
         rivers.make_forcing_data_files()
 
-
     def _run_SOG(self):
         """Run SOG.
         """
@@ -189,7 +184,6 @@ class Bloomcast(object):
                            stdin=infile, stdout=stdout, stderr=STDOUT)
                 log.info('SOG run with {0} finished at {1:%Y-%m-%d %H:%M:%S}'
                          .format(infile.name, datetime.now()))
-
 
     def _get_results_timeseries(self):
         """Read SOG results time series of interest and create
@@ -221,7 +215,6 @@ class Bloomcast(object):
             self.mixing_layer_depth[key].calc_mpl_dates(
                 self.config.run_start_date)
 
-
     def _create_timeseries_graphs(self):
         """Create time series graph objects.
         """
@@ -236,7 +229,6 @@ class Bloomcast(object):
                     '3 m Avg Salinity [-]'),
             colors=(self.temperature_colours, self.salinity_colours))
         self.fig_mixing_layer_depth_ts = self._mixing_layer_depth_timeseries()
-
 
     def _two_axis_timeseries(self, left_ts, right_ts, titles, colors):
         """Create a time series graph figure object with 2 time series
@@ -284,7 +276,6 @@ class Bloomcast(object):
             size='x-small')
         return fig
 
-
     def _mixing_layer_depth_timeseries(self):
         """Create a time series graph figure object of the mixing
         layer depth on the wind data date and the 6 days preceding it.
@@ -309,7 +300,6 @@ class Bloomcast(object):
             label.set_size('x-small')
         ax.set_xlim((int(mpl_dates[0]), ceil(mpl_dates[-1])))
         return fig
-
 
     def _get_results_profiles(self):
         """Read SOG results profiles of interest and create
@@ -339,7 +329,6 @@ class Bloomcast(object):
             self.salinity_profile[key].read_data(
                 'depth', 'salinity', profile_number)
 
-
     def _create_profile_graphs(self):
         """Create profile graph objects.
         """
@@ -362,7 +351,6 @@ class Bloomcast(object):
             mixing_layer_depth,
             titles=('Nitrate Concentration [uM N]', 'Diatom Biomass [uM N]'),
             colors=(self.nitrate_colours, self.diatoms_colours))
-
 
     def _two_axis_profile(self, top_profile, bottom_profile,
                           mixing_layer_depth, titles, colors, limits=None):
@@ -397,7 +385,6 @@ class Bloomcast(object):
             (bottom_profile.indep_data[-1], bottom_profile.indep_data[0]))
         ax_bottom.set_ylabel('Depth [m]', size='small')
         return fig
-
 
     def _calc_bloom_date(self):
         """Calculate the predicted spring bloom date.
@@ -439,9 +426,9 @@ class Bloomcast(object):
                             self.bloom_biomass['avg_forcing']))
             for key in 'early_bloom_forcing late_bloom_forcing'.split():
                 line += ('         {0}  {1:.4f}'
-                         .format(self.bloom_date[key], self.bloom_biomass[key]))
+                         .format(self.bloom_date[key],
+                                 self.bloom_biomass[key]))
             bloom_date_log.info(line)
-
 
     def _clip_results_to_jan1(self, key):
         """Clip the nitrate concentration and diatom biomass results
@@ -453,7 +440,6 @@ class Bloomcast(object):
         predicate = self.nitrate[key].indep_data >= discard_hours
         self.nitrate[key].boolean_slice(predicate)
         self.diatoms[key].boolean_slice(predicate)
-
 
     def _reduce_results_to_daily(self, key):
         """Reduce the nitrate concentration and diatom biomass results
@@ -472,7 +458,7 @@ class Bloomcast(object):
             0, self.nitrate[key].dep_data.shape[0] - day_slice, day_slice)
         jan1 = date(self.config.run_start_date.year + 1, 1, 1)
         self.nitrate[key].dep_data = np.array(
-            [self.nitrate[key].dep_data[i:i+day_slice].min()
+            [self.nitrate[key].dep_data[i:i + day_slice].min()
              for i in day_iterator])
         self.nitrate[key].indep_data = np.array(
             [jan1 + timedelta(days=i)
@@ -480,12 +466,11 @@ class Bloomcast(object):
         day_iterator = xrange(
             0, self.diatoms[key].dep_data.shape[0] - day_slice, day_slice)
         self.diatoms[key].dep_data = np.array(
-            [self.diatoms[key].dep_data[i:i+day_slice].max()
+            [self.diatoms[key].dep_data[i:i + day_slice].max()
              for i in day_iterator])
         self.diatoms[key].indep_data = np.array(
             [jan1 + timedelta(days=i)
              for i in xrange(self.diatoms[key].dep_data.size)])
-
 
     def _find_low_nitrate_days(self, key, threshold):
         """Return the start and end dates of the first 2 day period in
@@ -500,12 +485,11 @@ class Bloomcast(object):
                   .format(threshold, key_string, self.nitrate[key].dep_data))
         for i in xrange(self.nitrate[key].dep_data.shape[0]):
             low_nitrate_day_1 = self.nitrate[key].indep_data[i]
-            days = self.nitrate[key].indep_data[i+1] - low_nitrate_day_1
+            days = self.nitrate[key].indep_data[i + 1] - low_nitrate_day_1
             if days == timedelta(days=1):
-                low_nitrate_day_2 = self.nitrate[key].indep_data[i+1]
+                low_nitrate_day_2 = self.nitrate[key].indep_data[i + 1]
                 break
         return low_nitrate_day_1, low_nitrate_day_2
-
 
     def _find_phytoplankton_peak(self, key, first_low_nitrate_days,
                                  peak_half_width):
@@ -525,7 +509,8 @@ class Bloomcast(object):
             self.diatoms[key].indep_data <= late_bloom_date)
         log.debug('Dates in {0} bloom window:\n{1}'
                   .format(key_string, self.diatoms[key].indep_data))
-        log.debug('Micro phytoplankton biomass values in {0} bloom window:\n{1}'
+        log.debug('Micro phytoplankton biomass values in '
+                  '{0} bloom window:\n{1}'
                   .format(key_string, self.diatoms[key].dep_data))
         bloom_date_index = self.diatoms[key].dep_data.argmax()
         self.bloom_date[key] = self.diatoms[key].indep_data[bloom_date_index]
@@ -535,7 +520,6 @@ class Bloomcast(object):
         log.debug(
             'Phytoplankton biomass on {0} bloom date is {1} uM N'
             .format(key_string, self.bloom_biomass[key]))
-
 
     def _render_results(self):
         """Render bloomcast results page and graphs to files.
@@ -584,7 +568,6 @@ class Bloomcast(object):
                 pass
             canvas = FigureCanvasAgg(fig)
             canvas.print_svg(os.path.join('bloomcast/html', filename))
-
 
     def _push_results_to_web(self):
         """Push results page, graphs, styles, etc. to web server directory

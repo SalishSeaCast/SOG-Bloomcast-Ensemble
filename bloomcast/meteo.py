@@ -1,6 +1,5 @@
 """Meteorolgical forcing data processing module for SoG-bloomcast project.
 """
-from __future__ import absolute_import
 # Standard library:
 from contextlib import nested
 from datetime import date
@@ -25,7 +24,6 @@ class MeteoProcessor(ClimateDataProcessor):
         }
         super(MeteoProcessor, self).__init__(config, data_readers)
 
-
     def make_forcing_data_files(self):
         """Get the meteorological forcing data from the Environment
         Canada web service, process it to extract quantity values from
@@ -49,7 +47,6 @@ class MeteoProcessor(ClimateDataProcessor):
                 log.debug('latest {0} {1}'.format(qty, self.data[qty][-1]))
                 file_objs[qty].writelines(self.format_data(qty))
 
-
     def read_temperature(self, record):
         """Read air temperature from XML data object.
 
@@ -64,7 +61,6 @@ class MeteoProcessor(ClimateDataProcessor):
             pass
         return temperature
 
-
     def read_humidity(self, record):
         """Read relative humidity from XML data object.
         """
@@ -75,7 +71,6 @@ class MeteoProcessor(ClimateDataProcessor):
             # None indicates missing data
             pass
         return humidity
-
 
     def read_cloud_fraction(self, record):
         """Read weather description from XML data object and transform
@@ -96,7 +91,6 @@ class MeteoProcessor(ClimateDataProcessor):
                 cloud_fraction = 10
         return cloud_fraction
 
-
     def format_data(self, qty):
         """Generate lines of metorological forcing data in the format
         expected by SOG.
@@ -113,7 +107,7 @@ class MeteoProcessor(ClimateDataProcessor):
         follow expressed as floats with 1 decimal place.
         """
         for i in xrange(len(self.data[qty]) / 24):
-            data = self.data[qty][i * 24:(i + 1) *24]
+            data = self.data[qty][i * 24:(i + 1) * 24]
             timestamp = data[0][0]
             line = '{0} {1:%Y %m %d} 42'.format(
                 self.config.climate.meteo.station_id, timestamp)

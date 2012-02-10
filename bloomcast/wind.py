@@ -1,6 +1,5 @@
 """Wind forcing data processing module for SoG-bloomcast project.
 """
-from __future__ import absolute_import
 # Standard library:
 import logging
 from math import cos
@@ -22,7 +21,6 @@ class WindProcessor(ClimateDataProcessor):
         data_readers = {'wind': self.read_wind_velocity}
         super(WindProcessor, self).__init__(config, data_readers)
 
-
     def make_forcing_data_file(self):
         """Get the wind forcing data from the Environment Canada web
         service, process it to extract it from the XML download, trim
@@ -42,7 +40,6 @@ class WindProcessor(ClimateDataProcessor):
         with open(output_file, 'wt') as file_obj:
             file_obj.writelines(self.format_data())
         return data_date
-
 
     def read_wind_velocity(self, record):
         """Read wind velocity from XML data object and transform it to
@@ -64,20 +61,20 @@ class WindProcessor(ClimateDataProcessor):
         v_wind = speed * cos(radian_direction)
         # Rotate components to align u direction with Strait
         strait_heading = radians(305)
-        cross_wind = u_wind * cos(strait_heading) - v_wind * sin(strait_heading)
-        along_wind = u_wind * sin(strait_heading) + v_wind * cos(strait_heading)
+        cross_wind = (
+            u_wind * cos(strait_heading) - v_wind * sin(strait_heading))
+        along_wind = (
+            u_wind * sin(strait_heading) + v_wind * cos(strait_heading))
         # Resolve atmosphere/ocean direction difference in favour of
         # oceanography
         cross_wind = -cross_wind
         along_wind = -along_wind
         return cross_wind, along_wind
 
-
     def _valuegetter(self, data_item):
         """Return the along-strait wind velocity component.
         """
         return data_item[0]
-
 
     def interpolate_values(self, qty, gap_start, gap_end):
         """Calculate values for missing data via linear interpolation.
@@ -88,20 +85,21 @@ class WindProcessor(ClimateDataProcessor):
         gap_hours = gap_end - gap_start + 1
         if gap_hours > 11:
             log.warning(
-                'A wind forcing data gap > 11 hr starting at {0:%Y-%m-%d %H:00} '
-                'has been patched by linear interpolation'
+                'A wind forcing data gap > 11 hr starting at '
+                '{0:%Y-%m-%d %H:00} has been patched by linear interpolation'
                 .format(self.data[qty][gap_start][0]))
         last_cross_wind, last_along_wind = self.data[qty][gap_start - 1][1]
         next_cross_wind, next_along_wind = self.data[qty][gap_end + 1][1]
-        delta_cross_wind = (next_cross_wind - last_cross_wind) / (gap_hours + 1)
-        delta_along_wind = (next_along_wind - last_along_wind) / (gap_hours + 1)
+        delta_cross_wind = (
+            (next_cross_wind - last_cross_wind) / (gap_hours + 1))
+        delta_along_wind = (
+            (next_along_wind - last_along_wind) / (gap_hours + 1))
         for i in xrange(gap_end - gap_start + 1):
             timestamp = self.data[qty][gap_start + i][0]
             cross_wind = last_cross_wind + delta_cross_wind * (i + 1)
             along_wind = last_along_wind + delta_along_wind * (i + 1)
             self.data[qty][gap_start + i] = (
                 timestamp, (cross_wind, along_wind))
-
 
     def format_data(self):
         """Generate lines of wind forcing data in the format expected

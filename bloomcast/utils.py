@@ -2,7 +2,7 @@
 
 A collection of classes that are used in other bloomcast modules.
 """
-from __future__ import absolute_import
+
 # Standard library:
 from datetime import date
 from datetime import datetime
@@ -24,7 +24,8 @@ from matplotlib.dates import date2num
 log = logging.getLogger('bloomcast.utils')
 
 
-class _Container(object): pass
+class _Container(object):
+    pass
 
 
 class Config(object):
@@ -62,13 +63,11 @@ class Config(object):
         self.rivers.__dict__.update(config_dict['rivers'])
         self._load_rivers_config(config_dict, infile_dict)
 
-
     def _load_logging_config(self, config_dict):
         """Load Config values for logging.
         """
         self.logging = _Container()
         self.logging.__dict__.update(config_dict['logging'])
-
 
     def _load_meteo_config(self, config_dict, infile_dict):
         """Load Config values for meteorological forcing data.
@@ -83,7 +82,6 @@ class Config(object):
         for qty in self.climate.meteo.quantities:
             self.climate.meteo.output_files[qty] = forcing_data_files[qty]
 
-
     def _load_wind_config(self, config_dict, infile_dict):
         """Load Config values for wind forcing data.
         """
@@ -93,7 +91,6 @@ class Config(object):
         forcing_data_files = infile_dict['forcing_data_files']
         self.climate.wind.output_files = {}
         self.climate.wind.output_files['wind'] = forcing_data_files['wind']
-
 
     def _load_rivers_config(self, config_dict, infile_dict):
         """Load Config values for river flows forcing data.
@@ -107,8 +104,8 @@ class Config(object):
         forcing_data_files = infile_dict['forcing_data_files']
         self.rivers.output_files = {}
         for river in 'major minor'.split():
-            self.rivers.output_files[river] = forcing_data_files[river+'_river']
-
+            self.rivers.output_files[river] = (
+                forcing_data_files[river + '_river'])
 
     def _read_yaml_file(self, config_file):
         """Return the dict that results from loading the contents of
@@ -116,7 +113,6 @@ class Config(object):
         """
         with open(config_file, 'rt') as file_obj:
             return yaml.load(file_obj.read())
-
 
     def _read_SOG_infile(self, key):
         """Return a dict of selected values read from the SOG infile.
@@ -155,7 +151,6 @@ class Config(object):
                 infile_dict['forcing_data_files'][result_key] = value
         return infile_dict
 
-
     def _get_SOG_infile_value(self, split_line, lines, i):
         """Return the value from a SOG infile key, value, comment
         triplet that may be split over multiple lines.
@@ -163,7 +158,7 @@ class Config(object):
         value = split_line[1].strip().strip('"').rstrip('\n')
         if not value:
             # Value on line after key
-            value = re.split(r'"\s', lines[i+1])[0].strip().strip('"')
+            value = re.split(r'"\s', lines[i + 1])[0].strip().strip('"')
         trailing_separator = re.compile(r'\s"')
         if trailing_separator.search(value):
             value = trailing_separator.split(value)[0]
@@ -177,7 +172,6 @@ class ForcingDataProcessor(object):
         self.config = config
         self.data = {}
 
-
     def _valuegetter(self, data_item):
         """Return a data value.
 
@@ -186,7 +180,6 @@ class ForcingDataProcessor(object):
         data is stored as a tuple of components.
         """
         return data_item
-
 
     def _trim_data(self, qty):
         """Trim empty and incomplete days from the end of the data
@@ -211,7 +204,6 @@ class ForcingDataProcessor(object):
         else:
             raise ValueError('Forcing data list is empty')
 
-
     def patch_data(self, qty):
         """Patch missing data values by interpolation.
         """
@@ -224,7 +216,6 @@ class ForcingDataProcessor(object):
             elif gap_start is not None:
                 self.interpolate_values(qty, gap_start, gap_end)
                 gap_start = gap_end = None
-
 
     def interpolate_values(self, qty, gap_start, gap_end):
         """Calculate values for missing data via linear interpolation.
@@ -255,7 +246,6 @@ class ClimateDataProcessor(ForcingDataProcessor):
         self.data_readers = data_readers
         super(ClimateDataProcessor, self).__init__(config)
 
-
     def get_climate_data(self, data_type, data_month):
         """Return a list of XML objects containing the specified type of
         climate data.
@@ -263,13 +253,13 @@ class ClimateDataProcessor(ForcingDataProcessor):
         The XML objects are :class:`ElementTree` subelement instances.
         """
         params = self.config.climate.params
-        params['StationID'] = getattr(self.config.climate, data_type).station_id
+        params['StationID'] = getattr(
+            self.config.climate, data_type).station_id
         params.update(self._date_params(data_month))
         response = requests.get(self.config.climate.url, params=params)
         tree = ElementTree.parse(StringIO(response.content))
         root = tree.getroot()
         self.raw_data.extend(root.findall('stationdata'))
-
 
     def _date_params(self, data_month=None):
         """Return a dict of the components of the specified data month
@@ -292,7 +282,6 @@ class ClimateDataProcessor(ForcingDataProcessor):
         }
         return params
 
-
     def _get_data_months(self):
         """Return a list of date objects that are the 1st day of the
         months for which we want to get data from Environment Canada.
@@ -311,7 +300,6 @@ class ClimateDataProcessor(ForcingDataProcessor):
                            for month in xrange(1, 13)] + data_months
         return data_months
 
-
     def process_data(self, qty, end_date=date.today()):
         """Process data from XML data records to a list of hourly
         timestamps and data values.
@@ -325,7 +313,6 @@ class ClimateDataProcessor(ForcingDataProcessor):
             self.data[qty].append((timestamp, reader(record)))
         self._trim_data(qty)
         self.patch_data(qty)
-
 
     def read_timestamp(self, record):
         """Read timestamp from XML data object and return it as a
@@ -359,7 +346,6 @@ class SOG_Relation(object):
         """
         self.datafile = datafile
 
-
     def read_header(self, file_obj):
         """Read a SOG results file header, and return the
         field_names and field_units lists.
@@ -377,7 +363,6 @@ class SOG_Relation(object):
             if line.startswith('*EndOfHeader'):
                 break
         return field_names, field_units
-
 
     def read_data(self, indep_field, dep_field):
         """Read the data for the specified independent and dependent
@@ -418,7 +403,6 @@ class SOG_Timeseries(SOG_Relation):
             self.dep_data = dep_slice
         else:
             return indep_slice, dep_slice
-
 
     def calc_mpl_dates(self, run_start_date):
         """Calculate matplotlib dates from the independent data array
