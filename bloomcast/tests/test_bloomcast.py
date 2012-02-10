@@ -1,6 +1,5 @@
 """Unit tests for bloomcast modules.
 """
-from __future__ import absolute_import
 from BeautifulSoup import BeautifulSoup
 from datetime import date
 from datetime import datetime
@@ -19,10 +18,8 @@ class TestConfig(unittest.TestCase):
         from utils import Config
         return Config
 
-
     def _make_one(self, *args, **kwargs):
         return self._get_target_class()(*args, **kwargs)
-
 
     def _make_mock_config_dict(self):
         mock_config_dict = {
@@ -71,7 +68,6 @@ class TestConfig(unittest.TestCase):
         }
         return mock_config_dict
 
-
     def _make_mock_infile_dict(self):
         mock_infile_dict = {
             'run_start_date': '2011-11-11 12:33:42',
@@ -90,7 +86,6 @@ class TestConfig(unittest.TestCase):
         }
         return mock_infile_dict
 
-
     def test_load_config_climate_url(self):
         """load_config puts expected value in config.climate.url
         """
@@ -103,7 +98,6 @@ class TestConfig(unittest.TestCase):
         config._read_SOG_infile = Mock(return_value=mock_infile_dict)
         config.load_config('config_file')
         self.assertEqual(config.climate.url, test_url)
-
 
     def test_load_config_climate_params(self):
         """load_config puts expected value in config.climate.params
@@ -122,9 +116,8 @@ class TestConfig(unittest.TestCase):
         config.load_config('config_file')
         self.assertEqual(config.climate.params, test_params)
 
-
     def test_load_meteo_config_station_id(self):
-        """_load_meteo_config puts expected value in config.climate.meteo.station_id
+        """_load_meteo_config puts exp value in config.climate.meteo.station_id
         """
         test_station_id = 889
         mock_config_dict = self._make_mock_config_dict()
@@ -135,7 +128,6 @@ class TestConfig(unittest.TestCase):
         config._read_yaml_file = Mock(return_value=mock_config_dict)
         config._load_meteo_config(mock_config_dict, mock_infile_dict)
         self.assertEqual(config.climate.meteo.station_id, test_station_id)
-
 
     def test_load_meteo_config_cloud_fraction_mapping(self):
         """_load_meteo_config puts expected value in cloud_fraction_mapping
@@ -151,7 +143,7 @@ class TestConfig(unittest.TestCase):
         }
         config = self._make_one()
         config.climate = Mock()
-        def side_effect(config_file):
+        def side_effect(config_file):   # NOQA
             return (DEFAULT if config_file == 'config_file'
                     else test_cloud_fraction_mapping)
         config._read_yaml_file = Mock(
@@ -160,7 +152,6 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(
             config.climate.meteo.cloud_fraction_mapping,
             test_cloud_fraction_mapping)
-
 
     def test_load_wind_config_station_id(self):
         """_load_wind_config puts value in config.climate.wind.station_id
@@ -174,7 +165,6 @@ class TestConfig(unittest.TestCase):
         config._read_yaml_file = Mock(return_value=mock_config_dict)
         config._load_wind_config(mock_config_dict, mock_infile_dict)
         self.assertEqual(config.climate.wind.station_id, test_station_id)
-
 
     def test_read_SOG_infile_multi_blanks(self):
         """_read_SOG_infile works for multiple blanks between key and filename
@@ -192,7 +182,6 @@ class TestConfig(unittest.TestCase):
                 'wind': 'Sandheads_wind'
             }})
 
-
     def test_read_SOG_infile_newlines(self):
         """_read_SOG_infile works for newline between key and filename
         """
@@ -209,7 +198,6 @@ class TestConfig(unittest.TestCase):
                 'wind': 'Sandheads_wind'
             }})
 
-
     def test_read_SOG_infile_run_start_date(self):
         """_read_SOG_infile returns expected run start date
         """
@@ -225,7 +213,6 @@ class TestConfig(unittest.TestCase):
             infile_dict,
             {'run_start_date': "2011-09-19 18:49:00",
              'forcing_data_files': {}})
-
 
     def test_read_SOG_infile_dt(self):
         """_read_SOG_infile returns expected SOG timestep
@@ -250,10 +237,8 @@ class TestForcingDataProcessor(unittest.TestCase):
         from utils import ForcingDataProcessor
         return ForcingDataProcessor
 
-
     def _make_one(self, *args, **kwargs):
         return self._get_target_class()(*args, **kwargs)
-
 
     def test_patch_data_1_hour_gap(self):
         """patch_data correctly flags 1 hour gap in data for interpolation
@@ -271,7 +256,6 @@ class TestForcingDataProcessor(unittest.TestCase):
             'air_temperature data patched for 2011-09-25 10:00:00')
         processor.interpolate_values.assert_called_once_with(
             'air_temperature', 1, 1)
-
 
     def test_patch_data_2_hour_gap(self):
         """patch_data correctly flags 2 hour gap in data for interpolation
@@ -293,7 +277,6 @@ class TestForcingDataProcessor(unittest.TestCase):
              (('air_temperature data patched for 2011-09-25 11:00:00',),)])
         processor.interpolate_values.assert_called_once_with(
             'air_temperature', 1, 2)
-
 
     def test_patch_data_2_gaps(self):
         """patch_data correctly flags 2 gaps in data for interpolation
@@ -319,9 +302,8 @@ class TestForcingDataProcessor(unittest.TestCase):
             processor.interpolate_values.call_args_list,
             [(('air_temperature', 1, 2),), (('air_temperature', 4, 4),)])
 
-
     def test_interpolate_values_1_hour_gap(self):
-        """interpolate_values correctly interpolates value for 1 hour gap in data
+        """interpolate_values interpolates value for 1 hour gap in data
         """
         processor = self._make_one(Mock(name='config'))
         processor.data = {}
@@ -335,9 +317,8 @@ class TestForcingDataProcessor(unittest.TestCase):
             processor.data['air_temperature'][1],
             (datetime(2011, 9, 25, 10, 0, 0), 225.0))
 
-
     def test_interpolate_values_2_hour_gap(self):
-        """interpolate_values correctly interpolates value for 2 hour gap in data
+        """interpolate_values interpolates value for 2 hour gap in data
         """
         processor = self._make_one(Mock(name='config'))
         processor.data = {}
@@ -363,10 +344,8 @@ class TestClimateDataProcessor(unittest.TestCase):
         from wind import ClimateDataProcessor
         return ClimateDataProcessor
 
-
     def _make_one(self, *args, **kwargs):
         return self._get_target_class()(*args, **kwargs)
-
 
     def test_get_data_months_run_start_date_same_year(self):
         """_get_data_months returns data months for run start date in same year
@@ -382,9 +361,8 @@ class TestClimateDataProcessor(unittest.TestCase):
         self.assertEqual(data_months[0], date(2011, 1, 1))
         self.assertEqual(data_months[-1], date(2011, 9, 1))
 
-
     def test_get_data_months_run_start_date_prev_year(self):
-        """_get_data_months returns data months for run start date in previous yr
+        """_get_data_months returns data months for run start date in prev yr
         """
         mock_config = Mock()
         mock_config.climate.params = {}
@@ -406,13 +384,11 @@ class TestWindProcessor(unittest.TestCase):
         from wind import WindProcessor
         return WindProcessor
 
-
     def _make_one(self, *args, **kwargs):
         return self._get_target_class()(*args, **kwargs)
 
-
     def test_interpolate_values_1_hour_gap(self):
-        """interpolate_values correctly interpolates value for 1 hour gap in data
+        """interpolate_values interpolates value for 1 hour gap in data
         """
         wind = self._make_one(Mock(name='config'))
         wind.data['wind'] = [
@@ -425,9 +401,8 @@ class TestWindProcessor(unittest.TestCase):
             wind.data['wind'][1],
             (datetime(2011, 9, 25, 10, 0, 0), (1.5, -1.5)))
 
-
     def test_interpolate_values_2_hour_gap(self):
-        """interpolate_values correctly interpolates value for 2 hour gap in data
+        """interpolate_values interpolates value for 2 hour gap in data
         """
         wind = self._make_one(Mock(name='config'))
         wind.data['wind'] = [
@@ -444,14 +419,14 @@ class TestWindProcessor(unittest.TestCase):
             wind.data['wind'][2],
             (datetime(2011, 9, 25, 11, 0, 0), (2.0, -1.0)))
 
-
     def test_interpolate_values_gap_gt_11_hr_logs_warning(self):
         """wind data gap >11 hr generates warning log message
         """
         wind = self._make_one(Mock(name='config'))
         wind.data['wind'] = [(datetime(2011, 9, 25, 0, 0, 0), (1.0, -2.0))]
         wind.data['wind'].extend([
-            (datetime(2011, 9, 25, 1 + i, 0, 0), (None, None)) for i in xrange(15)])
+            (datetime(2011, 9, 25, 1 + i, 0, 0), (None, None))
+            for i in xrange(15)])
         wind.data['wind'].append(
             (datetime(2011, 9, 25, 16, 0, 0), (1.0, -2.0)))
         with patch('wind.log', Mock()) as mock_log:
@@ -460,9 +435,8 @@ class TestWindProcessor(unittest.TestCase):
                 'A wind forcing data gap > 11 hr starting at 2011-09-25 01:00 '
                 'has been patched by linear interpolation')
 
-
     def test_format_data(self):
-        """format_data generator returns correctly formatted forcing data file line
+        """format_data generator returns formatted forcing data file line
         """
         wind = self._make_one(Mock(name='config'))
         wind.data['wind'] = [
@@ -479,13 +453,11 @@ class TestMeteoProcessor(unittest.TestCase):
         from meteo import MeteoProcessor
         return MeteoProcessor
 
-
     def _make_one(self, *args, **kwargs):
         return self._get_target_class()(*args, **kwargs)
 
-
     def test_format_data(self):
-        """format_data generator returns correctly formatted forcing data file line
+        """format_data generator returns formatted forcing data file line
         """
         meteo = self._make_one(Mock(name='config'))
         meteo.config.climate.meteo.station_id = '889'
@@ -496,7 +468,6 @@ class TestMeteoProcessor(unittest.TestCase):
         self.assertEqual(line, '889 2011 09 25 42' + ' 215.0' * 24 + '\n')
 
 
-
 class TestRiverProcessor(unittest.TestCase):
     """Uni tests for RiverProcessor object.
     """
@@ -504,10 +475,8 @@ class TestRiverProcessor(unittest.TestCase):
         from rivers import RiversProcessor
         return RiversProcessor
 
-
     def _make_one(self, *args, **kwargs):
         return self._get_target_class()(*args, **kwargs)
-
 
     def test_date_params(self):
         """_date_params handles month-end rollover correctly
@@ -525,7 +494,6 @@ class TestRiverProcessor(unittest.TestCase):
                 'eday': 1,
         })
 
-
     def test_process_data_1_row(self):
         """process_data produces expected result for 1 row of data
         """
@@ -542,9 +510,8 @@ class TestRiverProcessor(unittest.TestCase):
         rivers.process_data('major')
         self.assertEqual(rivers.data['major'], [(date(2011, 9, 27), 4200.0)])
 
-
     def test_process_data_2_rows_1_day(self):
-        """process_data produces expected result for 2 rows of data from same day
+        """process_data produces result for 2 rows of data from same day
         """
         rivers = self._make_one(Mock(name='config'))
         test_data = [
@@ -562,7 +529,6 @@ class TestRiverProcessor(unittest.TestCase):
         rivers.raw_data = BeautifulSoup(''.join(test_data))
         rivers.process_data('major')
         self.assertEqual(rivers.data['major'], [(date(2011, 9, 27), 4300.0)])
-
 
     def test_process_data_2_rows_2_days(self):
         """process_data produces expected result for 2 rows of data from 2 days
@@ -586,7 +552,6 @@ class TestRiverProcessor(unittest.TestCase):
             rivers.data['major'], [
                 (date(2011, 9, 27), 4200.0),
                 (date(2011, 9, 28), 4400.0)])
-
 
     def test_process_data_4_rows_2_days(self):
         """process_data produces expected result for 4 rows of data from 2 days
@@ -618,7 +583,6 @@ class TestRiverProcessor(unittest.TestCase):
                 (date(2011, 9, 27), 4300.0),
                 (date(2011, 9, 28), 3300.0)])
 
-
     def test_format_data(self):
         """format_data generator returns formatted forcing data file line
         """
@@ -628,8 +592,6 @@ class TestRiverProcessor(unittest.TestCase):
         ]
         line = rivers.format_data('major').next()
         self.assertEqual(line, '2011 09 27 4.200000e+03\n')
-
-
 
     def test_patch_data_1_day_gap(self):
         """patch_data correctly flags 1 day gap in data for interpolation
@@ -649,7 +611,6 @@ class TestRiverProcessor(unittest.TestCase):
         processor.interpolate_values.assert_called_once_with(
             'major', 1, 1)
 
-
     def test_patch_data_2_day_gap(self):
         """patch_data correctly flags 2 day gap in data for interpolation
         """
@@ -667,10 +628,9 @@ class TestRiverProcessor(unittest.TestCase):
         self.assertEqual(
             mock_log.debug.call_args_list,
             [(('major river data patched for 2011-10-24',),),
-             (('major river data patched for 2011-10-25',),),])
+             (('major river data patched for 2011-10-25',),), ])
         processor.interpolate_values.assert_called_once_with(
             'major', 1, 2)
-
 
     def test_patch_data_2_gaps(self):
         """patch_data correctly flags 2 gaps in data for interpolation
@@ -694,14 +654,13 @@ class TestRiverProcessor(unittest.TestCase):
             mock_log.debug.call_args_list,
             [(('major river data patched for 2011-10-24',),),
              (('major river data patched for 2011-10-27',),),
-             (('major river data patched for 2011-10-28',),),])
+             (('major river data patched for 2011-10-28',),), ])
         self.assertEqual(
             processor.interpolate_values.call_args_list,
             [(('major', 1, 1),), (('major', 4, 5),)])
 
-
     def test_interpolate_values_1_day_gap(self):
-        """interpolate_values correctly interpolates value for 1 day gap in data
+        """interpolate_values interpolates value for 1 day gap in data
         """
         processor = self._make_one(Mock(name='config'))
         processor.data = {}
@@ -714,9 +673,8 @@ class TestRiverProcessor(unittest.TestCase):
         self.assertEqual(
             processor.data['major'][1], (date(2011, 10, 24), 4400.0))
 
-
     def test_interpolate_values_2_day_gap(self):
-        """interpolate_values correctly interpolates value for 2 day gap in data
+        """interpolate_values interpolates value for 2 day gap in data
         """
         processor = self._make_one(Mock(name='config'))
         processor.data = {}
