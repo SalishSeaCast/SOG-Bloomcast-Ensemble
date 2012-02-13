@@ -50,9 +50,9 @@ class RiversProcessor(ForcingDataProcessor):
         params = self.config.rivers.params
         params['stn'] = getattr(self.config.rivers, river).station_id
         today = date.today()
-        start_year = (today.year
-                      if self.config.run_start_date.year == today.year
-                      else today.year - 1)
+        start_year = (self.config.run_start_date.year
+                      if self.config.run_start_date.year != today.year
+                      else today.year)
         params.update(self._date_params(start_year))
         with requests.session() as s:
             s.post(self.config.rivers.disclaimer_url,
