@@ -92,8 +92,9 @@ class MeteoProcessor(ClimateDataProcessor):
                 cloud_fraction = None
             else:
                 log.warning(
-                    'Unrecognized weather description: {0}; '
-                    'cloud fraction set to 10'.format(weather_desc))
+                    'Unrecognized weather description: {0} at {1}; '
+                    'cloud fraction set to 10'
+                    .format(weather_desc, self.read_timestamp(record)))
                 cloud_fraction = 10
         return cloud_fraction
 
