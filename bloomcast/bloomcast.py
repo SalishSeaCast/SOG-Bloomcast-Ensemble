@@ -549,15 +549,15 @@ class Bloomcast(object):
         ]
         for fig, filename in graphs:
             try:
-                bloom_date_line = fig.ax_left.axvline(
-                    date2num(datetime.combine(self.bloom_date['avg_forcing'],
-                                              time(12))),
-                    color=self.diatoms_colours['avg'])
                 for key in 'early_bloom_forcing late_bloom_forcing'.split():
                     fig.ax_left.axvline(
                         date2num(datetime.combine(self.bloom_date[key],
                                                   time(12))),
                         color=self.diatoms_colours['bounds'])
+                bloom_date_line = fig.ax_left.axvline(
+                    date2num(datetime.combine(self.bloom_date['avg_forcing'],
+                                              time(12))),
+                    color=self.diatoms_colours['avg'])
                 fig.legend(
                     [fig.data_date_line, bloom_date_line],
                     ['Actual to Avg', 'Diatom Bloom'],
