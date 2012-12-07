@@ -32,6 +32,8 @@ from pprint import pprint
 
 
 EC_URL = 'http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html'
+START_YEAR = 2002
+END_YEAR = 2011
 
 
 log = logging.getLogger('cf_analysis')
@@ -39,11 +41,11 @@ log = logging.getLogger('cf_analysis')
 
 def run():
     logging.basicConfig(level=logging.DEBUG)
-    data_months = [
+    data_months = (
         date(year, month, 1)
         for year in xrange(2002, 2012)
         for month in xrange(1, 13)
-        ]
+        )
     for data_month in data_months:
         params = {
             'timeframe': 1,                 # Daily
@@ -57,7 +59,7 @@ def run():
         # response = requests.get(EC_URL, params=params)
         # log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
 
-        # pprint(params)
+        pprint(data_month)
 
 
 if __name__ == '__main__':
