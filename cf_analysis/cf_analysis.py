@@ -46,20 +46,22 @@ def run():
         for year in xrange(2002, 2012)
         for month in xrange(1, 13)
         )
+    request_params = {
+        'timeframe': 1,                 # Daily
+        'Prov': 'BC',
+        'format': 'xml',
+        'StationID': 889,               # YVR
+        'Day': 1,
+        }
     for data_month in data_months:
-        params = {
-            'timeframe': 1,                 # Daily
-            'Prov': 'BC',
-            'format': 'xml',
-            'StationID': 889,               # YVR
+        request_params.update({
             'Year': data_month.year,
             'Month': data_month.month,
-            'Day': 1,
-            }
-        # response = requests.get(EC_URL, params=params)
-        # log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
+            })
+        response = requests.get(EC_URL, params=request_params)
+        log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
 
-        pprint(data_month)
+        # pprint(data_month)
 
 
 if __name__ == '__main__':
