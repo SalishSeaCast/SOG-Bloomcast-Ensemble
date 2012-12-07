@@ -34,6 +34,7 @@ from pprint import pprint
 EC_URL = 'http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html'
 START_YEAR = 2002
 END_YEAR = 2011
+YVR_CF_FILE = '../SOG-forcing/met/YVRhistCF'
 
 
 log = logging.getLogger('cf_analysis')
@@ -53,15 +54,32 @@ def run():
         'StationID': 889,               # YVR
         'Day': 1,
         }
-    for data_month in data_months:
-        request_params.update({
-            'Year': data_month.year,
-            'Month': data_month.month,
-            })
-        response = requests.get(EC_URL, params=request_params)
-        log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
+    with open(YVR_CF_FILE, 'rt') as yvr_file:
+        # for data_month in data_months:
+        #     request_params.update({
+        #         'Year': data_month.year,
+        #         'Month': data_month.month,
+        #         })
+            # response = requests.get(EC_URL, params=request_params)
+            # log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
 
-        # pprint(data_month)
+            yvr_data = get_yvr_line(yvr_file, START_YEAR).next()
+            pprint(yvr_data)
+            yvr_data = get_yvr_line(yvr_file, START_YEAR).next()
+            pprint(yvr_data)
+
+
+def get_yvr_line(yvr_file, start_year):
+    data_date = date(1867, 1, 1)
+    while data_date < date(start_year, 1, 1):
+        parts = yvr_file.next().split()
+        data_date = date(*map(int, parts[1:4]))
+    else:
+        yvr_data = {
+            'date': data_date,
+            'hourly_cfs': map(float, parts[5:29]),
+            }
+        yield yvr_data
 
 
 if __name__ == '__main__':
