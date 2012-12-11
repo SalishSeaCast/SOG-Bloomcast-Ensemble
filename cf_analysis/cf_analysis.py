@@ -23,18 +23,22 @@ an API in bloomcast to support this use.
   * a text file (manipulable with grep, uniq, etc.)
   * a sqlite database file (manipulable with SQLAlchemy)
 """
-from datetime import date
+import contextlib
+from cStringIO import StringIO
+from datetime import (
+    date,
+    datetime,
+    )
 import logging
 from xml.etree import cElementTree as ElementTree
 import requests
-
-from pprint import pprint
 
 
 EC_URL = 'http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html'
 START_YEAR = 2002
 END_YEAR = 2011
-YVR_CF_FILE = '../SOG-forcing/met/YVRhistCF'
+YVR_CF_FILE = '../../SOG-forcing/met/YVRhistCF'
+RESULTS_FILE = 'cf_analysis.txt'
 
 
 log = logging.getLogger('cf_analysis')
@@ -54,19 +58,31 @@ def run():
         'StationID': 889,               # YVR
         'Day': 1,
         }
-    with open(YVR_CF_FILE, 'rt') as yvr_file:
-        # for data_month in data_months:
-        #     request_params.update({
-        #         'Year': data_month.year,
-        #         'Month': data_month.month,
-        #         })
-            # response = requests.get(EC_URL, params=request_params)
-            # log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
-
+    yvr_file = open(YVR_CF_FILE, 'rt')
+    results_file = open(RESULTS_FILE, 'wt')
+    with contextlib.nested(yvr_file, results_file):
+        for data_month in data_months:
+            request_params.update({
+                'Year': data_month.year,
+                'Month': data_month.month,
+                })
+            response = requests.get(EC_URL, params=request_params)
+            log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
+            tree = ElementTree.parse(StringIO(response.content))
+            root = tree.getroot()
             yvr_data = get_yvr_line(yvr_file, START_YEAR).next()
-            pprint(yvr_data)
-            yvr_data = get_yvr_line(yvr_file, START_YEAR).next()
-            pprint(yvr_data)
+            for record in root.findall('stationdata'):
+                parts = [record.get(part)
+                         for part in 'year month day hour'.split()]
+                timestamp = datetime(*map(int, parts))
+                weather_desc = record.find('weather').text
+                while timestamp.date() > yvr_data['date']:
+                    yvr_data = get_yvr_line(yvr_file, START_YEAR).next()
+                result_line = (
+                    '{0:%Y-%m-%d %H:%M:%S} {1} {2}\n'
+                    .format(timestamp, weather_desc,
+                            yvr_data['hourly_cfs'][timestamp.hour]))
+                results_file.write(result_line)
 
 
 def get_yvr_line(yvr_file, start_year):
