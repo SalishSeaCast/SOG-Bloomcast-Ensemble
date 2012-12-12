@@ -66,16 +66,9 @@ def run():
         context = contextlib.nested(yvr_file, hourly_file)
     with context:
         for data_month in data_months:
-            request_params.update({
-                'Year': data_month.year,
-                'Month': data_month.month,
-                })
-            response = requests.get(EC_URL, params=request_params)
-            log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
-            tree = ElementTree.parse(StringIO(response.content))
-            root = tree.getroot()
+            ec_data = get_EC_data(data_month, request_params)
             yvr_data = get_yvr_line(yvr_file, START_YEAR).next()
-            for record in root.findall('stationdata'):
+            for record in ec_data.findall('stationdata'):
                 parts = [record.get(part)
                          for part in 'year month day hour'.split()]
                 timestamp = datetime(*map(int, parts))
@@ -85,6 +78,19 @@ def run():
                 if DUMP_HOURLY_RESULTS:
                     write_hourly_line(
                         timestamp, weather_desc, yvr_data, hourly_file)
+            break
+
+
+def get_EC_data(data_month, request_params):
+    request_params.update({
+        'Year': data_month.year,
+        'Month': data_month.month,
+        })
+    response = requests.get(EC_URL, params=request_params)
+    log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
+    tree = ElementTree.parse(StringIO(response.content))
+    ec_data = tree.getroot()
+    return ec_data
 
 
 def get_yvr_line(yvr_file, start_year):
