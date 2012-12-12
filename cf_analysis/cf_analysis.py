@@ -38,7 +38,8 @@ EC_URL = 'http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html'
 START_YEAR = 2002
 END_YEAR = 2011
 YVR_CF_FILE = '../../SOG-forcing/met/YVRhistCF'
-RESULTS_FILE = 'cf_analysis.txt'
+DUMP_HOURLY_RESULTS = False
+HOURLY_FILE = 'cf_analysis.txt'
 
 
 log = logging.getLogger('cf_analysis')
@@ -59,8 +60,11 @@ def run():
         'Day': 1,
         }
     yvr_file = open(YVR_CF_FILE, 'rt')
-    results_file = open(RESULTS_FILE, 'wt')
-    with contextlib.nested(yvr_file, results_file):
+    context = contextlib.nested(yvr_file)
+    if DUMP_HOURLY_RESULTS:
+        hourly_file = open(HOURLY_FILE, 'wt')
+        context = contextlib.nested(yvr_file, hourly_file)
+    with context:
         for data_month in data_months:
             request_params.update({
                 'Year': data_month.year,
@@ -78,11 +82,9 @@ def run():
                 weather_desc = record.find('weather').text
                 while timestamp.date() > yvr_data['date']:
                     yvr_data = get_yvr_line(yvr_file, START_YEAR).next()
-                result_line = (
-                    '{0:%Y-%m-%d %H:%M:%S} {1} {2}\n'
-                    .format(timestamp, weather_desc,
-                            yvr_data['hourly_cfs'][timestamp.hour]))
-                results_file.write(result_line)
+                if DUMP_HOURLY_RESULTS:
+                    write_hourly_line(
+                        timestamp, weather_desc, yvr_data, hourly_file)
 
 
 def get_yvr_line(yvr_file, start_year):
@@ -96,6 +98,14 @@ def get_yvr_line(yvr_file, start_year):
             'hourly_cfs': map(float, parts[5:29]),
             }
         yield yvr_data
+
+
+def write_hourly_line(timestamp, weather_desc, yvr_data, hourly_file):
+    result_line = (
+        '{0:%Y-%m-%d %H:%M:%S} {1} {2}\n'
+        .format(timestamp, weather_desc,
+                yvr_data['hourly_cfs'][timestamp.hour]))
+    hourly_file.write(result_line)
 
 
 if __name__ == '__main__':
