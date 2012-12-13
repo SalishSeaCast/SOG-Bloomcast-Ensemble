@@ -61,11 +61,21 @@ AVERAGING_THRESHOLD = 500
 MAPPING_FILE = 'cloud_fraction_mapping.yaml'
 
 
+root_log = logging.getLogger()
 log = logging.getLogger('cf_analysis')
+logging.basicConfig(level=logging.DEBUG)
+formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
+console = logging.StreamHandler()
+console.setFormatter(formatter)
+log.addHandler(console)
+disk = logging.FileHandler('cf_analysis.log', mode='w')
+disk.setFormatter(formatter)
+log.addHandler(disk)
+root_log.addHandler(disk)
+log.propagate = False
 
 
 def run():
-    logging.basicConfig(level=logging.DEBUG)
     data_months = (
         date(year, month, 1)
         for year in xrange(2002, 2012)
@@ -160,7 +170,7 @@ def calc_mapping_averages(mapping):
         total_observations = sum(len(month) for month in months)
         if total_observations > AVERAGING_THRESHOLD:
             log.info(
-                'using monthly averaging for {0} "{1}" observations'
+                'using monthly averaging for {0} "{1}" observation(s)'
                 .format(total_observations, weather_desc))
             for i, month in enumerate(months):
                 try:
@@ -170,7 +180,7 @@ def calc_mapping_averages(mapping):
             mapping[weather_desc].pop(0)
         else:
             log.info(
-                'using all value averaging for {0} "{1}" observations'
+                'using all value averaging for {0} "{1}" observation(s)'
                 .format(total_observations, weather_desc))
             mapping[weather_desc] = [
                 sum(sum(month) for month in months) / total_observations
