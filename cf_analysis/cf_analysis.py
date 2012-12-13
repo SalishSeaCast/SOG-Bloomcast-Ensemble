@@ -18,10 +18,23 @@ an API in bloomcast to support this use.
   Hours for which there is no weather description in the EC data will be
   skipped.
 
-  Write those data to 1 or more repositories, perhaps:
+  Write those data to a text file (manipulable with grep, uniq, etc.)
 
-  * a text file (manipulable with grep, uniq, etc.)
-  * a sqlite database file (manipulable with SQLAlchemy)
+Susan analyzed samples of those data and found that there is variation
+from month to month in the cloud fraction value for some of the
+weather descriptions.
+The algorithm she decided on is:
+
+* If there are more than 500 observations for a given weather description,
+  calculate the average cloud fraction value for each month
+
+* If there are 500 or fewer observations,
+  calculate a single average cloud fraction value.
+
+* The resulting cloud fraction mapping YAML file will have:
+
+  * weather description strings as keys
+  * arrays of either 1 or 12 cloud fraction values as values
 """
 import contextlib
 from cStringIO import StringIO
@@ -32,6 +45,7 @@ from datetime import (
 import logging
 from xml.etree import cElementTree as ElementTree
 import requests
+import yaml
 
 
 EC_URL = 'http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html'
@@ -40,6 +54,11 @@ END_YEAR = 2011
 YVR_CF_FILE = '../../SOG-forcing/met/YVRhistCF'
 DUMP_HOURLY_RESULTS = False
 HOURLY_FILE = 'cf_analysis.txt'
+# Threshold for number of observations of a given weather description
+# at which to switch from averaging all values to averaging values for
+# each month
+AVERAGING_THRESHOLD = 500
+MAPPING_FILE = 'cloud_fraction_mapping.yaml'
 
 
 log = logging.getLogger('cf_analysis')
@@ -59,6 +78,7 @@ def run():
         'StationID': 889,               # YVR
         'Day': 1,
         }
+    mapping = {}
     yvr_file = open(YVR_CF_FILE, 'rt')
     context = contextlib.nested(yvr_file)
     if DUMP_HOURLY_RESULTS:
@@ -73,12 +93,20 @@ def run():
                          for part in 'year month day hour'.split()]
                 timestamp = datetime(*map(int, parts))
                 weather_desc = record.find('weather').text
+                if weather_desc is None:
+                    log.info(
+                        'Missing weather description at {0:%Y-%m-%d %H:%M} '
+                        'skipped'.format(timestamp))
+                    continue
                 while timestamp.date() > yvr_data['date']:
                     yvr_data = get_yvr_line(yvr_file, START_YEAR).next()
                 if DUMP_HOURLY_RESULTS:
                     write_hourly_line(
                         timestamp, weather_desc, yvr_data, hourly_file)
-            break
+                build_raw_mapping(mapping, weather_desc, timestamp, yvr_data)
+    calc_mapping_averages(mapping)
+    with open(MAPPING_FILE, 'wt') as mapping_file:
+        yaml.dump(mapping, mapping_file)
 
 
 def get_EC_data(data_month, request_params):
@@ -87,7 +115,7 @@ def get_EC_data(data_month, request_params):
         'Month': data_month.month,
         })
     response = requests.get(EC_URL, params=request_params)
-    log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
+    log.info('got meteo data for {0:%Y-%m}'.format(data_month))
     tree = ElementTree.parse(StringIO(response.content))
     ec_data = tree.getroot()
     return ec_data
@@ -112,6 +140,41 @@ def write_hourly_line(timestamp, weather_desc, yvr_data, hourly_file):
         .format(timestamp, weather_desc,
                 yvr_data['hourly_cfs'][timestamp.hour]))
     hourly_file.write(result_line)
+
+
+def build_raw_mapping(mapping, weather_desc, timestamp, yvr_data):
+    try:
+        mapping[weather_desc][timestamp.month].append(
+            yvr_data['hourly_cfs'][timestamp.hour])
+    except KeyError:
+        mapping[weather_desc] = [
+            [], [], [], [], [], [], [], [], [], [], [], [], [],
+            ]
+        mapping[weather_desc][timestamp.month].append(
+            yvr_data['hourly_cfs'][timestamp.hour])
+        log.info('"{0}" added to mapping'.format(weather_desc))
+
+
+def calc_mapping_averages(mapping):
+    for weather_desc, months in mapping.iteritems():
+        total_observations = sum(len(month) for month in months)
+        if total_observations > AVERAGING_THRESHOLD:
+            log.info(
+                'using monthly averaging for {0} "{1}" observations'
+                .format(total_observations, weather_desc))
+            for i, month in enumerate(months):
+                try:
+                    mapping[weather_desc][i] = sum(month) / len(month)
+                except ZeroDivisionError:
+                    mapping[weather_desc][i] = []
+            mapping[weather_desc].pop(0)
+        else:
+            log.info(
+                'using all value averaging for {0} "{1}" observations'
+                .format(total_observations, weather_desc))
+            mapping[weather_desc] = [
+                sum(sum(month) for month in months) / total_observations
+                ]
 
 
 if __name__ == '__main__':
