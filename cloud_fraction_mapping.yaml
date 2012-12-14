@@ -1,53 +1,66 @@
-# Susan's mapping of weather description to cloud fraction
-Drizzle:   10
-Drizzle,Fog:   10
-Fog:           10
-Freezing Drizzle:      10
-Freezing Drizzle,Fog:  10
-Freezing Fog:          10
-Freezing Rain:         10
-Freezing Rain,Freezing Drizzle,Fog:  10
-Freezing Rain,Fog:     10
-Freezing Rain,Freezing Drizzle,Fog:  10
-Funnel Cloud:    5
-Haze:     8
-Heavy Rain:            10
-Heavy Rain,Fog:        10
-Heavy Rain Showers:        10
-Heavy Rain Showers,Fog:        10
-Moderate Drizzle,Fog:  10
-Moderate Rain:         10
-Moderate Rain,Fog:     10
-Moderate Rain Showers: 10
-Moderate Rain Showers,Fog:     10
-Moderate Rain Showers,Snow Showers,Fog:        10
-Moderate Snow: 10
-Moderate Snow Showers:      10
-Moderate Snow Showers,Fog:  10
-Moderate Snow Showers,Freezing Fog:    10
-Rain:     10
-Rain Showers:  10
-Rain Showers,Fog:      10
-Rain Showers,Ice Pellet Showers,Fog:   10
-Rain Showers,Snow Showers:             10
-Rain Showers,Snow Showers,Fog:         10
-Rain,Drizzle:      10
-Rain,Drizzle,Fog:  10
-Rain,Fog:          10
-Rain,Snow:         10
-Rain,Snow Grains:  10
-Rain,Snow,Fog:     10
-Snow:              10
-Snow Grains:       10
-Snow Pellets:      10
-Snow Showers:      10
-Snow Showers,Fog:  10
-Snow Showers,Snow Pellets:             10
-Snow,Fog:          10
-Thunderstorms:      5
-Thunderstorms,Rain Showers:            10
-Thunderstorms,Rain Showers,Snow Showers:       10
-Cloudy:             9
-Mostly Cloudy:      7
-Mainly Clear:       3
-Clear:  0
+Clear: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+Cloudy: [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0]
+Drizzle: [9.9675925925925934]
+Drizzle,Fog: [10.0]
+Drizzle,Snow,Fog: [10.0]
+Fog: [9.6210045662100452, 9.3069767441860467, 9.5945945945945947, 9.5, 9.931034482758621,
+  10.0, 9.7777777777777786, 9.6999999999999993, 7.8518518518518521, 8.9701492537313428,
+  9.2686980609418281, 9.0742358078602621]
+Freezing Drizzle: [10.0]
+Freezing Drizzle,Fog: [10.0]
+Freezing Fog: [8.6428571428571423]
+Freezing Rain: [10.0]
+Freezing Rain,Fog: [10.0]
+Haze: [7.75]
+Heavy Rain: [10.0]
+Heavy Rain Showers: [9.0]
+Heavy Rain Showers,Fog: [10.0]
+Heavy Rain,Fog: [10.0]
+Ice Pellet Showers: [9.0]
+Mainly Clear: [2.939799331103679, 2.6341935483870969, 2.9143911439114389, 2.8973670069854918,
+  2.8174976481655691, 2.8267831149927218, 2.4832285115303985, 2.626937984496124, 2.5782710280373831,
+  2.753614806246385, 2.9793261868300154, 2.8877828054298642]
+Moderate Drizzle,Fog: [10.0]
+Moderate Rain: [10.0]
+Moderate Rain Showers: [9.7599999999999998]
+Moderate Rain Showers,Fog: [10.0]
+Moderate Rain Showers,Snow Showers,Fog: [10.0]
+Moderate Rain,Fog: [10.0]
+Moderate Snow: [10.0]
+Moderate Snow Showers: [10.0]
+Moderate Snow Showers,Fog: [10.0]
+Moderate Snow Showers,Freezing Fog: [10.0]
+Mostly Cloudy: [8.1429539295392956, 8.0802387267904514, 8.0269475747182746, 7.95703125,
+  7.9078467153284668, 7.9273182957393482, 7.9123343527013255, 7.8130434782608695,
+  7.817989417989418, 7.9959239130434785, 7.9274537695590324, 8.1047675103001762]
+Rain: [9.9867695700110257, 9.9767441860465116, 9.9820627802690591, 9.9841269841269842,
+  9.9909365558912384, 9.9661016949152543, 10.0, 9.9600000000000009, 9.9677419354838701,
+  9.9734345351043636, 9.9664516129032261, 9.9753231492361927]
+Rain Showers: [9.9175946547884184, 9.9083969465648849, 9.8729903536977499, 9.8742632612966599,
+  9.8542094455852158, 9.8339768339768341, 9.8171428571428567, 9.8791946308724832,
+  9.8825757575757578, 9.8922018348623855, 9.9496402877697836, 9.928251121076233]
+Rain Showers,Fog: [9.988795518207283]
+Rain Showers,Ice Pellet Showers,Fog: [10.0]
+Rain Showers,Snow Showers: [9.9285714285714288]
+Rain Showers,Snow Showers,Fog: [9.5]
+Rain,Drizzle: [10.0]
+Rain,Drizzle,Fog: [10.0]
+Rain,Fog: [9.9945799457994582, 9.9921259842519685, 10.0, 10.0, 10.0, 10.0, 9.931034482758621,
+  9.9729729729729737, 10.0, 9.9959839357429718, 9.9971988795518207, 10.0]
+Rain,Snow: [9.9795918367346932]
+Rain,Snow Grains: [10.0]
+Rain,Snow Grains,Fog: [10.0]
+Rain,Snow,Fog: [10.0]
+Smoke: [9.0]
+Snow: [9.978365384615385]
+Snow Grains: [10.0]
+Snow Pellets: [10.0]
+Snow Showers: [9.8526315789473689]
+Snow Showers,Fog: [10.0]
+Snow Showers,Snow Pellets: [10.0]
+Snow,Fog: [10.0]
+Thunderstorms: [8.7142857142857135]
+Thunderstorms,Moderate Rain Showers: [10.0]
+Thunderstorms,Rain Showers: [9.7222222222222214]
+Thunderstorms,Rain Showers,Fog: [10.0]
+Thunderstorms,Rain Showers,Snow Showers: [10.0]
