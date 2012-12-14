@@ -116,7 +116,7 @@ class MeteoProcessor(ClimateDataProcessor):
         * Quantity ID (not used by SOG; set to 42)
 
         That is followed by 24 hourly values for the data quanity
-        follow expressed as floats with 1 decimal place.
+        follow expressed as floats with 2 decimal place.
         """
         for i in xrange(len(self.data[qty]) / 24):
             data = self.data[qty][i * 24:(i + 1) * 24]
@@ -124,7 +124,7 @@ class MeteoProcessor(ClimateDataProcessor):
             line = '{0} {1:%Y %m %d} 42'.format(
                 self.config.climate.meteo.station_id, timestamp)
             for hour in data:
-                line += ' {0:.1f}'.format(hour[1])
+                line += ' {0:.2f}'.format(hour[1])
             line += '\n'
             yield line
 
