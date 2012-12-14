@@ -138,8 +138,9 @@ class TestConfig(unittest.TestCase):
             test_cloud_fraction_mapping_file)
         mock_infile_dict = self._make_mock_infile_dict()
         test_cloud_fraction_mapping = {
-            'Drizzle':   10,
-            'Clear':  0,
+            'Drizzle':  [9.9675925925925934],
+            'Clear':
+                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
         }
         config = self._make_one()
         config.climate = Mock()
@@ -455,6 +456,39 @@ class TestMeteoProcessor(unittest.TestCase):
 
     def _make_one(self, *args, **kwargs):
         return self._get_target_class()(*args, **kwargs)
+
+    def test_read_cloud_fraction_single_avg(self):
+        """read_cloud_fraction returns expected value for single avg CF list
+        """
+        meteo = self._make_one(Mock(name='config'))
+        meteo.config.climate.meteo.cloud_fraction_mapping = {
+            'Drizzle': [9.9675925925925934],
+            }
+        record = Mock(name='record')
+        record.find().text = 'Drizzle'
+        cloud_faction = meteo.read_cloud_fraction(record)
+        self.assertEqual(cloud_faction, 9.9675925925925934)
+
+    def test_read_cloud_fraction_monthly_avg(self):
+        """read_cloud_fraction returns expected value for monthly avg CF list
+        """
+        meteo = self._make_one(Mock(name='config'))
+        meteo.config.climate.meteo.cloud_fraction_mapping = {
+            'Fog': [
+                9.6210045662100452, 9.3069767441860467, 9.5945945945945947,
+                9.5, 9.931034482758621, 10.0, 9.7777777777777786,
+                9.6999999999999993, 7.8518518518518521, 8.9701492537313428,
+                9.2686980609418281, 9.0742358078602621]
+            }
+        record = Mock(name='record')
+        record.find().text = 'Fog'
+
+        def mock_timestamp_data(part):
+            parts = {'year': 2012, 'month': 4, 'day': 1, 'hour': 12}
+            return parts[part]
+        record.get = mock_timestamp_data
+        cloud_faction = meteo.read_cloud_fraction(record)
+        self.assertEqual(cloud_faction, 9.5)
 
     def test_format_data(self):
         """format_data generator returns formatted forcing data file line

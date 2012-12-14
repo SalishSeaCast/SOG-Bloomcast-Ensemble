@@ -89,13 +89,18 @@ class MeteoProcessor(ClimateDataProcessor):
         except KeyError:
             if weather_desc is None:
                 # None indicates missing data
-                cloud_fraction = None
+                cloud_fraction = [None]
             else:
                 log.warning(
                     'Unrecognized weather description: {0} at {1}; '
                     'cloud fraction set to 10'
                     .format(weather_desc, self.read_timestamp(record)))
-                cloud_fraction = 10
+                cloud_fraction = [10]
+        if len(cloud_fraction) == 1:
+            cloud_fraction = cloud_fraction[0]
+        else:
+            timestamp = self.read_timestamp(record)
+            cloud_fraction = cloud_fraction[timestamp.month - 1]
         return cloud_fraction
 
     def format_data(self, qty):
