@@ -173,17 +173,15 @@ class Bloomcast(object):
             log.info('Skipped running SOG')
             return
         for key in self.config.infiles:
-            with ContextStack() as stack:
-                infile = stack.enter_context(
-                    open(self.config.infiles[key], 'rt'))
-                stdout = stack.enter_context(
-                    open(infile.name + '.stdout', 'wt'))
-                log.info('SOG run with {0} started at {1:%Y-%m-%d %H:%M:%S}'
-                         .format(infile.name, datetime.now()))
-                check_call('nice -19 ../SOG-code-bloomcast/SOG'.split(),
-                           stdin=infile, stdout=stdout, stderr=STDOUT)
-                log.info('SOG run with {0} finished at {1:%Y-%m-%d %H:%M:%S}'
-                         .format(infile.name, datetime.now()))
+            infile = self.config.infiles[key]
+            outfile = infile + '.stdout'
+            log.info('SOG run with {0} started at {1:%Y-%m-%d %H:%M:%S}'
+                     .format(infile, datetime.now()))
+            check_call([
+                'SOG',  'run', '../SOG-code-bloomcast/SOG',
+                infile, '--legacy-infile', '--outfile', outfile])
+            log.info('SOG run with {0} finished at {1:%Y-%m-%d %H:%M:%S}'
+                     .format(infile.name, datetime.now()))
 
     def _get_results_timeseries(self):
         """Read SOG results time series of interest and create
