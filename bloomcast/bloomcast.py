@@ -181,7 +181,7 @@ class Bloomcast(object):
                 'SOG',  'run', '../SOG-code-bloomcast/SOG',
                 infile, '--legacy-infile', '--outfile', outfile])
             log.info('SOG run with {0} finished at {1:%Y-%m-%d %H:%M:%S}'
-                     .format(infile.name, datetime.now()))
+                     .format(infile, datetime.now()))
 
     def _get_results_timeseries(self):
         """Read SOG results time series of interest and create
