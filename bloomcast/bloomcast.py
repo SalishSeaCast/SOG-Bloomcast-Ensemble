@@ -11,10 +11,7 @@ import logging.handlers
 from math import ceil
 import os
 from subprocess import check_call
-from subprocess import STDOUT
 import sys
-# contextlib2:
-from contextlib2 import ContextStack
 # NumPy:
 import numpy as np
 # Mako:
@@ -142,7 +139,7 @@ class Bloomcast(object):
     def _get_forcing_data(self):
         """Collect and process forcing data.
         """
-        if  not self.config.get_forcing_data:
+        if not self.config.get_forcing_data:
             log.info('Skipped collection and processing of forcing data')
             return
         wind = WindProcessor(self.config)
