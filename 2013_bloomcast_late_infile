@@ -1,0 +1,472 @@
+! -*- mode: f90 -*-  ! This line must be at the top of the file!
+
+! SOG code infile for 2013 bloomcast run with late bloom forcing data
+
+! Latitude of basin location
+"latitude"  49.1253d0  "latitude [deg] 49.0d0 + 7.517d0 / 60.0d0"
+
+! Atmospheric CO2 partial pressure
+"pCO2_atm"  3.8d-4  "partial pressure of atmospheric CO2 [atm]"
+
+! Grid parameters:
+"maxdepth"	40.d0	"depth of modelled domain [m]"
+"gridsize"	80	"number of grid points"
+"lambda"	0.d0	"grid spacing parameter"
+
+! Run timing parameters:
+! Initial conditions date/time (must match a CTD profile date/time)
+"init datetime"	"2012-09-19 18:49:00"	"initialization CTD profile date/time"
+! End of run date/time
+"end datetime"	"2013-05-01 00:49:00"	"end of run date/time"
+"dt"		900	 "time step [s]"
+"chem_dt"	900	 "internal chemistry time step [s]"
+! Implicit solver iteration limit
+"max_iter"	30	"implicit solver max iterations"
+
+! Forcing and initial conditions variation parameters
+"vary%wind%enabled"    .false.       "Variation of wind data?"
+"vary%cf%enabled"      .false.       "Variation of cloud fraction data?"
+"vary%rivers%enabled"  .false.       "Variation of river flow?"
+"vary%temperature%enabled" .false.   "Variation of temperature?"
+
+!N2chl ratio
+"N2chl"  1.5d0  "ratio of chl mg/m3 to uMol N in phytoplankton"
+
+! Biology 'on' or 'off'
+"biology" .true.  "Include biology model (if not initializes phyto to zero)"
+
+! Initial conditions
+"ctd_in"
+  "../SOG-initial/ctd/SG-39-2001-09-19.sog"
+  "initialization CTD file"
+! Give a path/filename for either nuts_in or botl_in; set the other to "N/A"
+"nuts_in"
+  "../SOG-initial/stratogem_nuts/Nuts-39-2001-09-19.sog"
+  "pre-processed nitrate & silicon profile data from STRATOGEM bottles"
+"botl_in"
+  "N/A"
+  "IOS bottle data file"
+"chem_in"
+  "../SOG-initial/chem/Chem-SOG42-2010-73.sog"
+  "IOS chemistry bottle data file"
+"initial chl split"
+ 1.0d0 0.d0 0.d0
+  "Ratios of 3 classes of phytoplankton based on chlorophyl (micro, nano, pico)"
+
+! Time series output files
+"std_phys_ts_out"
+	"timeseries/std_phys_2013_bloomcast_late.out"
+	"standard physics timeseries"
+"user_phys_ts_out"
+	"timeseries/user_phys_2013_bloomcast_late.out"
+	"user-defined physics timeseries"
+"std_bio_ts_out"
+	"timeseries/std_bio_2013_bloomcast_late.out"
+	"standard biology timeseries"
+"user_bio_ts_out"
+	"timeseries/user_bio_2013_bloomcast_late.out"
+	"user-defined biology timeseries"
+"std_chem_ts_out"
+	"timeseries/std_chem_2013_bloomcast_late.out"
+	"standard chemistry timeseries"
+"user_chem_ts_out"
+	"timeseries/user_chem_2013_bloomcast_late.out"
+	"standard chemistry timeseries"
+
+! Profiles output
+"noprof"	1		"no. of profiles to print"
+! *** It would be nice to replace the yr-day and day-sec lists with a list
+! *** of dates/times for profiles output
+"profday"	60		"yr-day for profile"
+"proftime"	43200.	"day-sec for profile"
+"haloclinefile"
+    "profiles/halo_2013_bloomcast_late.out"
+	"file for halocline results"
+"profile_base"
+	"profiles/2013_bloomcast_late"
+	"profile file base (datetime will be added)"
+! Hoffmueller diagram output (a collection of profiles at time intervals
+! for contour or colourmap plotting)
+"Hoffmueller file"
+	"profiles/hoff_2013_bloomcast_late.dat"
+	"file for Hoffmueller results"
+"Hoffmueller start yr"	2012		"yr to start Hoff output"
+"Hoffmueller start day"	263			"yr-day to start Hoff output"
+"Hoffmueller start sec"	43200		"day-sec to start (midnight=0)"
+"Hoffmueller end yr"	2013		"yr to end Hoff output"
+"Hoffmueller end day"	122			"yr-day to end Hoff output"
+"Hoffmueller end sec"	43200		"day-sec to end (midnight=0)"
+"Hoffmueller interval"	1.			"days between Hoff outputs"
+! User profiles and Hoffmueller data files
+"user_profile_base"
+    "profiles/2013_bloomcast_late_user"
+    "user profile file base (datetime will be added)"
+"user Hoffmueller file"
+    "profiles/hoff_2013_bloomcast_late_user.out"
+    "file for user Hoffmueller results"
+
+! Physics model parameters:
+! Bottom temperature constant
+"temp_constant"    .false.       "Is bottom temperature constant over time?"
+! Fit parameters for core variables
+"salinity"
+  29.62605865d0 0.10374454d0 -0.03562458d0 0.d0 -0.14156091d0 -0.06348989d0 0.d0
+  "Salinity (constant, seasonal and biseasonal components)"
+"temperature"
+  9.07d0 -0.088d0 -0.906d0 0.d0 -0.030d0 -0.088d0 0.0d0
+  "Temperature (constant, seasonal and biseasonal components)"
+"Phytoplankton"
+  0.58316137d0 -0.11206845d0 0.26241523d0 0.d0 0.d0 0.d0 0.d0
+  " Phytoplankton from fluor (constant and seasonal)"
+"Nitrate"
+  30.5d0 0.d0 0.d0 0.d0 0.d0 0.d0 0.d0
+  "Nitrate (constant)"
+"Silicon"
+  54.0d0 0.d0 0.d0 0.d0 0.d0 0.d0 0.d0
+  "Silicon (constant)"
+"DIC"
+  2065.98993d0 9.18035435d0 -3.15241908d0 0.0d0 -12.52672493d0 -5.618220366d0 0.0d0
+  "Dissolved Inorganic Carbon (constant, seasonal and biseasonal components from salinity fit)"
+"Oxy"
+  148.3763d0 0.d0 0.d0 0.d0 0.d0 0.d0 0.d0
+  "Dissolved Oxygen (constant)"
+"Alk"
+  2097.300118d0 6.25890810d0 -2.14923091d0 0.0d0 -8.540367d0 -3.83034506d0 0.0d0
+  "Alkalinity (constant, seasonal and biseasonal components from salinity fit)"
+"Ammonium"
+  1.0d0 0.d0 0.d0 0.d0 0.d0 0.d0 0.d0
+  "Ammonium (constant)"
+"Ratio"
+  1.25948868d0 0.d0 0.d0 0.d0 0.97697686d0 0.46289294d0 0.d0
+  "Ratio of pico/micro plankton (constant and biseasonal)"
+!Basin axis lengths (km)
+"Lx"            30.0d3          "Minor axis (cross-strait) of model domain [m]"
+"Ly"            120.0d3         "Major axis (along-strait) of model domain [m]"
+"openEnd"       .false.         "Use an open basin system (true) or closed system basin (false)"
+! Turbulence:
+"nu_w_m"        1.0d-4          "internal wave breaking momentum mixing"
+"nu_w_s"        1.0d-5          "internal wave breaking scalar mixing"
+"shear smooth"	0.375d0 0.5d0	"shear diffusivity smoothing parameters"
+! Fresh water flux:
+"upwell_const"  2.5d-5         "maximum upwelling velocity [m/s]"
+"Qbar"          3624d0         "mean total freshwater"
+"F_SOG"         0.2d0         "exponential for SoG/RI common component of Ft"
+"F_RI"          1.0d0          "exponential for extra SoG term component of Ft"
+"Fw_scale"	11.67d-10		"fresh water scale factor for river flows"
+"Fw_surface"	.false.		"add all of the fresh water on the surface?"
+"Fw_depth"      3.0d0             "interface thickness"
+"use_Fw_nutrients" .false.       "include influence of Fw nutrients"
+! Salinity Fit
+"cbottom"  30.0d0          "bottom salinity"
+"calpha"   2440.0d0             "alpha"
+"calpha2"  1.0d0              "alpha2"
+!- doesnt really have an alpha2 value but we dont want to divide by zero - beta =0 to get rid of term
+"cgamma"   0.0633d0             "gamma"
+"cbeta"    0.0d0            "beta"
+! Alkalinity freshwater fit
+"river_Alk_0"     1056.9d0      "River alkalinity at zero discharge"
+"river_Alk_decay" -1.8d-4       "River alkalinity decay with discharge"
+"pH_riv"          7.9d0         "River pH"
+! Northern return flow influence
+"northern_return_flow_on" .false. "include a return freshwater flow from the north?"
+! Kpar Fit  - Collins et al 2008 equation 8
+"ialpha"   0.0910d0             "alpha"
+"ibeta"   0.0433d0              "beta - relates to chl"
+"igamma"  2.62d-22               "gamma - relates to river flow"
+"isigma"  5.5d0              "sigma - exponent on river flow"
+"itheta"   0.445d0             "theta"
+"idl"    2.56d0            "dl"
+
+! Freshwater depth fit
+"d"  11.7d0         "Constant d for freshwater depth"
+
+! Biology model parameters:
+! Model complexity flags:
+"flagellates_on"	.false.	"include flagellates in model?"
+"remineralization"	.false.	"include remineralization loop in model?"
+"use microzooplankton"  .false. "include microzooplankton in model?"
+"single species light"  .true.  "high light limitation for single species case"
+! Zooplankton values:
+! fit from Dower et al
+"Mesozoo, winter conc"   0.073d0 "Mesozoo background concentration uMol/m"
+"Mesozoo, summer conc"       1.0d0 "Mesozoo relative summer conc"
+"Mesozoo, summer peak mag"   0.525d0 0.152d0 0.0318d0 "Height of summer peaks"
+"Mesozoo, summer peak pos"  112.d0 229.d0 316.d0 "Position (days) of summer peaks"
+"Mesozoo, summer peak wid" 53.8d0 51.6d0 14.6d0 "Width of summer peaks"
+! Alain 0.3 d-1 at 0 degrees = 1.39e-5 at 20 degrees
+"Mesozoo, max ingestion"     1.39d-5 "Mesozoo, maximum intake rate"
+! Alain 0.75
+"Mesozoo, pred slope"        0.0d0 "Mesozoo, limit on predation"
+! Alain 2
+"Mesozoo, half-sat"          1.0d0 "Mesozoo, half sat const"
+! easier to catch diatoms
+"Mesozoo, pref for diatoms"  1.0d0 "Mesozoo preference for diatoms"
+"Mesozoo, micro pred slope"  0.0d0 "Mesozoo, micro limit of predation"
+"Mesozoo, micro half-sat"    1.0d0 "Mesozoo, micro half-saturation"
+"Mesozoo, pref for nano"      0.0d0 "Mesozoo, preference for nano"
+"Mesozoo, nano pred slope"    0.4d0 "Mesozoo, nano limit of predation"
+"Mesozoo, nano half-sat"      0.4d0 "Mesozoo, nano half-saturation"
+"Mesozoo, pref for PON"      0.0d0 "Mesozoo, preference for PON"
+"Mesozoo, PON pred slope"    0.2d0 "Mesozoo, PON limit of predation"
+"Mesozoo, PON half-sat"      0.2d0 "Mesozoo, PON half-saturation"
+"Mesozoo, pref for uZoo"      0.0d0 "Mesozoo, preference for microzoo"
+"Mesozoo, uZoo pred slope"    0.2d0 "Mesozoo, microzoo limit of predation"
+"Mesozoo, uZoo half-sat"      0.2d0 "Mesozoo, microzoo half-saturation"
+
+! mesodinium as zoo rates
+! 0.24 growth / 0.6 efficiency = 4.63e-6
+"Mesorub, max ingestion"    4.63d-6   "Mesorub, max ingestion"
+"Mesorub, assimilation eff"  0.6d0    "Mesorub, assimiliation efficiency"
+"Mesorub, nano half-sat"     0.5d0    "Mesorub, nano half-saturation"
+"Mesorub, nano predslope"    0.2d0    "Mesorub, nano predation slope"
+! Micro zoo rates
+"Microzoo, max ingestion"    2.32d-5   "Microzoo, max ingestion"
+"Microzoo, assimil. eff"  0.6d0    "Microzoo, assimiliation efficiency"
+"Microzoo, nat mort"      2.3d-6   "Microzoo, natural mortality"
+! alain 0.03 at 0degree
+"Microzoo, excretion"     1.39e-6  "Microzoo, excretion"
+"Microzoo, pred slope"       0.4d0 "Microzoo, predation slope"
+"Microzoo, half-sat"         0.4d0 "Microzoo, half-sat"
+"Microzoo, pref for Pico"    1.0d0 "Microzoo, pref for picophyto"
+"uzoo, Pico pred slope"      0.2d0 "Microzoo, pico pred slope"
+"uzoo, Pico half-sat"    0.4d0 "Microzoo, pico half-saturation"
+"Microzoo, pref for Micro"   0.34d0 "Microzoo, pref for microphyto"
+"uzoo, Micro pred slope" 1.0d0 "Microzoo, microphyto pred slope"
+"Microzoo, Micro half-sat"   2.0d0 "Microzoo, microphyto half-sat"
+"Microzoo, pref for nano"    0.16d0 "Microzoo, pref for nanophyto"
+"Microzoo, nano pred slope" 1.0d0 "Microzoo, nanophyto pred slope"
+"Microzoo, nano half-sat"   2.0d0 "Microzoo, nanophyto half-sat"
+"Microzoo, pref for PON"    0.33d0 "Microzoo, pref for PON"
+"Microzoo, PON pred slope"  0.4d0 "Microzoo, PON predation slope"
+"Microzoo, PON half-sat"    0.4d0 "Microzoo, PON half-sat"
+"Microzoo, pref for uZoo"   0.16d0 "Microzoo, pref for uZoo"
+"Microzoo, uZoo pred slope" 1.0d0 "Microzoo, uZoo predation slope"
+"Microzoo, uZoo half-sat"   2.0d0 "Microzoo, uZoo half-sat"
+
+! Phytoplankton values:
+! Hitchcock 1980, 1.4 d-1 for T. nordenskelii at 10degrees
+"Micro, max growth"	5.165d-05      "micro maximum growth (s-1)"
+! Yih 2004, 0.5 d-1 for Mesodinium rubrum (at 15 degrees) and Q10**2 = 1.17d-5
+! Yih 2004, 0.36 d-1 for Meso rub no eating at 15 deg, Q10**1 = 5.91e-6
+! assume Yih figures are net growth... add in the Nat Mort. = 8.21e-6
+! add more 'cause it must be
+"Nano, max growth"      1.2d-05      "maximum growth (s-1)"
+! a guess 1.5 d-1
+"Pico, max growth"      1.74d-05      "pico maximum growth (s-1)"
+! Durbin, 1974 3.3 lg/s for T. nordenskelii at 10 degrees
+"Micro, I_opt" 		38.4d0         "Micro, optimum light (W/m2)"
+! Yih plus Cloern 1977 Half-sat very similar
+"Nano, I_opt"		38.4d0         "Nano, optimum light"
+! small
+"Pico, I_opt"           10.d0          "Pico, optimum light"
+! Durbin, 1974 T. nordenskelli cannot grow at 18 degrees
+"Micro, max temp"       18.d0          "Micro, max temp (oC)"
+! Mesodinium, Cloern 1977
+"Nano, max temp"        28.d0          "Nano, max temp (oC)"
+"Pico, max temp"        35.d0          "Pico, max temp (oC)"
+! equal growth at 10 and 15 so range down 8 (which Q10 should be about const)
+"Micro, temp range"     8.d0           "Micro, temp range (oC)"
+! starts turning over earlier
+"Nano, temp range"      12.d0           "Nano, temp range (oC)"
+"Pico, temp range"       1.d0           "Pico, temp range (oC)"
+! 1 for T. n.  but 2 is better for S.c.
+"Micro, Q10 exp"        1.d0           "Micro, temp Q10 exp"
+! Cloern 1977 data **2
+! that for the chlorophytt, lets try **1 for Meso rub
+"Nano, Q10 exp"         1.d0           "Nano, temp Q10 exp"
+"Pico, Q10 exp"         1.d0           "Pico, temp Q10 exp"
+! set gamma loss to 0 for now
+"Micro, gamma loss"	0.d0          "Micro, gamma loss"
+"Nano, gamma loss"	0.d0          "Nano, gamma loss"
+"Pico, gamma loss"	0.d0          "Pico, gamma loss"
+"Micro, NO3 k"		0.5d0          "Micro, NO3 k"
+"Nano, NO3 k"		0.3d0          "Nano, NO3 k"
+"Pico, NO3 k"		0.3d0          "Pico, NO3 k"
+"Micro, kapa"		1.0d0          "Micro, kapa"
+"Nano, kapa"		0.6d0          "Nano, kapa"
+"Pico, kapa"		0.6d0          "Pico, kapa"
+"Micro, NH inhib"	0.d0           "Micro, NH inhib"
+"Nano, NH inhib"	0.d0           "Nano, NH inhib"
+"Pico, NH inhib"	0.d0           "Pico, NH inhib"
+"Micro, N_o"		0.d0         "Micro, N_o"
+"Nano, N_o"		0.d0           "Nano, N_o"
+"Pico, N_o"		0.d0           "Pico, N_o"
+"Micro, N_x"		0.d0           "Micro, N_x"
+"Nano, N_x"		0.d0           "Nano, N_x"
+"Pico, N_x"		0.d0           "Pico, N_x"
+! NO Si limitation for Kate paper
+"Micro, Si ratio"	0.d0	     "Micro, ratio silicon/nitrogen"
+"Nano, Si ratio"	0.d0	     "Nano, ratio silicon/nitrogen"
+"Pico, Si ratio"	0.d0	     "Pico, ratio silicon/nitrogen"
+"Micro, K Si"           0.d0           "Micro, half-saturation Si"
+"Nano, K Si"            0.d0           "Nano, half-saturation Si"
+"Pico, K Si"            0.d0           "Pico, half-saturation Si"
+"Micro, nat mort"	2.3d-06       "Micro, natural mortality"
+"Nano, nat mort" 	2.3d-06       "Nano, natural mortality"
+"Pico, nat mort" 	2.3d-06       "Pico, natural mortality"
+! Remineralization rates
+! 2 months at 10 degrees (Alain 0.1 d-1 at 10degrees)
+! Denman 0.01d-1 at 10 degrees (2e-7)
+"NH remin rate"         4d-7           "Ammonium remineralization rate [1/s]"
+! Alain and Jeffery 0.2d-1
+! Debby: should be longer than PON but she did not include very labile portion
+"DON remin rate"        2.3d-6       "DON detritus remineralization rate [1/s]"
+! Jeffery 0.035 day-1 at 10 degrees (1 month agrees with 370 notes but this
+! is for deeply sinking and thus refractory stuff?)
+! Debby and Alain 0.2d-1
+! Denman 0.1d-1 at 10 degrees
+"PON remin rate"        2.3d-6       "PON detritus remineralization rate [1/s]"
+! from Alain 0.07 d-1 @ 0 degrees give 3.24e-6 @ 20 degrees
+! of same order as a number of papers including Brzezinski et al,; Bidle and
+! Azam 1998 without bacteria
+"bSi remin rate"        3.24d-6       "bSi detritus dissolution rate [1/s]"
+! Waste and detritus
+! Micro Natural Mortality
+"Waste, dnm, NH"        0.d0      "fraction of waste from micro nat mort to NH"
+! Denman and Pena about 1/2 to dissolved
+"Waste, dnm, DON"       0.475d0  "fraction of waste from micro nat mort to DON"
+"Waste, dnm, PON"       0.475d0  "fraction of waste from micro nat mort to PON"
+! some loss
+"Waste, dnm, Ref"       0.05d0  "fraction of waste from micro nat mort to Ref"
+"Waste, dnm, Bsi"       1.0d0    "fraction of waste from micro nat mort to BSi"
+! Nano Natural Mortality
+"Waste, nnm, NH"        0.d0      "fraction of waste from nano nat mort to NH"
+! Denman and Pena about 1/2 to dissolved
+"Waste, nnm, DON"       0.475d0  "fraction of waste from nano nat mort to DON"
+"Waste, nnm, PON"       0.475d0  "fraction of waste from nano nat mort to PON"
+! some loss
+"Waste, nnm, Ref"       0.05d0  "fraction of waste from nano nat mort to Ref"
+"Waste, nnm, Bsi"       1.0d0    "fraction of waste from nano nat mort to BSi"
+! Pico Natural Mortality
+"Waste, fnm, NH"        0.d0      "fraction of waste from pico nat mort to NH"
+! Denman and Pena about 1/2 to dissolved
+"Waste, fnm, DON"       0.475d0  "fraction of waste from pico nat mort to DON"
+"Waste, fnm, PON"       0.475d0  "fraction of waste from pico nat mort to PON"
+! some loss
+"Waste, fnm, Ref"       0.05d0  "fraction of waste from pico nat mort to Ref"
+"Waste, fnm, Bsi"       1.0d0    "fraction of waste from pico nat mort to BSi"
+! uZoo Natural Mortality
+"Waste, znm, NH"        0.d0      "fraction of waste from uzoo nat mort to NH"
+"Waste, znm, DON"       0.475d0  "fraction of waste from uzoo nat mort to DON"
+"Waste, znm, PON"       0.475d0  "fraction of waste from uzoo nat mort to PON"
+! some loss
+"Waste, znm, Ref"       0.05d0  "fraction of waste from uzoo nat mort to Ref"
+"Waste, znm, Bsi"       0.0d0    "fraction of waste from uzoo nat mort to BSi"
+! uZoo excretion
+"Waste, zex, NH"        1.0d0     "fraction of waste from uzoo excretion to NH"
+"Waste, zex, DON"       0.0d0  "fraction of waste from uzoo excretion to DON"
+"Waste, zex, PON"       0.0d0  "fraction of waste from uzoo excretion to PON"
+"Waste, zex, Ref"       0.0d0  "fraction of waste from uzoo excretion to Ref"
+"Waste, zex, Bsi"       0.0d0    "fraction of waste from uzoo excretion to BSi"
+! Microphyto eaten by Mesozoo
+! Alain, excretion rate to growth rate
+"Waste, dem, NH"  0.03d0 "fraction of waste from mesozoo eat microphyto to NH"
+! Denman and Pena about 1/2 to dissolved
+"Waste, dem, DON" 0.2d0 "fraction of waste from mesozoo eat microphyto to DON"
+"Waste, dem, PON" 0.2d0 "fraction of waste from mesozoo eat microphyto to PON"
+! assimiliation minus excretion
+"Waste, dem, Ref" 0.57d0 "fraction of waste mesozoo eat microphyto to Ref"
+"Waste, dem, Bsi" 1.d0  "fraction of waste from mesozoo eat microphyto to BSi"
+! Nanophyto eaten by Mesozoo (copy above number, except Si)
+"Waste, nem, NH"  0.03d0 "fraction of waste from mesozoo eat nanophyto to NH"
+"Waste, nem, DON" 0.2d0 "fraction of waste from mesozoo eat nanophyto to DON"
+"Waste, nem, PON" 0.2d0 "fraction of waste from mesozoo eat nanophyto to PON"
+"Waste, nem, Ref" 0.57d0 "fraction of waste mesozoo eat nanophyto to Ref"
+"Waste, nem, Bsi" 0.d0  "fraction of waste from mesozoo eat nanophyto to BSi"
+! PON eaten by Mesozoo (copy above numbers, except Si)
+"Waste, pem, NH"  0.03d0 "fraction of waste from mesozoo eat PON to NH"
+"Waste, pem, DON" 0.2d0 "fraction of waste from mesozoo eat PON to DON"
+"Waste, pem, PON" 0.2d0 "fraction of waste from mesozoo eat PON to PON"
+"Waste, pem, Ref" 0.57d0 "fraction of waste mesozoo eat PON to Ref"
+"Waste, pem, Bsi" 0.d0  "fraction of waste from mesozoo eat PON to BSi"
+! uZ eaten by Mesozoo (copy above numbers, except Si)
+"Waste, zem, NH"  0.03d0 "fraction of waste from mesozoo eat uZoo to NH"
+"Waste, zem, DON" 0.2d0 "fraction of waste from mesozoo eat uZoo to DON"
+"Waste, zem, PON" 0.2d0 "fraction of waste from mesozoo eat uZoo to PON"
+"Waste, zem, Ref" 0.57d0 "fraction of waste mesozoo eat uZoo to Ref"
+"Waste, zem, Bsi" 0.d0  "fraction of waste from mesozoo eat uZoo to BSi"
+! Diatoms eaten by uzoo (sloppy eating)
+"Waste, dez, NH"  0.0d0 "fraction of waste from uzoo eat microphyto to NH"
+"Waste, dez, DON" 0.5d0 "fraction of waste from uzoo eat microphyto to DON"
+"Waste, dez, PON" 0.5d0 "fraction of waste from uzoo eat microphyto to PON"
+"Waste, dez, Ref" 0.0d0 "fraction of waste uzoo eat microphyto to Ref"
+"Waste, dez, Bsi" 1.d0  "fraction of waste from uzoo eat microphyto to BSi"
+! Nano eaten by uzoo (sloppy eating)
+"Waste, nez, NH"  0.0d0 "fraction of waste from uzoo eat nanophyto to NH"
+"Waste, nez, DON" 0.5d0 "fraction of waste from uzoo eat nanophyto to DON"
+"Waste, nez, PON" 0.5d0 "fraction of waste from uzoo eat nanophyto to PON"
+"Waste, nez, Ref" 0.0d0 "fraction of waste uzoo eat nanophyto to Ref"
+"Waste, nez, Bsi" 1.d0  "fraction of waste from uzoo eat nanophyto to BSi"
+! Pico eaten by uzoo (sloppy eating)
+"Waste, fez, NH"  0.0d0 "fraction of waste from uzoo eat picophyto to NH"
+"Waste, fez, DON" 0.5d0 "fraction of waste from uzoo eat picophyto to DON"
+"Waste, fez, PON" 0.5d0 "fraction of waste from uzoo eat picophyto to PON"
+"Waste, fez, Ref" 0.0d0 "fraction of waste uzoo eat picophyto to Ref"
+"Waste, fez, Bsi" 1.d0  "fraction of waste from uzoo eat picophyto to BSi"
+! PON eaten by uzoo (sloppy eating)
+"Waste, pez, NH"  0.0d0 "fraction of waste from uzoo eat PON to NH"
+"Waste, pez, DON" 0.0d0 "fraction of waste from uzoo eat PON to DON"
+"Waste, pez, PON" 1.0d0 "fraction of waste from uzoo eat PON to PON"
+"Waste, pez, Ref" 0.0d0 "fraction of waste uzoo eat PON to Ref"
+"Waste, pez, Bsi" 0.d0  "fraction of waste from uzoo eat PON to BSi"
+! uzoo eaten by uzoo (sloppy eating)
+"Waste, zez, NH"  0.0d0 "fraction of waste from uzoo eat uzoo to NH"
+"Waste, zez, DON" 0.5d0 "fraction of waste from uzoo eat uzoo to DON"
+"Waste, zez, PON" 0.5d0 "fraction of waste from uzoo eat uzoo to PON"
+"Waste, zez, Ref" 0.0d0 "fraction of waste uzoo eat uzoo to Ref"
+"Waste, zez, Bsi" 0.d0  "fraction of waste from uzoo eat uzoo to BSi"
+! Pico eaten by Mesorub (sloppy eating)
+"Waste, fen, NH"  0.0d0 "fraction of waste from mesorub eat picophyto to NH"
+"Waste, fen, DON" 0.5d0 "fraction of waste from mesorub eat picophyto to DON"
+"Waste, fen, PON" 0.5d0 "fraction of waste from mesorub eat picophyto to PON"
+"Waste, fen, Ref" 0.0d0 "fraction of waste mesorub eat picophyto to Ref"
+"Waste, fen, Bsi" 1.d0  "fraction of waste from mesorub eat picophyto to BSi"
+
+! Sinking rates
+! Alain
+"Micro min sink rate"   0.5d0          "Micro phyto min sinking rate [m/d]"
+"Micro max sink rate"   1.2d0          "Micro phyto max sinking rate [m/d]"
+! Jeffery quoting Dune and Bacon
+"PON sink rate"         8d-5     "PON detritus sinking rate [m/s]"
+"refr sink rate"        0.d0         "Refractory N detritus sinking rate [m/s]"
+! match N03 particles
+"bSi sink rate"         8d-5       "Biogenic Si detritus sinking rate [m/s]"
+
+! File names and control variables for forcing data (wind,
+! meteorology, river flows)
+"years of forcing data"  2  "number of years of forcing data to read"
+"use average/hist forcing"
+    "histfill"
+    "yes = use aver. forcing data only; no = fail if insufficient data; fill = use forcing data below to end, then switch to aver. data; histfill = use forcing data below to end, then switch to hist data"
+
+"average/hist wind"
+    "../SOG-forcing/wind/SH_latebloom_9899.dat"
+    "average wind forcing data"
+"wind"  "Sandheads_wind"  "wind forcing data"
+"average/hist air temp"
+    "../SOG-forcing/met/YVR_AT_latebloom_9899"
+    "average air temperature forcing data"
+"air temp"  "YVR_air_temperature"  "air temperature forcing data"
+"average/hist cloud"
+    "../SOG-forcing/met/YVR_CF_latebloom_9899"
+    "average cloud fraction forcing data"
+"cloud"  "YVR_cloud_fraction"  "cloud fraction forcing data"
+"average/hist humidity"
+    "../SOG-forcing/met/YVR_hum_latebloom_9899"
+    "average humidity forcing data"
+"humidity"  "YVR_relative_humidity"  "humidity forcing data"
+
+"average/hist major river"
+    "../SOG-forcing/rivers/fraser_latebloom_9899.fmt"
+    "average major river flow data"
+"major river"  "Fraser_flow"  "major river flow data"
+"use river temp"  .true.  "Include cooling/heating effect of major river?"
+
+"average/hist minor river"
+    "../SOG-forcing/rivers/englishman_latebloom_9899.dat"
+    "average minor river flow data"
+"minor river"  "Englishman_flow"  "minor river flow data"
+"alt minor river"
+    "../SOG-forcing/rivers/NanimoNorm_historic.dat"
+    "alternative minor river flow data"
+"minor river integ days"  20  "Days over which to integrate minor river flow"
