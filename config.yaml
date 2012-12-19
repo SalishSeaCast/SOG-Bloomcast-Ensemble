@@ -1,12 +1,12 @@
 # SoG bloomcast configuration file
 
-get_forcing_data: False
-run_SOG: False
+get_forcing_data: True
+run_SOG: True
 
 infiles:
-  avg_forcing: 2012_bloomcast_infile
-  early_bloom_forcing: 2012_bloomcast_early_infile
-  late_bloom_forcing: 2012_bloomcast_late_infile
+  avg_forcing: 2013_bloomcast_infile
+  early_bloom_forcing: 2013_bloomcast_early_infile
+  late_bloom_forcing: 2013_bloomcast_late_infile
 
 climate:
   url: http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html
