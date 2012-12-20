@@ -297,7 +297,7 @@ profiles_results:
     variable_name: Hoff_startyr
     description: year to start Hoffmueller results output
   hoffmueller_start_day:
-    value: 263
+    value: 264
     variable_name: Hoff_startday
     description: day to start Hoffmueller results output
   hoffmueller_start_sec:
@@ -776,13 +776,13 @@ biology:
 
   phytoplankton_growth:
     micro_max_growth:
-      value: 4.25e-5
+      value: 5.165e-5
       units: 1/s
       variable_name: rate_micro%R
       description: micro-phyto maximum growth rate
       # Hitchcock 1980, 1.4 d-1 for T. nordenskelii at 10degrees
     nano_max_growth:
-      value: 2e-5
+      value: 1.2e-5
       units: 1/s
       variable_name: rate_nano%R
       description: nano-phyto maximum growth rate
@@ -811,7 +811,7 @@ biology:
       variable_name: rate_pico%Iopt
       description: pico-phyto growth optimal light level
     micro_max_temperature:
-      value: 25
+      value: 18
       units: deg C
       variable_name: rate_micro%maxtemp
       description: micro-phyto growth high temperature limit
@@ -829,7 +829,7 @@ biology:
       variable_name: rate_pico%maxtemp
       description: pico-phyto growth high temperature limit
     micro_temperature_range:
-      value: 15
+      value: 8
       units: deg C
       variable_name: rate_micro%temprange
       description: micro-phyto growth limit range below max temperature
@@ -881,7 +881,7 @@ biology:
       variable_name: rate_nano%k
       description: nano-phyto growth NO3 half-saturation constant
     pico_NO3_half_saturation:
-      value: 0.05
+      value: 0.3
       variable_name: rate_pico%k
       description: pico-phyto growth NO3 half-saturation constant
     micro_NO3_vs_NH_preference:
@@ -893,7 +893,7 @@ biology:
       variable_name: rate_nano%kapa
       description: nano-phyto growth preference for NO3 over NH factor
     pico_NO3_vs_NH_preference:
-      value: 0.2
+      value: 0.6
       variable_name: rate_pico%kapa
       description: pico-phyto growth preference for NO3 over NH factor
     micro_NH_inhibition_exponent:
@@ -933,7 +933,7 @@ biology:
       variable_name: rate_pico%N_x
       description: pico-phyto growth N inhibition exponent
     micro_Si_N_ratio:
-      value: 2.2
+      value: 0
       variable_name: rate_micro%Si_ratio
       description: micro-phyto silicon/nitrogen ratio
     nano_Si_N_ratio:
@@ -945,7 +945,7 @@ biology:
       variable_name: rate_pico%Si_ratio
       description: pico-phyto silicon/nitrogen ratio
     micro_Si_half_saturation:
-      value: 1
+      value: 0
       variable_name: rate_micro%K_Si
       description: micro-phyto growth Si half saturation constant
     nano_Si_half_saturation:
@@ -1355,28 +1355,28 @@ forcing_data:
     variable_name: NY
     description: number of years of forcing data to read
   use_average_forcing_data:
-    value: "no"
+    value: "fill"
     # NOTE: value must be quoted because yes/no == True/False in YAML
     variable_name: use_average_forcing_data
     description: yes=avg only; no=fail if data runs out; fill=historic then avg
   wind_forcing_file:
-    value: ../SOG-forcing/wind/SH_total_31Dec2011.dat
+    value: ../SOG-forcing/wind/SHavg
     variable_name: n/a
     description: wind forcing data path/filename
   air_temperature_forcing_file:
-    value: ../SOG-forcing/met/YVRhistAT
+    value: ../SOG-forcing/met/YVRavgAT
     variable_name: n/a
     description: air temperature forcing data path/filename
   cloud_fraction_forcing_file:
-    value: ../SOG-forcing/met/YVRhistCF
+    value: ../SOG-forcing/met/YVRavgCF
     variable_name: n/a
     description: cloud fraction forcing data path/filename
   humidity_forcing_file:
-    value: ../SOG-forcing/met/YVRhistHum
+    value: ../SOG-forcing/met/YVRavgHum
     variable_name: n/a
     description: relative humidity forcing data path/filename
   major_river_forcing_file:
-    value: ../SOG-forcing/rivers/Fraser_historic.dat
+    value: ../SOG-forcing/rivers/Fraser_flow
     variable_name: n/a
     description: major river flow forcing data path/filename
   use_river_temperature:
@@ -1384,7 +1384,7 @@ forcing_data:
     variable_name: UseRiverTemp
     description: include cooling/heating effect of major river water
   minor_river_forcing_file:
-    value: ../SOG-forcing/rivers/Englishman_fullyears.dat
+    value: ../SOG-forcing/rivers/Englishman_flow
     variable_name: Eriver
     description: minor river flow forcing data path/filename
   minor_river_integration_days:
