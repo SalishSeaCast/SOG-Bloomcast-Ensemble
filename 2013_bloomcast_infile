@@ -85,7 +85,7 @@
 ! for contour or colourmap plotting)
 "Hoffmueller file"	"profiles/hoff_2013_bloomcast.dat"	"file for Hoffmueller results"
 "Hoffmueller start yr"	2012		"yr to start Hoff output"
-"Hoffmueller start day"	263			"yr-day to start Hoff output"
+"Hoffmueller start day"	262			"yr-day to start Hoff output"
 "Hoffmueller start sec"	43200		"day-sec to start (midnight=0)"
 "Hoffmueller end yr"	2013		"yr to end Hoff output"
 "Hoffmueller end day"	122			"yr-day to end Hoff output"
