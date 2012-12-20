@@ -82,7 +82,7 @@
 	"profiles/hoff_2012_bloomcast_late.dat"
 	"file for Hoffmueller results"
 "Hoffmueller start yr"	2011		"yr to start Hoff output"
-"Hoffmueller start day"	262			"yr-day to start Hoff output"
+"Hoffmueller start day"	264			"yr-day to start Hoff output"
 "Hoffmueller start sec"	43200		"day-sec to start (midnight=0)"
 "Hoffmueller end yr"	2012		"yr to end Hoff output"
 "Hoffmueller end day"	122			"yr-day to end Hoff output"
