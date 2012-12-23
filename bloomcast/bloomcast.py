@@ -25,7 +25,7 @@ from matplotlib.dates import HourLocator
 from matplotlib.dates import MonthLocator
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-# Bloomcast:
+Bloomcast:
 from meteo import MeteoProcessor
 from rivers import RiversProcessor
 from utils import Config
@@ -576,7 +576,11 @@ class Bloomcast(object):
 
 
 if __name__ == '__main__':
-    config_file = sys.argv[1]
+    try:
+        config_file = sys.argv[1]
+    except IndexError:
+        print 'Expected config file path/name'
+        sys.exit(1)
     try:
         data_date = datetime.strptime(sys.argv[2], '%Y-%m-%d').date()
     except ValueError:
