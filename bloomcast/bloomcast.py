@@ -25,7 +25,7 @@ from matplotlib.dates import HourLocator
 from matplotlib.dates import MonthLocator
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-Bloomcast:
+# Bloomcast:
 from meteo import MeteoProcessor
 from rivers import RiversProcessor
 from utils import Config
