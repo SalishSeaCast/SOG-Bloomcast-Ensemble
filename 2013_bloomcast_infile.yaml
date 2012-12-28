@@ -1359,40 +1359,82 @@ forcing_data:
     # NOTE: value must be quoted because yes/no == True/False in YAML
     variable_name: use_average_forcing_data
     description: yes=avg only; no=fail if data runs out; fill=historic then avg
+
   wind_forcing_file:
-    value: ../SOG-forcing/wind/SHavg
+    value: Sandheads_wind
     variable_name: n/a
     description: wind forcing data path/filename
+  # The avg_historical_wind_file parameter is only used when
+  # use_average_forcing_data == yes or fill or histfill
+  avg_historical_wind_file:
+    value: ../SOG-forcing/wind/SHavg
+    variable_name: n/a
+    description: average/historical wind forcing data path/filename
+
   air_temperature_forcing_file:
-    value: ../SOG-forcing/met/YVRavgAT
+    value: YVR_air_temperature
     variable_name: n/a
     description: air temperature forcing data path/filename
+  # The avg_historical_air_temperature_file parameter is only used when
+  # use_average_forcing_data == yes or fill or histfill
+  avg_historical_air_temperature_file:
+    value: ../SOG-forcing/met/YVRavgAT
+    variable_name: n/a
+    description: average/historical air temperature forcing data path/filename
+
   cloud_fraction_forcing_file:
-    value: ../SOG-forcing/met/YVRavgCF
+    value: YVR_cloud_fraction
     variable_name: n/a
     description: cloud fraction forcing data path/filename
+  # The avg_historical_cloud_file parameter is only used when
+  # use_average_forcing_data == yes or fill or histfill
+  avg_historical_cloud_file:
+    value: ../SOG-forcing/met/YVRavgCF
+    variable_name: n/a
+    description: average/historical cloud fraction forcing data path/filename
+
   humidity_forcing_file:
-    value: ../SOG-forcing/met/YVRavgHum
+    value: YVR_relative_humidity
     variable_name: n/a
     description: relative humidity forcing data path/filename
+  # The avg_historical_humidity_file parameter is only used when
+  # use_average_forcing_data == yes or fill or histfill
+  avg_historical_humidity_file:
+    value: ../SOG-forcing/met/YVRavgHum
+    variable_name: n/a
+    description: average/historical humidity forcing data path/filename
+
   major_river_forcing_file:
-    value: ../SOG-forcing/rivers/Fraser_flow
+    value: Fraser_flow
     variable_name: n/a
     description: major river flow forcing data path/filename
+  # The avg_historical_major_river_file parameter is only used when
+  # use_average_forcing_data == yes or fill or histfill
+  avg_historical_major_river_file:
+    value: ../SOG-forcing/rivers/fraser_average
+    variable_name: n/a
+    description: average/historical major river forcing data path/filename
   use_river_temperature:
     value: True
     variable_name: UseRiverTemp
     description: include cooling/heating effect of major river water
+
   minor_river_forcing_file:
-    value: ../SOG-forcing/rivers/Englishman_flow
+    value: Englishman_flow
     variable_name: Eriver
     description: minor river flow forcing data path/filename
+  # The avg_historical_minor_river_file parameter is only used when
+  # use_average_forcing_data == yes or fill or histfill
+  avg_historical_minor_river_file:
+    value: ../SOG-forcing/rivers/englishman_average
+    variable_name: n/a
+    description: average/historical minor river forcing data path/filename
+  alt_minor_river_forcing_file:
+    value: ../SOG-forcing/rivers/NanimoNorm_historic.dat
+    variable_name: n/a
+    description: alternative minor river flow forcing data path/filename
   minor_river_integration_days:
     value: 20
     units: d
     variable_name: integ_days
     description: number of days to integrate minor river flow over
-  alt_minor_river_forcing_file:
-    value: ../SOG-forcing/rivers/NanimoNorm_historic.dat
-    variable_name: n/a
-    description: alternative minor river flow forcing data path/filename
