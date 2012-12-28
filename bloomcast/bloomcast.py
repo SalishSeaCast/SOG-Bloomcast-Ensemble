@@ -25,6 +25,8 @@ from matplotlib.dates import HourLocator
 from matplotlib.dates import MonthLocator
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+# SOG command processor:
+import SOGcommand
 # Bloomcast:
 from meteo import MeteoProcessor
 from rivers import RiversProcessor
@@ -145,7 +147,7 @@ class Bloomcast(object):
         wind = WindProcessor(self.config)
         self.config.data_date = wind.make_forcing_data_file()
         log.info('based on wind data forcing data date is {0:%Y-%m-%d}'
-                  .format(self.config.data_date))
+                 .format(self.config.data_date))
         try:
             with open('wind_data_date', 'rt') as file_obj:
                 last_data_date = datetime.strptime(
@@ -174,9 +176,10 @@ class Bloomcast(object):
             outfile = infile + '.stdout'
             log.info('SOG run with {0} started at {1:%Y-%m-%d %H:%M:%S}'
                      .format(infile, datetime.now()))
-            check_call([
-                'SOG',  'run', '../SOG-code-bloomcast/SOG',
-                infile, '--legacy-infile', '--outfile', outfile])
+            proc = SOGcommand.api.run(
+                '../SOG-code-bloomcast/SOG', infile, outfile,
+                legacy_infile=True)
+            proc.wait()
             log.info('SOG run with {0} finished at {1:%Y-%m-%d %H:%M:%S}'
                      .format(infile, datetime.now()))
 
@@ -243,7 +246,7 @@ class Bloomcast(object):
                          color=colors[0]['bounds'])
             ax_right.plot(right_ts[key].mpl_dates[predicate],
                           right_ts[key].dep_data[predicate],
-                         color=colors[1]['bounds'])
+                          color=colors[1]['bounds'])
         ax_left.plot(left_ts['avg_forcing'].mpl_dates,
                      left_ts['avg_forcing'].dep_data,
                      color=colors[0]['avg'])
