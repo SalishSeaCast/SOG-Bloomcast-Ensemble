@@ -1,6 +1,6 @@
 # SoG bloomcast configuration file
 
-get_forcing_data: True
+get_forcing_data: False
 run_SOG: True
 
 infiles:
