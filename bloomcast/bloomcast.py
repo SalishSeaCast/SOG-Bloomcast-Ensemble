@@ -2,6 +2,7 @@
 """
 from __future__ import division
 # Standard library:
+from copy import copy
 from datetime import date
 from datetime import datetime
 from datetime import time
@@ -12,6 +13,7 @@ from math import ceil
 import os
 from subprocess import check_call
 import sys
+from time import sleep
 # NumPy:
 import numpy as np
 # Mako:
@@ -171,17 +173,25 @@ class Bloomcast(object):
         if not self.config.run_SOG:
             log.info('Skipped running SOG')
             return
+        processes = {}
         for key in self.config.infiles:
             infile = self.config.infiles[key]
             outfile = infile + '.stdout'
-            log.info('SOG run with {0} started at {1:%Y-%m-%d %H:%M:%S}'
-                     .format(infile, datetime.now()))
             proc = SOGcommand.api.run(
                 '../SOG-code-bloomcast/SOG', infile, outfile,
                 legacy_infile=True)
-            proc.wait()
-            log.info('SOG run with {0} finished at {1:%Y-%m-%d %H:%M:%S}'
-                     .format(infile, datetime.now()))
+            processes[key] = proc
+            log.info('SOG run with {0} started at {1:%Y-%m-%d %H:%M:%S} as pid {2}'
+                     .format(infile, datetime.now(), proc.pid))
+        while processes:
+            sleep(30)
+            for key, proc in copy(processes).iteritems():
+                if proc.poll() is None:
+                    continue
+                else:
+                    processes.pop(key)
+                    log.info('SOG run with {0[key]} finished at {1:%Y-%m-%d %H:%M:%S}'
+                             .format(self.config.infiles, datetime.now()))
 
     def _get_results_timeseries(self):
         """Read SOG results time series of interest and create
