@@ -7,6 +7,7 @@ from datetime import timedelta
 from itertools import izip
 import logging
 import sys
+from time import sleep
 # HTTP Requests library:
 import requests
 # BeautifulSoup:
@@ -57,6 +58,7 @@ class RiversProcessor(ForcingDataProcessor):
         with requests.session() as s:
             s.post(self.config.rivers.disclaimer_url,
                    data=self.config.rivers.accept_disclaimer)
+            sleep(5)
             response = s.get(self.config.rivers.data_url, params=params)
             log.debug('got {0} river data for {1}-01-01 to {2:%Y-%m-%d}'
                       .format(river, start_year, self.config.data_date))
