@@ -190,8 +190,8 @@ class Bloomcast(object):
                     continue
                 else:
                     processes.pop(key)
-                    log.info('SOG run with {0[key]} finished at {1:%Y-%m-%d %H:%M:%S}'
-                             .format(self.config.infiles, datetime.now()))
+                    log.info('SOG run with {0} finished at {1:%Y-%m-%d %H:%M:%S}'
+                             .format(self.config.infiles[key], datetime.now()))
 
     def _get_results_timeseries(self):
         """Read SOG results time series of interest and create
