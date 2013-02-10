@@ -33,8 +33,11 @@
           The current best estimate of the first spring diatom bloom
           in the Strait of Georgia is
           ${bloom_date['avg_forcing']}. That estimate is based on a
-          run of the SOG biophysical model for deep estuaries with the
-          following parameters:
+          run of the
+          <a href="http://www.eos.ubc.ca/~sallen/SOG-docs/">
+            SOG biophysical model for deep estuaries
+          </a>
+          with the following parameters:
         </p>
         <ul>
           <li>
@@ -54,15 +57,61 @@
             No earlier than ${bloom_date['early_bloom_forcing']} based
             on using actual forcing data to ${data_date}, and data
             from 1992/1993 thereafter. 1993 had the earliest spring
-            diatom bloom hindcast since 1968.
+            diatom bloom hindcast since 1968 [1].
           </li>
           <li>
             No later than ${bloom_date['late_bloom_forcing']} based
             on using actual forcing data to ${data_date}, and data
             from 1998/1999 thereafter. 1999 had the latest spring
-            diatom bloom hindcast since 1968.
+            diatom bloom hindcast since 1968 [1].
           </li>
         </ul>
+
+        <p>
+          [1] Allen, S. E. and M. A. Wolfe, in press.
+              Hindcast of the Timing of the Spring Phytoplankton Bloom
+              in the Strait of Georgia,
+              1968-2010.
+              Prog. Oceanogr.
+              Accepted for publication March 2012.
+        </p>
+
+        <h2>Data Sources</h2>
+        <p>
+          The forcing data used to drive the SOG model is obatined from several
+          sources:
+          <ul>
+            <li>
+              Hourly wind velocities at
+              <a href="http://www.lighthousefriends.com/light.asp?ID=1178">
+                Sandheads Lightstation</a> from the bulk data web service at
+              <a href="http://climate.weatheroffice.gc.ca/climateData/">
+                climate.weatheroffice.gc.ca/climateData/
+              </a>
+            </li>
+            <li>
+              Hourly air temperature,
+              relative humidity,
+              and weather description (from which cloud fraction is calculated)
+              at Vancouver International Airport (YVR)
+              from the bulk data web service at
+              <a href="http://climate.weatheroffice.gc.ca/climateData/">
+                climate.weatheroffice.gc.ca/climateData/
+              </a>
+            </li>
+            <li>
+              Average daily river discharge rates for the
+              <a href="http://www.aquatic.uoguelph.ca/rivers/fraser.htm">
+                Fraser River</a>, and the
+              <a href="http://en.wikipedia.org/wiki/Englishman_River">
+                Englishman River</a>
+              (as a proxy for the fresh water sources other than the Fraser)
+              from
+              <a href="http://www.wateroffice.ec.gc.ca/">
+                www.wateroffice.ec.gc.ca/
+              </a>
+          </ul>
+        </p>
 
 		<h2>Disclaimer</h2>
 		<p>
