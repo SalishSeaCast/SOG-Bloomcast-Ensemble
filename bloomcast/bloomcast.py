@@ -174,15 +174,16 @@ class Bloomcast(object):
             log.info('Skipped running SOG')
             return
         processes = {}
-        for key in self.config.infiles:
-            infile = self.config.infiles[key]
-            outfile = infile + '.stdout'
+        base_infile = self.config.infiles['base']
+        for key in self.config.infiles['edits']:
             proc = SOGcommand.api.run(
-                '../SOG-code-bloomcast/SOG', infile, outfile,
-                legacy_infile=True)
+                '../SOG-code-bloomcast/SOG',
+                base_infile,
+                self.config.infiles['edits'][key],
+                key + '.stdout')
             processes[key] = proc
-            log.info('SOG run with {0} started at {1:%Y-%m-%d %H:%M:%S} as pid {2}'
-                     .format(infile, datetime.now(), proc.pid))
+            log.info('SOG {0} run started at {1:%Y-%m-%d %H:%M:%S} as pid {2}'
+                     .format(key, datetime.now(), proc.pid))
         while processes:
             sleep(30)
             for key, proc in copy(processes).iteritems():
@@ -190,8 +191,8 @@ class Bloomcast(object):
                     continue
                 else:
                     processes.pop(key)
-                    log.info('SOG run with {0} finished at {1:%Y-%m-%d %H:%M:%S}'
-                             .format(self.config.infiles[key], datetime.now()))
+                    log.info('SOG {0} run finished at {1:%Y-%m-%d %H:%M:%S}'
+                             .format(key, datetime.now()))
 
     def _get_results_timeseries(self):
         """Read SOG results time series of interest and create
@@ -200,7 +201,7 @@ class Bloomcast(object):
         self.nitrate, self.diatoms = {}, {}
         self.temperature, self.salinity = {}, {}
         self.mixing_layer_depth = {}
-        for key in self.config.infiles:
+        for key in self.config.infiles['edits']:
             std_bio_ts_outfile = self.config.std_bio_ts_outfiles[key]
             std_phys_ts_outfile = self.config.std_phys_ts_outfiles[key]
             self.nitrate[key] = SOG_Timeseries(std_bio_ts_outfile)
@@ -315,7 +316,7 @@ class Bloomcast(object):
         """
         self.nitrate_profile, self.diatoms_profile = {}, {}
         self.temperature_profile, self.salinity_profile = {}, {}
-        for key in self.config.infiles:
+        for key in self.config.infiles['edits']:
             Hoffmueller_outfile = (
                 self.config.Hoffmueller_profiles_outfiles[key])
             profile_number = (
@@ -419,7 +420,7 @@ class Bloomcast(object):
         PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH = 4     # days
         key = 'avg_forcing'
         self.bloom_date, self.bloom_biomass = {}, {}
-        for key in self.config.infiles:
+        for key in self.config.infiles['edits']:
             self._clip_results_to_jan1(key)
             self._reduce_results_to_daily(key)
             first_low_nitrate_days = self._find_low_nitrate_days(

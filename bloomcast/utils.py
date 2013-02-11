@@ -8,7 +8,6 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 import logging
-import re
 from StringIO import StringIO
 from xml.etree import cElementTree as ElementTree
 # HTTP Requests library:
@@ -19,6 +18,8 @@ import yaml
 import numpy as np
 # Matplotlib:
 from matplotlib.dates import date2num
+# SOG command processor:
+import SOGcommand
 
 
 log = logging.getLogger('bloomcast.utils')
@@ -44,11 +45,12 @@ class Config(object):
         self.std_bio_ts_outfiles = {}
         self.std_phys_ts_outfiles = {}
         self.Hoffmueller_profiles_outfiles = {}
-        for key in self.infiles:
-            infile_dict = self._read_SOG_infile(key)
+        for key in self.infiles['edits']:
+            infile_dict = self._read_SOG_infile(
+                self.infiles['base'], self.infiles['edits'][key])
             if key == 'avg_forcing':
-                self.run_start_date = (datetime.strptime(
-                    infile_dict['run_start_date'], '%Y-%m-%d %H:%M:%S')
+                self.run_start_date = (
+                    infile_dict['run_start_date']
                     .replace(hour=0, minute=0, second=0, microsecond=0))
                 self.SOG_timestep = int(infile_dict['SOG_timestep'])
             self.std_bio_ts_outfiles[key] = infile_dict['std_bio_ts_outfile']
@@ -114,55 +116,38 @@ class Config(object):
         with open(config_file, 'rt') as file_obj:
             return yaml.load(file_obj.read())
 
-    def _read_SOG_infile(self, key):
+    def _read_SOG_infile(self, yaml_file, edit_files):
         """Return a dict of selected values read from the SOG infile.
         """
-        # Mappings between SOG infile keys and Config object attribute
+        # Mappings between SOG YAML infile keys and Config object attributes
         infile_values = {
-            'init datetime': 'run_start_date',
-            'dt': 'SOG_timestep',
-            'std_bio_ts_out': 'std_bio_ts_outfile',
-            'std_phys_ts_out': 'std_phys_ts_outfile',
-            'Hoffmueller file': 'Hoffmueller_profiles_outfile',
+            'initial_conditions.init_datetime': 'run_start_date',
+            'numerics.dt': 'SOG_timestep',
+            'timeseries_results.std_biology': 'std_bio_ts_outfile',
+            'timeseries_results.std_physics': 'std_phys_ts_outfile',
+            'profiles_results.hoffmueller_file':
+                'Hoffmueller_profiles_outfile',
         }
         forcing_data_files = {
-            'wind': 'wind',
-            'air temp': 'air_temperature',
-            'humidity': 'relative_humidity',
-            'cloud': 'cloud_fraction',
-            'major river': 'major_river',
-            'minor river': 'minor_river',
+            'forcing_data.wind_forcing_file': 'wind',
+            'forcing_data.air_temperature_forcing_file': 'air_temperature',
+            'forcing_data.humidity_forcing_file': 'relative_humidity',
+            'forcing_data.cloud_fraction_forcing_file': 'cloud_fraction',
+            'forcing_data.major_river_forcing_file': 'major_river',
+            'forcing_data.minor_river_forcing_file': 'minor_river',
         }
         infile_dict = {'forcing_data_files': {}}
-        with open(self.infiles[key], 'rt') as file_obj:
-            lines = file_obj.readlines()
-        for i, line in enumerate(lines):
-            if line.startswith('\n') or line.startswith('!'):
-                continue
-            split_line = re.split(r'"\s', line)
-            infile_key = split_line[0].strip('"')
-            if infile_key in infile_values:
-                result_key = infile_values[infile_key]
-                value = self._get_SOG_infile_value(split_line, lines, i)
-                infile_dict[result_key] = value
-            if infile_key in forcing_data_files:
-                result_key = forcing_data_files[infile_key]
-                value = self._get_SOG_infile_value(split_line, lines, i)
-                infile_dict['forcing_data_files'][result_key] = value
+        for infile_key in infile_values:
+            value = SOGcommand.api.read_infile(
+                yaml_file, edit_files, infile_key)
+            result_key = infile_values[infile_key]
+            infile_dict[result_key] = value
+        for infile_key in forcing_data_files:
+            value = SOGcommand.api.read_infile(
+                yaml_file, edit_files, infile_key)
+            result_key = forcing_data_files[infile_key]
+            infile_dict['forcing_data_files'][result_key] = value
         return infile_dict
-
-    def _get_SOG_infile_value(self, split_line, lines, i):
-        """Return the value from a SOG infile key, value, comment
-        triplet that may be split over multiple lines.
-        """
-        value = split_line[1].strip().strip('"').rstrip('\n')
-        if not value:
-            # Value on line after key
-            value = re.split(r'"\s', lines[i + 1])[0].strip().strip('"')
-        trailing_separator = re.compile(r'\s"')
-        if trailing_separator.search(value):
-            value = trailing_separator.split(value)[0]
-        return value
 
 
 class ForcingDataProcessor(object):
