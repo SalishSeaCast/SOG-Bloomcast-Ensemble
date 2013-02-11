@@ -4,9 +4,13 @@ get_forcing_data: False
 run_SOG: True
 
 infiles:
-  avg_forcing: 2013_bloomcast_infile
-  early_bloom_forcing: 2013_bloomcast_early_infile
-  late_bloom_forcing: 2013_bloomcast_late_infile
+  base: 2013_bloomcast_infile.yaml
+  edits:
+    avg_forcing: []
+    early_bloom_forcing:
+      - 2013_bloomcast_early_infile.yaml
+    late_bloom_forcing:
+      - 2013_bloomcast_late_infile.yaml
 
 climate:
   url: http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html
