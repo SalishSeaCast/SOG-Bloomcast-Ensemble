@@ -22,7 +22,7 @@ import yaml
 
 EC_URL = 'http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html'
 START_YEAR = 2002
-END_YEAR = 2011
+END_YEAR = 2012
 STATION_ID = 889  # YVR
 MAPPING_FILE = 'cloud_fraction_mapping.yaml'
 HOURLY_FILE_ROOT = 'cf_hourly_yvr'
@@ -49,7 +49,7 @@ with open(MAPPING_FILE, 'rt') as f:
 def run():
     data_months = (
         date(year, month, 1)
-        for year in xrange(START_YEAR, END_YEAR)
+        for year in xrange(START_YEAR, END_YEAR + 1)
         for month in xrange(1, 13)
         )
     request_params = {
