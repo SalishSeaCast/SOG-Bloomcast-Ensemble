@@ -4,6 +4,7 @@
 # in a new virtualenv
 
 beautifulsoup4==4.2.1
+contextlib2==0.4.0
 docutils==0.10
 ipython==0.13.2
 Jinja2==2.7
