@@ -7,8 +7,8 @@ import sys
 # contextlib2:
 from contextlib2 import ContextStack
 # Bloomcast:
-from utils import ClimateDataProcessor
-from utils import Config
+from .utils import ClimateDataProcessor
+from .utils import Config
 
 
 log = logging.getLogger('bloomcast.meteo')
@@ -118,7 +118,7 @@ class MeteoProcessor(ClimateDataProcessor):
         That is followed by 24 hourly values for the data quanity
         follow expressed as floats with 2 decimal place.
         """
-        for i in xrange(len(self.data[qty]) / 24):
+        for i in range(len(self.data[qty]) // 24):
             data = self.data[qty][i * 24:(i + 1) * 24]
             timestamp = data[0][0]
             line = '{0} {1:%Y %m %d} 42'.format(

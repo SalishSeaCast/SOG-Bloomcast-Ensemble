@@ -4,17 +4,16 @@
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
-from itertools import izip
 import logging
 import sys
 from time import sleep
 # HTTP Requests library:
 import requests
 # BeautifulSoup:
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 # Bloomcast:
-from utils import Config
-from utils import ForcingDataProcessor
+from .utils import Config
+from .utils import ForcingDataProcessor
 
 
 log = logging.getLogger('bloomcast.rivers')
@@ -95,7 +94,7 @@ class RiversProcessor(ForcingDataProcessor):
         data_day = self.read_datestamp(tds[0].string)
         flow_sum = count = 0
         self.data[qty] = []
-        for timestamp, flow in izip(timestamps, flows):
+        for timestamp, flow in zip(timestamps, flows):
             datestamp = self.read_datestamp(timestamp)
             if datestamp > end_date:
                 break
@@ -140,7 +139,7 @@ class RiversProcessor(ForcingDataProcessor):
                 break
             if delta > 1:
                 gap_start = i + 1
-                for j in xrange(1, delta):
+                for j in range(1, delta):
                     missing_date = data[i][0] + j * timedelta(days=1)
                     data.insert(i + j, (missing_date, None))
                     log.debug('{0} river data patched for {1}'
