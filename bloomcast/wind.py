@@ -7,8 +7,8 @@ from math import radians
 from math import sin
 import sys
 # Bloomcast:
-from utils import ClimateDataProcessor
-from utils import Config
+from .utils import ClimateDataProcessor
+from .utils import Config
 
 
 log = logging.getLogger('bloomcast.wind')
@@ -94,7 +94,7 @@ class WindProcessor(ClimateDataProcessor):
             (next_cross_wind - last_cross_wind) / (gap_hours + 1))
         delta_along_wind = (
             (next_along_wind - last_along_wind) / (gap_hours + 1))
-        for i in xrange(gap_end - gap_start + 1):
+        for i in range(gap_end - gap_start + 1):
             timestamp = self.data[qty][gap_start + i][0]
             cross_wind = last_cross_wind + delta_cross_wind * (i + 1)
             along_wind = last_along_wind + delta_along_wind * (i + 1)

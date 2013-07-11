@@ -8,7 +8,7 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 import logging
-from StringIO import StringIO
+from io import StringIO
 from xml.etree import cElementTree as ElementTree
 # HTTP Requests library:
 import requests
@@ -218,7 +218,7 @@ class ForcingDataProcessor(object):
         last_value = self.data[qty][gap_start - 1][1]
         next_value = self.data[qty][gap_end + 1][1]
         delta = (next_value - last_value) / (gap_end - gap_start + 2)
-        for i in xrange(gap_end - gap_start + 1):
+        for i in range(gap_end - gap_start + 1):
             timestamp = self.data[qty][gap_start + i][0]
             value = last_value + delta * (i + 1)
             self.data[qty][gap_start + i] = (timestamp, value)
@@ -278,11 +278,11 @@ class ClimateDataProcessor(ForcingDataProcessor):
         today = date.today()
         this_year = today.year
         data_months = [date(this_year, month, 1)
-                       for month in xrange(1, today.month + 1)]
+                       for month in range(1, today.month + 1)]
         if self.config.run_start_date.year != this_year:
             last_year = self.config.run_start_date.year
             data_months = [date(last_year, month, 1)
-                           for month in xrange(1, 13)] + data_months
+                           for month in range(1, 13)] + data_months
         return data_months
 
     def process_data(self, qty, end_date=date.today()):
