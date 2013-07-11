@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 from distutils.core import setup
-import sys
-
-PY26 = sys.version_info[0] == 2 and sys.version_info[1] == 6
 
 python_classifiers = [
     'Programming Language :: Python :: {0}'.format(py_version)
-    for py_version in ['2', '2.6', '2.7']]
+    for py_version in ['3', '3.2']]
 other_classifiers = [
     'Development Status :: 5 - Production/Stable',
     'License :: OSI Approved :: BSD License',
@@ -19,7 +16,7 @@ other_classifiers = [
 ]
 
 install_requires = [
-    'BeautifulSoup',
+    'BeautifulSoup4',
     'contextlib2',
     'mako',
     'matplotlib',
@@ -29,12 +26,10 @@ install_requires = [
     # Use `cd SOG; pip install -e .` to install SOG command processor
     # and its dependencies
 ]
-if PY26:
-    install_requires.append('argparse')
 
 setup(
     name='SoG-bloomcast',
-    version='2.0',
+    version='3.0dev',
     description='Strait of Georgia spring diatom bloom predictor',
     author='Doug Latornell',
     author_email='djl@douglatornell.ca',
