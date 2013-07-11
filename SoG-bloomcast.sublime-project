@@ -1,0 +1,22 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "/Users/doug/Documents/devel/SoG/SOG/SoG-bloomcast"
+		}
+	],
+    "build_systems":
+     [
+         {
+             "name": "pytest",
+             "working_dir": "${project_path}",
+             "shell_cmd": "~/.virtualenvs/bloomcast-3.2/bin/py.test --lf"
+         },
+         {
+             "name": "unittest-discover",
+             "working_dir": "${project_path}",
+             "shell_cmd": "~/.virtualenvs/bloomcast-3.2/bin/python -m unittest discover"
+         }
+     ]
+}
