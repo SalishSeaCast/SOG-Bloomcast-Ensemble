@@ -30,12 +30,12 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 # SOG command processor:
 import SOGcommand
 # Bloomcast:
-from meteo import MeteoProcessor
-from rivers import RiversProcessor
-from utils import Config
-from utils import SOG_HoffmuellerProfile
-from utils import SOG_Timeseries
-from wind import WindProcessor
+from .meteo import MeteoProcessor
+from .rivers import RiversProcessor
+from .utils import Config
+from .utils import SOG_HoffmuellerProfile
+from .utils import SOG_Timeseries
+from .wind import WindProcessor
 
 
 log = logging.getLogger('bloomcast')
@@ -589,7 +589,7 @@ class Bloomcast(object):
                         self.config.results_dir).split())
 
 
-if __name__ == '__main__':
+def main():
     try:
         config_file = sys.argv[1]
     except IndexError:
