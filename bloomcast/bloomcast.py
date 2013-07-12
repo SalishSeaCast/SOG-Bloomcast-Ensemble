@@ -1,6 +1,5 @@
 """Driver module for SoG-bloomcast project
 """
-from __future__ import division
 # Standard library:
 from copy import copy
 from datetime import date
@@ -186,7 +185,7 @@ class Bloomcast(object):
                      .format(key, datetime.now(), proc.pid))
         while processes:
             sleep(30)
-            for key, proc in copy(processes).iteritems():
+            for key, proc in copy(processes).items():
                 if proc.poll() is None:
                     continue
                 else:
