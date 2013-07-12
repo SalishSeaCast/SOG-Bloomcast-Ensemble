@@ -143,11 +143,11 @@ class TestConfig(unittest.TestCase):
         mock_infile_dict = self._make_mock_infile_dict()
         test_cloud_fraction_mapping = {
             'Drizzle':  [9.9675925925925934],
-            'Clear':
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            'Clear': [0.0] * 12,
         }
         config = self._make_one()
         config.climate = Mock()
+
         def side_effect(config_file):   # NOQA
             return (DEFAULT if config_file == 'config_file'
                     else test_cloud_fraction_mapping)
@@ -217,7 +217,8 @@ class TestConfig(unittest.TestCase):
             '"init datetime" "2011-09-19 18:49:00" '
             '  "initialization CTD profile date/time"\n'
         )
-        with patch.object(utils, 'open', mock_open(read_data=mock_data), create=True):
+        with patch.object(utils, 'open', mock_open(read_data=mock_data),
+                          create=True):
             infile_dict = config._read_SOG_infile('avg_forcing', [])
         self.assertEqual(
             infile_dict,
@@ -479,7 +480,7 @@ class TestMeteoProcessor(unittest.TestCase):
         meteo = self._make_one(Mock(name='config'))
         meteo.config.climate.meteo.cloud_fraction_mapping = {
             'Drizzle': [9.9675925925925934],
-            }
+        }
         record = Mock(name='record')
         record.find().text = 'Drizzle'
         cloud_faction = meteo.read_cloud_fraction(record)
@@ -495,7 +496,7 @@ class TestMeteoProcessor(unittest.TestCase):
                 9.5, 9.931034482758621, 10.0, 9.7777777777777786,
                 9.6999999999999993, 7.8518518518518521, 8.9701492537313428,
                 9.2686980609418281, 9.0742358078602621]
-            }
+        }
         record = Mock(name='record')
         record.find().text = 'Fog'
 
@@ -542,7 +543,7 @@ class TestRiverProcessor(unittest.TestCase):
                 'eyr': 2011,
                 'emo': 12,
                 'eday': 1,
-        })
+            })
 
     def test_process_data_1_row(self):
         """process_data produces expected result for 1 row of data

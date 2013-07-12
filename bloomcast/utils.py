@@ -125,8 +125,8 @@ class Config(object):
             'numerics.dt': 'SOG_timestep',
             'timeseries_results.std_biology': 'std_bio_ts_outfile',
             'timeseries_results.std_physics': 'std_phys_ts_outfile',
-            'profiles_results.hoffmueller_file':
-                'Hoffmueller_profiles_outfile',
+            'profiles_results.hoffmueller_file': (
+                'Hoffmueller_profiles_outfile'),
         }
         forcing_data_files = {
             'forcing_data.wind_forcing_file': 'wind',
