@@ -4,10 +4,10 @@ from bs4 import BeautifulSoup
 from datetime import date
 from datetime import datetime
 from io import StringIO
-from mock import DEFAULT
-from mock import MagicMock
-from mock import Mock
-from mock import patch
+from unittest.mock import DEFAULT
+from unittest.mock import MagicMock
+from unittest.mock import Mock
+from unittest.mock import patch
 import pytest
 import unittest
 

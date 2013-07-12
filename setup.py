@@ -3,7 +3,7 @@ from distutils.core import setup
 
 python_classifiers = [
     'Programming Language :: Python :: {0}'.format(py_version)
-    for py_version in ['3', '3.2']]
+    for py_version in ['3', '3.3']]
 other_classifiers = [
     'Development Status :: 5 - Production/Stable',
     'License :: OSI Approved :: BSD License',
@@ -17,7 +17,6 @@ other_classifiers = [
 
 install_requires = [
     'BeautifulSoup4',
-    'contextlib2',
     'mako',
     'matplotlib',
     'numpy',

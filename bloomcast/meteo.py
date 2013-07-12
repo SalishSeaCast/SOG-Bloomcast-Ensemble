@@ -5,7 +5,7 @@ from datetime import date
 import logging
 import sys
 # contextlib2:
-from contextlib2 import ContextStack
+from contextlib import ExitStack
 # Bloomcast:
 from .utils import ClimateDataProcessor
 from .utils import Config
@@ -42,7 +42,7 @@ class MeteoProcessor(ClimateDataProcessor):
         for data_month in self._get_data_months():
             self.get_climate_data('meteo', data_month)
             log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
-        with ContextStack() as stack:
+        with ExitStack() as stack:
             files = dict(
                 [(qty,
                   stack.enter_context(open(
