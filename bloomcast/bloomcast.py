@@ -463,7 +463,7 @@ class Bloomcast(object):
         # Assume that there are an integral nummber of SOG time steps in a
         # day
         day_slice = 86400 // self.config.SOG_timestep
-        day_iterator = xrange(
+        day_iterator = range(
             0, self.nitrate[key].dep_data.shape[0] - day_slice, day_slice)
         jan1 = date(self.config.run_start_date.year + 1, 1, 1)
         self.nitrate[key].dep_data = np.array(
@@ -471,15 +471,15 @@ class Bloomcast(object):
              for i in day_iterator])
         self.nitrate[key].indep_data = np.array(
             [jan1 + timedelta(days=i)
-             for i in xrange(self.nitrate[key].dep_data.size)])
-        day_iterator = xrange(
+             for i in range(self.nitrate[key].dep_data.size)])
+        day_iterator = range(
             0, self.diatoms[key].dep_data.shape[0] - day_slice, day_slice)
         self.diatoms[key].dep_data = np.array(
             [self.diatoms[key].dep_data[i:i + day_slice].max()
              for i in day_iterator])
         self.diatoms[key].indep_data = np.array(
             [jan1 + timedelta(days=i)
-             for i in xrange(self.diatoms[key].dep_data.size)])
+             for i in range(self.diatoms[key].dep_data.size)])
 
     def _find_low_nitrate_days(self, key, threshold):
         """Return the start and end dates of the first 2 day period in
@@ -492,7 +492,7 @@ class Bloomcast(object):
                   .format(threshold, key_string, self.nitrate[key].indep_data))
         log.debug('Nitrate <= {0} uM N with {1}:\n{2}'
                   .format(threshold, key_string, self.nitrate[key].dep_data))
-        for i in xrange(self.nitrate[key].dep_data.shape[0]):
+        for i in range(self.nitrate[key].dep_data.shape[0]):
             low_nitrate_day_1 = self.nitrate[key].indep_data[i]
             days = self.nitrate[key].indep_data[i + 1] - low_nitrate_day_1
             if days == timedelta(days=1):
@@ -593,12 +593,12 @@ if __name__ == '__main__':
     try:
         config_file = sys.argv[1]
     except IndexError:
-        print 'Expected config file path/name'
+        print('Expected config file path/name')
         sys.exit(1)
     try:
         data_date = datetime.strptime(sys.argv[2], '%Y-%m-%d').date()
     except ValueError:
-        print 'Expected %Y-%m-%d for data date, got: {0[2]}'.format(sys.argv)
+        print('Expected %Y-%m-%d for data date, got: {0[2]}'.format(sys.argv))
     except IndexError:
         data_date = None
     bloomcast = Bloomcast(config_file, data_date)

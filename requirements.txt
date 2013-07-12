@@ -4,7 +4,6 @@
 # in a new virtualenv
 
 beautifulsoup4==4.2.1
-contextlib2==0.4.0
 docutils==0.10
 execnet==1.1
 ipython==0.13.2
@@ -15,7 +14,6 @@ MarkupSafe==0.18
 # on sable, symlink matplotlib, dateutil & pytz from pymodules
 matplotlib==1.2.1
 
-mock==1.0.1
 numpy==1.7.1
 Pygments==1.6
 py==1.4.15
