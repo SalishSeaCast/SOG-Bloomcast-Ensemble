@@ -598,6 +598,7 @@ def main():
         data_date = datetime.strptime(sys.argv[2], '%Y-%m-%d').date()
     except ValueError:
         print('Expected %Y-%m-%d for data date, got: {0[2]}'.format(sys.argv))
+        sys.exit(1)
     except IndexError:
         data_date = None
     bloomcast = Bloomcast(config_file, data_date)
