@@ -533,8 +533,8 @@ class Bloomcast(object):
         """Render bloomcast results page and graphs to files.
         """
         template = Template(filename='bloomcast/html/results.mako')
-        with open(
-            self.config.logging.bloom_date_log_filename, 'rt') as file_obj:
+        filename = self.config.logging.bloom_date_log_filename
+        with open(filename, 'rt') as file_obj:
             bloom_date_log = [line.split() for line in file_obj
                               if not line.startswith('#')]
         context = {
