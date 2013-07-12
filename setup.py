@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from distutils.core import setup
+import setuptools
 
 python_classifiers = [
     'Programming Language :: Python :: {0}'.format(py_version)
@@ -26,7 +26,7 @@ install_requires = [
     # and its dependencies
 ]
 
-setup(
+setuptools.setup(
     name='SoG-bloomcast',
     version='3.0dev',
     description='Strait of Georgia spring diatom bloom predictor',
@@ -36,5 +36,7 @@ setup(
     license="New BSD License",
     classifiers=python_classifiers + other_classifiers,
     install_requires=install_requires,
-    packages=['bloomcast'],
+    packages=setuptools.find_packages(),
+    entry_points={
+        'console_scripts': ['bloomcast = bloomcast.bloomcast:main']},
 )
