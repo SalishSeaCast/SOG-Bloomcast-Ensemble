@@ -354,7 +354,7 @@ physics:
       variable_name: c(:,6)
       description: DIC (constant, seasonal & biseasonal from salinity fit)
     dissolved_oxygen_fit_coefficients:
-      value: [148.3763, 0, 0, 0, 0, 0, 0]
+      value: [198.9274, 28.6893, -46.9640, -3.7259, 6.4774, -2.7972, 0]
       variable_name: c(:,7)
       description: dissolved oxygen bottom boundary condition (constant)
     alkalinity_fit_coefficients:
@@ -480,11 +480,11 @@ physics:
 
     river_alkalinity_fit:
       river_alkalinity_zero:
-        value: 989.0
+        value: 888.8
         variable_name: river_Alk_0
         description: river alkalinity at zero discharge
       river_alkalinity_decay:
-        value: -1.6e-4
+        value: -1.5e-4
         variable_name: river_Alk_decay
         description: river alkalinity decay with discharge
       river_pH:
@@ -585,6 +585,20 @@ biology:
       units: uM N / s
       variable_name: rate_mesozoo%R
       description: mesozooplankton maximum ingestion rate @ 20 deg C
+    mesozoo_assimilation_efficiency:
+      value: 0.5
+      variable_name: rate_mesozoo%eff
+      description: mesozooplankton grazed mass assimilation efficiency
+    mesozoo_natural_mortality:
+      value: 2.3e-6
+      units: uM N / s
+      variable_name: rate_mesozoo%Rm
+      description: mesozooplankton natural mortality rate @ 20 deg C
+    mesozoo_excretion:
+      value: 1.39e-6
+      units: uM N / s
+      variable_name: rate_mesozoo%excr
+      description: mesozooplankton excretion rate @ 20 deg C
     mesozoo_grazing_limit:
       value: 0
       units: uM N
@@ -623,6 +637,20 @@ biology:
       units: uM N
       variable_name: rate_mesozoo%NanoHalfSat
       description: mesozooplankton nano-phyto grazing half saturation const
+    mesozoo_pico_preference:
+      value: 0.1
+      variable_name: rate_mesozoo%PicoPref
+      description: mesozooplankton preference for pico-phytoplankton
+    mesozoo_pico_grazing_limit:
+      value: 0
+      units: uM N
+      variable_name: rate_mesozoo%PicoPredSlope
+      description: mesozooplankton pico-phyto grazing limit
+    mesozoo_pico_grazing_half_saturation:
+      value: 0.4
+      units: uM N
+      variable_name: rate_mesozoo%PicoHalfSat
+      description: mesozooplankton pico-phyto grazing half saturation const
     mesozoo_PON_preference:
       value: 0
       variable_name: rate_mesozoo%PON_Pref
@@ -1071,6 +1099,48 @@ biology:
       variable_name: frac_waste_FNM%Bsi
       description: waste fraction from pico-phyto natural mortality to bSi
 
+  mesozooplankton_waste:
+    mesozoo_mort_NH:
+      value: 0
+      variable_name: frac_waste_MNM%NH
+      description: waste fraction from meso-zoo natural mortality to NH
+    mesozoo_mort_DON:
+      value: 0.475
+      variable_name: frac_waste_MNM%DON
+      description: waste fraction from meso-zoo natural mortality to DON
+    mesozoo_mort_PON:
+      value: 0.475
+      variable_name: frac_waste_MNM%PON
+      description: waste fraction from meso-zoo natural mortality to PON
+    mesozoo_mort_refr:
+      value: 0.05
+      variable_name: frac_waste_MNM%Ref
+      description: waste fraction from meso-zoo natural mortality to refractory
+    mesozoo_mort_bSi:
+      value: 0
+      variable_name: frac_waste_MNM%Bsi
+      description: waste fraction from meso-zoo natural mortality to bSi
+    mesozoo_excrete_NH:
+      value: 1
+      variable_name: frac_waste_MEX%NH
+      description: waste fraction from meso-zoo excretion to NH
+    mesozoo_excrete_DON:
+      value: 0
+      variable_name: frac_waste_MEX%DON
+      description: waste fraction from meso-zoo excretion to DON
+    mesozoo_excrete_PON:
+      value: 0
+      variable_name: frac_waste_MEX%PON
+      description: waste fraction from meso-zoo excretion to PON
+    mesozoo_excrete_refr:
+      value: 0
+      variable_name: frac_waste_MEX%Ref
+      description: waste fraction from meso-zoo excretion to refractory
+    mesozoo_excrete_bSi:
+      value: 0
+      variable_name: frac_waste_MEX%Bsi
+      description: waste fraction from meso-zoo excretion to bSi
+
   microzooplankton_waste:
     microzoo_mort_NH:
       value: 0
@@ -1157,6 +1227,26 @@ biology:
       value: 0
       variable_name: frac_waste_NEM%Bsi
       description: waste fraction from mesozoo grazing nanophyto to Bsi
+    mesozoo_picophyto_grazing_NH:
+      value: 0.03
+      variable_name: frac_waste_FEM%NH
+      description: waste fraction from mesozoo grazing picophyto to NH
+    mesozoo_picophyto_grazing_DON:
+      value: 0.2
+      variable_name: frac_waste_FEM%DON
+      description: waste fraction from mesozoo grazing picophyto to DON
+    mesozoo_picophyto_grazing_PON:
+      value: 0.2
+      variable_name: frac_waste_FEM%PON
+      description: waste fraction from mesozoo grazing picophyto to PON
+    mesozoo_picophyto_grazing_refr:
+      value: 0.57
+      variable_name: frac_waste_FEM%Ref
+      description: waste fraction from mesozoo grazing picophyto to Ref
+    mesozoo_picophyto_grazing_bSi:
+      value: 0
+      variable_name: frac_waste_FEM%Bsi
+      description: waste fraction from mesozoo grazing picophyto to Bsi
     mesozoo_PON_grazing_NH:
       value: 0.03
       variable_name: frac_waste_PEM%NH
