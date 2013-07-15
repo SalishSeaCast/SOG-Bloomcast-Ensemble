@@ -638,7 +638,7 @@ biology:
       variable_name: rate_mesozoo%NanoHalfSat
       description: mesozooplankton nano-phyto grazing half saturation const
     mesozoo_pico_preference:
-      value: 0.1
+      value: 0
       variable_name: rate_mesozoo%PicoPref
       description: mesozooplankton preference for pico-phytoplankton
     mesozoo_pico_grazing_limit:
