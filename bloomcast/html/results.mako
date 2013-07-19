@@ -161,7 +161,7 @@
               <th colspan="2">Late Bloom Forcing</th>
             </tr>
             <tr>
-              %for i in xrange(3):
+              %for i in range(3):
                 <th>Predicted Bloom Date</th>
                 <th>Diatom Biomass [uM N]</th>
               %endfor
