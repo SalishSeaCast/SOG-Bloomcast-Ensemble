@@ -28,7 +28,7 @@ install_requires = [
 
 setuptools.setup(
     name='SoG-bloomcast',
-    version='3.0dev',
+    version='3.0b1',
     description='Strait of Georgia spring diatom bloom predictor',
     author='Doug Latornell',
     author_email='djl@douglatornell.ca',
