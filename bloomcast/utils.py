@@ -238,7 +238,7 @@ class ClimateDataProcessor(ForcingDataProcessor):
         The XML objects are :class:`ElementTree` subelement instances.
         """
         params = self.config.climate.params
-        params['StationID'] = getattr(
+        params['stationID'] = getattr(
             self.config.climate, data_type).station_id
         params.update(self._date_params(data_month))
         response = requests.get(self.config.climate.url, params=params)
