@@ -1516,6 +1516,10 @@ forcing_data:
     value: True
     variable_name: UseRiverTemp
     description: include cooling/heating effect of major river water
+  river_nutrients_file:
+    value: ../SOG-forcing/rivers/fraser_nuts.dat
+    variable_name: n/a
+    description: file containing monthly climatology values of NO3 and Si
 
   minor_river_forcing_file:
     value: Englishman_flow
