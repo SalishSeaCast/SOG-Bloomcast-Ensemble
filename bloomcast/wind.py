@@ -55,6 +55,11 @@ class WindProcessor(ClimateDataProcessor):
         except TypeError:
             # None indicates missing data
             return None, None
+        except ValueError:
+            if speed == 0:
+                return 0, 0
+            else:
+                raise
         # Convert speed and direction to u and v components
         radian_direction = radians(direction)
         u_wind = speed * sin(radian_direction)
