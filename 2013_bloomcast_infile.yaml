@@ -423,7 +423,7 @@ physics:
         value: False
         variable_name: Northern_return
         description: include fresh water return flow from the north?
-      # The next 5 "northern" parameters are only used when
+      # The next 7 "northern" parameters are only used when
       # northern_return_flow == True
       northern_influence_strength:
         value: 0.8863  # 1 / 43
@@ -450,7 +450,15 @@ physics:
         units: m
         variable_name: lower_width
         description: downward extension of incoming northern water
-
+      northern_water_power_riverflow_influence:
+        value: 0.
+        variable_name: power
+        description: power on the river flow influence on northern water
+      northern_water_normalization_riverflow_influence:
+        value: 2500
+        units: m^3/s
+        variable_name: Fo
+        description: normalization on the river flow influence on north water
     salinity_fit:
       bottom_salinity:
         value: 30
