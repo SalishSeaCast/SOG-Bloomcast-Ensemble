@@ -246,6 +246,7 @@ class Bloomcast(object):
         ax_left.set_position((0.125, 0.1, 0.775, 0.75))
         fig.ax_left = ax_left
         ax_right = ax_left.twinx()
+        ax_right.set_position(ax_left.get_position())
         predicate = (left_ts['avg_forcing'].mpl_dates
                      >= date2num(self.config.data_date))
         for key in 'early_bloom_forcing late_bloom_forcing'.split():
@@ -366,8 +367,8 @@ class Bloomcast(object):
         fig = Figure((4, 8), facecolor='white')
         ax_bottom = fig.add_subplot(1, 1, 1)
         ax_bottom.set_position((0.19, 0.1, 0.5, 0.8))
-        fig.ax_bottom = ax_bottom
         ax_top = ax_bottom.twiny()
+        ax_top.set_position(ax_bottom.get_position())
         ax_top.plot(
             top_profile.dep_data, top_profile.indep_data,
             color=colors[0]['avg'])
