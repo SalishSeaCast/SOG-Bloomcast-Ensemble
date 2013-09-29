@@ -3,12 +3,9 @@
 from bs4 import BeautifulSoup
 from datetime import date
 from datetime import datetime
-from io import StringIO
 from unittest.mock import DEFAULT
-from unittest.mock import MagicMock
 from unittest.mock import Mock
 from unittest.mock import patch
-import pytest
 import unittest
 
 
@@ -170,76 +167,6 @@ class TestConfig(unittest.TestCase):
         config._read_yaml_file = Mock(return_value=mock_config_dict)
         config._load_wind_config(mock_config_dict, mock_infile_dict)
         self.assertEqual(config.climate.wind.station_id, test_station_id)
-
-    @pytest.mark.xfail
-    def test_read_SOG_infile_multi_blanks(self):
-        """_read_SOG_infile works for multiple blanks between key and filename
-        """
-        config = self._make_one()
-        config.infiles = {'avg_forcing': 'foo'}
-        with patch('utils.open', create=True) as mock_open:
-            mock_open.return_value = MagicMock(name='magic mock', spec=file)
-            mock_open.return_value.__enter__.return_value = StringIO(
-                '"wind"  "Sandheads_wind"  "wind forcing data"\n')
-            infile_dict = config._read_SOG_infile('avg_forcing')
-        self.assertEqual(
-            infile_dict,
-            {'forcing_data_files': {
-                'wind': 'Sandheads_wind'
-            }})
-
-    @pytest.mark.xfail
-    def test_read_SOG_infile_newlines(self):
-        """_read_SOG_infile works for newline between key and filename
-        """
-        config = self._make_one()
-        config.infiles = {'avg_forcing': 'foo'}
-        with patch('utils.open', create=True) as mock_open:
-            mock_open.return_value = MagicMock(name='magic mock', spec=file)
-            mock_open.return_value.__enter__.return_value = StringIO(
-                '"wind"  \n  "Sandheads_wind" "wind forcing data"\n')
-            infile_dict = config._read_SOG_infile('avg_forcing')
-        self.assertEqual(
-            infile_dict,
-            {'forcing_data_files': {
-                'wind': 'Sandheads_wind'
-            }})
-
-    @pytest.mark.xfail
-    def test_read_SOG_infile_run_start_date(self):
-        """_read_SOG_infile returns expected run start date
-        """
-        from .. import utils
-        from mock import mock_open
-        config = self._make_one()
-        config.infiles = {'avg_forcing': 'foo'}
-        mock_data = (
-            '"init datetime" "2011-09-19 18:49:00" '
-            '  "initialization CTD profile date/time"\n'
-        )
-        with patch.object(utils, 'open', mock_open(read_data=mock_data),
-                          create=True):
-            infile_dict = config._read_SOG_infile('avg_forcing', [])
-        self.assertEqual(
-            infile_dict,
-            {'run_start_date': "2011-09-19 18:49:00",
-             'forcing_data_files': {}})
-
-    @pytest.mark.xfail
-    def test_read_SOG_infile_dt(self):
-        """_read_SOG_infile returns expected SOG timestep
-        """
-        config = self._make_one()
-        config.infiles = {'avg_forcing': 'foo'}
-        with patch('utils.open', create=True) as mock_open:
-            mock_open.return_value = MagicMock(name='magic mock', spec=file)
-            mock_open.return_value.__enter__.return_value = StringIO(
-                '"dt" 900 "time step [s]"\n')
-            infile_dict = config._read_SOG_infile('avg_forcing')
-        self.assertEqual(
-            infile_dict,
-            {'SOG_timestep': '900',
-             'forcing_data_files': {}})
 
 
 class TestForcingDataProcessor(unittest.TestCase):
