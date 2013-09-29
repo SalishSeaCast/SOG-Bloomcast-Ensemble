@@ -18,7 +18,6 @@ import numpy as np
 # Mako:
 from mako.template import Template
 # Matplotlib:
-from matplotlib.axes import Axes
 from matplotlib.dates import date2num
 from matplotlib.dates import DateFormatter
 from matplotlib.dates import DayLocator
@@ -247,7 +246,6 @@ class Bloomcast(object):
         ax_left.set_position((0.125, 0.1, 0.775, 0.75))
         fig.ax_left = ax_left
         ax_right = ax_left.twinx()
-        Axes(fig, ax_left.get_position(), sharex=ax_right)
         predicate = (left_ts['avg_forcing'].mpl_dates
                      >= date2num(self.config.data_date))
         for key in 'early_bloom_forcing late_bloom_forcing'.split():
@@ -370,7 +368,6 @@ class Bloomcast(object):
         ax_bottom.set_position((0.19, 0.1, 0.5, 0.8))
         fig.ax_bottom = ax_bottom
         ax_top = ax_bottom.twiny()
-        Axes(fig, ax_bottom.get_position(), sharex=ax_top)
         ax_top.plot(
             top_profile.dep_data, top_profile.indep_data,
             color=colors[0]['avg'])
