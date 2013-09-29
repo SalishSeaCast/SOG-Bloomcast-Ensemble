@@ -3,6 +3,8 @@
 get_forcing_data: True
 run_SOG: True
 
+SOG_executable: ../SOG-code-bloomcast/SOG
+
 infiles:
   base: 2013_bloomcast_infile.yaml
   edits:
@@ -13,7 +15,7 @@ infiles:
       - 2013_bloomcast_late_infile.yaml
 
 climate:
-  url: http://www.climate.weather.gc.ca/climateData/bulkdata_e.html
+  url: http://climate.weather.gc.ca/climateData/bulkdata_e.html
   params:
     timeframe: 1        # Daily
     format: xml
@@ -48,6 +50,6 @@ logging:
     - sallen@eos.ubc.ca
   # Run "python -m smtpd -n -c DebuggingServer localhost:1025" to
   # capture email messages for testing
-  use_test_smtpd: True
+  use_test_smtpd: False
 
 results_dir: /home/sallen/public_html/SoG-bloomcast

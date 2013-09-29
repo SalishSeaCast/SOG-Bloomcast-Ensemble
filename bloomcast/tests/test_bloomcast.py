@@ -23,6 +23,7 @@ class TestConfig(unittest.TestCase):
         mock_config_dict = {
             'get_forcing_data': None,
             'run_SOG': None,
+            'SOG_executable': None,
             'infiles': {
                 'base': None,
                 'edits': {

@@ -175,7 +175,7 @@ class Bloomcast(object):
         base_infile = self.config.infiles['base']
         for key in self.config.infiles['edits']:
             proc = SOGcommand.api.run(
-                '../SOG-code-bloomcast/SOG',
+                self.config.SOG_executable,
                 base_infile,
                 self.config.infiles['edits'][key],
                 key + '.stdout')
