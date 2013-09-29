@@ -13,7 +13,7 @@ class TestConfig(unittest.TestCase):
     """Unit tests for Config object.
     """
     def _get_target_class(self):
-        from ..utils import Config
+        from bloomcast.utils import Config
         return Config
 
     def _make_one(self, *args, **kwargs):
@@ -174,7 +174,7 @@ class TestForcingDataProcessor(unittest.TestCase):
     """Unit tests for ForcingDataProcessor object.
     """
     def _get_target_class(self):
-        from ..utils import ForcingDataProcessor
+        from bloomcast.utils import ForcingDataProcessor
         return ForcingDataProcessor
 
     def _make_one(self, *args, **kwargs):
@@ -183,7 +183,7 @@ class TestForcingDataProcessor(unittest.TestCase):
     def test_patch_data_1_hour_gap(self):
         """patch_data correctly flags 1 hour gap in data for interpolation
         """
-        from .. import utils
+        from bloomcast import utils
         processor = self._make_one(Mock(name='config'))
         processor.data['air_temperature'] = [
             (datetime(2011, 9, 25, 9, 0, 0), 215.0),
@@ -201,7 +201,7 @@ class TestForcingDataProcessor(unittest.TestCase):
     def test_patch_data_2_hour_gap(self):
         """patch_data correctly flags 2 hour gap in data for interpolation
         """
-        from .. import utils
+        from bloomcast import utils
         processor = self._make_one(Mock(name='config'))
         processor.data = {}
         processor.data['air_temperature'] = [
@@ -223,7 +223,7 @@ class TestForcingDataProcessor(unittest.TestCase):
     def test_patch_data_2_gaps(self):
         """patch_data correctly flags 2 gaps in data for interpolation
         """
-        from .. import utils
+        from bloomcast import utils
         processor = self._make_one(Mock(name='config'))
         processor.data['air_temperature'] = [
             (datetime(2011, 9, 25, 9, 0, 0), 215.0),
@@ -284,7 +284,7 @@ class TestClimateDataProcessor(unittest.TestCase):
     """Unit tests for ClimateDataProcessor object.
     """
     def _get_target_class(self):
-        from ..wind import ClimateDataProcessor
+        from bloomcast.wind import ClimateDataProcessor
         return ClimateDataProcessor
 
     def _make_one(self, *args, **kwargs):
@@ -293,7 +293,7 @@ class TestClimateDataProcessor(unittest.TestCase):
     def test_get_data_months_run_start_date_same_year(self):
         """_get_data_months returns data months for run start date in same year
         """
-        from .. import utils
+        from bloomcast import utils
         mock_config = Mock()
         mock_config.climate.params = {}
         mock_config.run_start_date = date(2011, 9, 19)
@@ -308,7 +308,7 @@ class TestClimateDataProcessor(unittest.TestCase):
     def test_get_data_months_run_start_date_prev_year(self):
         """_get_data_months returns data months for run start date in prev yr
         """
-        from .. import utils
+        from bloomcast import utils
         mock_config = Mock()
         mock_config.climate.params = {}
         mock_config.run_start_date = date(2011, 9, 19)
@@ -326,7 +326,7 @@ class TestWindProcessor(unittest.TestCase):
     """Unit tests for WindProcessor object.
     """
     def _get_target_class(self):
-        from ..wind import WindProcessor
+        from bloomcast.wind import WindProcessor
         return WindProcessor
 
     def _make_one(self, *args, **kwargs):
@@ -367,7 +367,7 @@ class TestWindProcessor(unittest.TestCase):
     def test_interpolate_values_gap_gt_11_hr_logs_warning(self):
         """wind data gap >11 hr generates warning log message
         """
-        from .. import wind as wind_module
+        from bloomcast import wind as wind_module
         wind = self._make_one(Mock(name='config'))
         wind.data['wind'] = [(datetime(2011, 9, 25, 0, 0, 0), (1.0, -2.0))]
         wind.data['wind'].extend([
@@ -396,7 +396,7 @@ class TestMeteoProcessor(unittest.TestCase):
     """Unit tests for MeteoProcessor object.
     """
     def _get_target_class(self):
-        from ..meteo import MeteoProcessor
+        from bloomcast.meteo import MeteoProcessor
         return MeteoProcessor
 
     def _make_one(self, *args, **kwargs):
@@ -451,7 +451,7 @@ class TestRiverProcessor(unittest.TestCase):
     """Uni tests for RiverProcessor object.
     """
     def _get_target_class(self):
-        from ..rivers import RiversProcessor
+        from bloomcast.rivers import RiversProcessor
         return RiversProcessor
 
     def _make_one(self, *args, **kwargs):
@@ -575,7 +575,7 @@ class TestRiverProcessor(unittest.TestCase):
     def test_patch_data_1_day_gap(self):
         """patch_data correctly flags 1 day gap in data for interpolation
         """
-        from .. import rivers
+        from bloomcast import rivers
         processor = self._make_one(Mock(name='config'))
         processor.data['major'] = [
             (date(2011, 10, 23), 4300.0),
@@ -594,7 +594,7 @@ class TestRiverProcessor(unittest.TestCase):
     def test_patch_data_2_day_gap(self):
         """patch_data correctly flags 2 day gap in data for interpolation
         """
-        from .. import rivers
+        from bloomcast import rivers
         processor = self._make_one(Mock(name='config'))
         processor.data['major'] = [
             (date(2011, 10, 23), 4300.0),
@@ -616,7 +616,7 @@ class TestRiverProcessor(unittest.TestCase):
     def test_patch_data_2_gaps(self):
         """patch_data correctly flags 2 gaps in data for interpolation
         """
-        from .. import rivers
+        from bloomcast import rivers
         processor = self._make_one(Mock(name='config'))
         processor.data['major'] = [
             (date(2011, 10, 23), 4300.0),
