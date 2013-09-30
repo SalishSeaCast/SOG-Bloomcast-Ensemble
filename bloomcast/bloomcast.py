@@ -1,38 +1,33 @@
 """Driver module for SoG-bloomcast project
 """
-# Standard library:
 from copy import copy
-from datetime import date
-from datetime import datetime
-from datetime import time
-from datetime import timedelta
+import datetime
 import logging
 import logging.handlers
-from math import ceil
+import math
 import os
-from subprocess import check_call
+import subprocess
 import sys
-from time import sleep
-# NumPy:
+import time
 import numpy as np
-# Mako:
-from mako.template import Template
-# Matplotlib:
-from matplotlib.dates import date2num
-from matplotlib.dates import DateFormatter
-from matplotlib.dates import DayLocator
-from matplotlib.dates import HourLocator
-from matplotlib.dates import MonthLocator
+import mako.template
+from matplotlib.dates import (
+    date2num,
+    DateFormatter,
+    DayLocator,
+    HourLocator,
+    MonthLocator,
+)
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
-# SOG command processor:
 import SOGcommand
-# Bloomcast:
 from .meteo import MeteoProcessor
 from .rivers import RiversProcessor
-from .utils import Config
-from .utils import SOG_HoffmuellerProfile
-from .utils import SOG_Timeseries
+from .utils import (
+    Config,
+    SOG_HoffmuellerProfile,
+    SOG_Timeseries,
+)
 from .wind import WindProcessor
 
 
@@ -183,7 +178,7 @@ class Bloomcast(object):
             log.info('SOG {0} run started at {1:%Y-%m-%d %H:%M:%S} as pid {2}'
                      .format(key, datetime.now(), proc.pid))
         while processes:
-            sleep(30)
+            time.sleep(30)
             for key, proc in copy(processes).items():
                 if proc.poll() is None:
                     continue
@@ -275,7 +270,7 @@ class Bloomcast(object):
                 label.set_size('x-small')
         ax_left.set_xlim(
             (int(left_ts['avg_forcing'].mpl_dates[0]),
-             ceil(left_ts['avg_forcing'].mpl_dates[-1])))
+             math.ceil(left_ts['avg_forcing'].mpl_dates[-1])))
         ax_left.set_xlabel(
             'Year-days in {0} and {1}'
             .format(self.config.run_start_date.year,
@@ -292,9 +287,9 @@ class Bloomcast(object):
         ax.set_position((0.125, 0.1, 0.775, 0.75))
         predicate = np.logical_and(
             self.mixing_layer_depth['avg_forcing'].mpl_dates
-            > date2num(self.config.data_date - timedelta(days=6)),
+            > date2num(self.config.data_date - datetime.timedelta(days=6)),
             self.mixing_layer_depth['avg_forcing'].mpl_dates
-            <= date2num(self.config.data_date + timedelta(days=1)))
+            <= date2num(self.config.data_date + datetime.timedelta(days=1)))
         mpl_dates = self.mixing_layer_depth['avg_forcing'].mpl_dates[predicate]
         dep_data = self.mixing_layer_depth['avg_forcing'].dep_data[predicate]
         ax.plot(mpl_dates, dep_data, color='magenta')
@@ -305,7 +300,7 @@ class Bloomcast(object):
         ax.xaxis.set_minor_locator(HourLocator(interval=6))
         for label in ax.get_xticklabels() + ax.get_yticklabels():
             label.set_size('x-small')
-        ax.set_xlim((int(mpl_dates[0]), ceil(mpl_dates[-1])))
+        ax.set_xlim((int(mpl_dates[0]), math.ceil(mpl_dates[-1])))
         return fig
 
     def _get_results_profiles(self):
@@ -339,7 +334,8 @@ class Bloomcast(object):
     def _create_profile_graphs(self):
         """Create profile graph objects.
         """
-        profile_datetime = datetime.combine(self.config.data_date, time(12))
+        profile_datetime = datetime.combine(
+            self.config.data_date, datetime.time(12))
         profile_dt = profile_datetime - self.config.run_start_date
         profile_hour = profile_dt.days * 24 + profile_dt.seconds / 3600
         self.mixing_layer_depth['avg_forcing'].boolean_slice(
@@ -440,7 +436,7 @@ class Bloomcast(object):
         """Clip the nitrate concentration and diatom biomass results
         so that they start on 1-Jan of the bloom year.
         """
-        jan1 = datetime(self.config.run_start_date.year + 1, 1, 1)
+        jan1 = datetime.datetime(self.config.run_start_date.year + 1, 1, 1)
         discard_hours = jan1 - self.config.run_start_date
         discard_hours = discard_hours.days * 24 + discard_hours.seconds / 3600
         predicate = self.nitrate[key].indep_data >= discard_hours
@@ -462,12 +458,12 @@ class Bloomcast(object):
         day_slice = 86400 // self.config.SOG_timestep
         day_iterator = range(
             0, self.nitrate[key].dep_data.shape[0] - day_slice, day_slice)
-        jan1 = date(self.config.run_start_date.year + 1, 1, 1)
+        jan1 = datetime.date(self.config.run_start_date.year + 1, 1, 1)
         self.nitrate[key].dep_data = np.array(
             [self.nitrate[key].dep_data[i:i + day_slice].min()
              for i in day_iterator])
         self.nitrate[key].indep_data = np.array(
-            [jan1 + timedelta(days=i)
+            [jan1 + datetime.timedelta(days=i)
              for i in range(self.nitrate[key].dep_data.size)])
         day_iterator = range(
             0, self.diatoms[key].dep_data.shape[0] - day_slice, day_slice)
@@ -475,7 +471,7 @@ class Bloomcast(object):
             [self.diatoms[key].dep_data[i:i + day_slice].max()
              for i in day_iterator])
         self.diatoms[key].indep_data = np.array(
-            [jan1 + timedelta(days=i)
+            [jan1 + datetime.timedelta(days=i)
              for i in range(self.diatoms[key].dep_data.size)])
 
     def _find_low_nitrate_days(self, key, threshold):
@@ -492,7 +488,7 @@ class Bloomcast(object):
         for i in range(self.nitrate[key].dep_data.shape[0]):
             low_nitrate_day_1 = self.nitrate[key].indep_data[i]
             days = self.nitrate[key].indep_data[i + 1] - low_nitrate_day_1
-            if days == timedelta(days=1):
+            if days == datetime.timedelta(days=1):
                 low_nitrate_day_2 = self.nitrate[key].indep_data[i + 1]
                 break
         return low_nitrate_day_1, low_nitrate_day_2
@@ -504,7 +500,7 @@ class Bloomcast(object):
         greatest.
         """
         key_string = key.replace('_', ' ')
-        half_width_days = timedelta(days=peak_half_width)
+        half_width_days = datetime.timedelta(days=peak_half_width)
         early_bloom_date = first_low_nitrate_days[0] - half_width_days
         late_bloom_date = first_low_nitrate_days[1] + half_width_days
         log.debug('Bloom window for {0} is between {1} and {2}'
@@ -530,7 +526,7 @@ class Bloomcast(object):
     def _render_results(self):
         """Render bloomcast results page and graphs to files.
         """
-        template = Template(filename='bloomcast/html/results.mako')
+        tmpl = mako.template.Template(filename='bloomcast/html/results.mako')
         filename = self.config.logging.bloom_date_log_filename
         with open(filename, 'rt') as file_obj:
             bloom_date_log = [line.split() for line in file_obj
@@ -542,7 +538,7 @@ class Bloomcast(object):
             'bloom_date_log': bloom_date_log,
         }
         with open('bloomcast/html/results.html', 'wt') as file_obj:
-            file_obj.write(template.render(**context))
+            file_obj.write(tmpl.render(**context))
         graphs = [
             (self.fig_nitrate_diatoms_profile, 'nitrate_diatoms_profiles.svg'),
             (self.fig_temperature_salinity_profile,
@@ -557,12 +553,12 @@ class Bloomcast(object):
             try:
                 for key in 'early_bloom_forcing late_bloom_forcing'.split():
                     fig.ax_left.axvline(
-                        date2num(datetime.combine(self.bloom_date[key],
-                                                  time(12))),
+                        date2num(datetime.combine(
+                            self.bloom_date[key], datetime.time(12))),
                         color=self.diatoms_colours['bounds'])
                 bloom_date_line = fig.ax_left.axvline(
-                    date2num(datetime.combine(self.bloom_date['avg_forcing'],
-                                              time(12))),
+                    date2num(datetime.combine(
+                        self.bloom_date['avg_forcing'], datetime.time(12))),
                     color=self.diatoms_colours['avg'])
                 fig.legend(
                     [fig.data_date_line, bloom_date_line],
@@ -580,7 +576,7 @@ class Bloomcast(object):
         via rsync.
         """
         if os.access(self.config.results_dir, os.F_OK):
-            check_call(
+            subprocess.check_call(
                 'rsync -rq --exclude=results.mako {0}/ {1}'
                 .format(os.path.abspath('bloomcast/html'),
                         self.config.results_dir).split())

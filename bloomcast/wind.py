@@ -1,14 +1,12 @@
 """Wind forcing data processing module for SoG-bloomcast project.
 """
-# Standard library:
 import logging
-from math import cos
-from math import radians
-from math import sin
+import math
 import sys
-# Bloomcast:
-from .utils import ClimateDataProcessor
-from .utils import Config
+from .utils import (
+    ClimateDataProcessor,
+    Config,
+)
 
 
 log = logging.getLogger('bloomcast.wind')
@@ -61,15 +59,17 @@ class WindProcessor(ClimateDataProcessor):
             else:
                 raise
         # Convert speed and direction to u and v components
-        radian_direction = radians(direction)
-        u_wind = speed * sin(radian_direction)
-        v_wind = speed * cos(radian_direction)
+        radian_direction = math.radians(direction)
+        u_wind = speed * math.sin(radian_direction)
+        v_wind = speed * math.cos(radian_direction)
         # Rotate components to align u direction with Strait
-        strait_heading = radians(305)
+        strait_heading = math.radians(305)
         cross_wind = (
-            u_wind * cos(strait_heading) - v_wind * sin(strait_heading))
+            u_wind * math.cos(strait_heading)
+            - v_wind * math.sin(strait_heading))
         along_wind = (
-            u_wind * sin(strait_heading) + v_wind * cos(strait_heading))
+            u_wind * math.sin(strait_heading)
+            + v_wind * math.cos(strait_heading))
         # Resolve atmosphere/ocean direction difference in favour of
         # oceanography
         cross_wind = -cross_wind
