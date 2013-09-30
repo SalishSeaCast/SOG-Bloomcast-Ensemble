@@ -6,10 +6,9 @@ from datetime import datetime
 from unittest.mock import DEFAULT
 from unittest.mock import Mock
 from unittest.mock import patch
-import unittest
 
 
-class TestConfig(unittest.TestCase):
+class TestConfig():
     """Unit tests for Config object.
     """
     def _get_target_class(self):
@@ -99,7 +98,7 @@ class TestConfig(unittest.TestCase):
         config._read_yaml_file = Mock(return_value=mock_config_dict)
         config._read_SOG_infile = Mock(return_value=mock_infile_dict)
         config.load_config('config_file')
-        self.assertEqual(config.climate.url, test_url)
+        assert config.climate.url == test_url
 
     def test_load_config_climate_params(self):
         """load_config puts expected value in config.climate.params
@@ -116,7 +115,7 @@ class TestConfig(unittest.TestCase):
         config._read_yaml_file = Mock(return_value=mock_config_dict)
         config._read_SOG_infile = Mock(return_value=mock_infile_dict)
         config.load_config('config_file')
-        self.assertEqual(config.climate.params, test_params)
+        assert config.climate.params == test_params
 
     def test_load_meteo_config_station_id(self):
         """_load_meteo_config puts exp value in config.climate.meteo.station_id
@@ -129,7 +128,7 @@ class TestConfig(unittest.TestCase):
         config.climate = Mock()
         config._read_yaml_file = Mock(return_value=mock_config_dict)
         config._load_meteo_config(mock_config_dict, mock_infile_dict)
-        self.assertEqual(config.climate.meteo.station_id, test_station_id)
+        assert config.climate.meteo.station_id == test_station_id
 
     def test_load_meteo_config_cloud_fraction_mapping(self):
         """_load_meteo_config puts expected value in cloud_fraction_mapping
@@ -152,9 +151,8 @@ class TestConfig(unittest.TestCase):
         config._read_yaml_file = Mock(
             return_value=mock_config_dict, side_effect=side_effect)
         config._load_meteo_config(mock_config_dict, mock_infile_dict)
-        self.assertEqual(
-            config.climate.meteo.cloud_fraction_mapping,
-            test_cloud_fraction_mapping)
+        expected = test_cloud_fraction_mapping
+        assert config.climate.meteo.cloud_fraction_mapping == expected
 
     def test_load_wind_config_station_id(self):
         """_load_wind_config puts value in config.climate.wind.station_id
@@ -167,10 +165,10 @@ class TestConfig(unittest.TestCase):
         config.climate = Mock()
         config._read_yaml_file = Mock(return_value=mock_config_dict)
         config._load_wind_config(mock_config_dict, mock_infile_dict)
-        self.assertEqual(config.climate.wind.station_id, test_station_id)
+        assert config.climate.wind.station_id == test_station_id
 
 
-class TestForcingDataProcessor(unittest.TestCase):
+class TestForcingDataProcessor():
     """Unit tests for ForcingDataProcessor object.
     """
     def _get_target_class(self):
@@ -213,10 +211,11 @@ class TestForcingDataProcessor(unittest.TestCase):
         processor.interpolate_values = Mock()
         with patch.object(utils, 'log') as mock_log:
             processor.patch_data('air_temperature')
-        self.assertEqual(
-            mock_log.debug.call_args_list,
-            [(('air_temperature data patched for 2011-09-25 10:00:00',),),
-             (('air_temperature data patched for 2011-09-25 11:00:00',),)])
+        expected =[
+            (('air_temperature data patched for 2011-09-25 10:00:00',),),
+            (('air_temperature data patched for 2011-09-25 11:00:00',),),
+        ]
+        assert mock_log.debug.call_args_list == expected
         processor.interpolate_values.assert_called_once_with(
             'air_temperature', 1, 2)
 
@@ -236,14 +235,14 @@ class TestForcingDataProcessor(unittest.TestCase):
         processor.interpolate_values = Mock()
         with patch.object(utils, 'log') as mock_log:
             processor.patch_data('air_temperature')
-        self.assertEqual(
-            mock_log.debug.call_args_list,
-            [(('air_temperature data patched for 2011-09-25 10:00:00',),),
-             (('air_temperature data patched for 2011-09-25 11:00:00',),),
-             (('air_temperature data patched for 2011-09-25 13:00:00',),)])
-        self.assertEqual(
-            processor.interpolate_values.call_args_list,
-            [(('air_temperature', 1, 2),), (('air_temperature', 4, 4),)])
+        expected =[
+            (('air_temperature data patched for 2011-09-25 10:00:00',),),
+            (('air_temperature data patched for 2011-09-25 11:00:00',),),
+            (('air_temperature data patched for 2011-09-25 13:00:00',),),
+        ]
+        assert mock_log.debug.call_args_list == expected
+        expected = [(('air_temperature', 1, 2),), (('air_temperature', 4, 4),)]
+        assert processor.interpolate_values.call_args_list == expected
 
     def test_interpolate_values_1_hour_gap(self):
         """interpolate_values interpolates value for 1 hour gap in data
@@ -256,9 +255,8 @@ class TestForcingDataProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 11, 0, 0), 235.0),
         ]
         processor.interpolate_values('air_temperature', 1, 1)
-        self.assertEqual(
-            processor.data['air_temperature'][1],
-            (datetime(2011, 9, 25, 10, 0, 0), 225.0))
+        expected = (datetime(2011, 9, 25, 10, 0, 0), 225.0)
+        assert processor.data['air_temperature'][1] == expected
 
     def test_interpolate_values_2_hour_gap(self):
         """interpolate_values interpolates value for 2 hour gap in data
@@ -272,15 +270,13 @@ class TestForcingDataProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 12, 0, 0), 230.0),
         ]
         processor.interpolate_values('air_temperature', 1, 2)
-        self.assertEqual(
-            processor.data['air_temperature'][1],
-            (datetime(2011, 9, 25, 10, 0, 0), 220.0))
-        self.assertEqual(
-            processor.data['air_temperature'][2],
-            (datetime(2011, 9, 25, 11, 0, 0), 225.0))
+        expected = (datetime(2011, 9, 25, 10, 0, 0), 220.0)
+        assert processor.data['air_temperature'][1] == expected
+        expected = (datetime(2011, 9, 25, 11, 0, 0), 225.0)
+        assert processor.data['air_temperature'][2] == expected
 
 
-class TestClimateDataProcessor(unittest.TestCase):
+class TestClimateDataProcessor():
     """Unit tests for ClimateDataProcessor object.
     """
     def _get_target_class(self):
@@ -302,8 +298,8 @@ class TestClimateDataProcessor(unittest.TestCase):
             mock_date.today.return_value = date(2011, 9, 1)
             mock_date.side_effect = date
             data_months = processor._get_data_months()
-        self.assertEqual(data_months[0], date(2011, 1, 1))
-        self.assertEqual(data_months[-1], date(2011, 9, 1))
+        assert data_months[0] == date(2011, 1, 1)
+        assert data_months[-1] == date(2011, 9, 1)
 
     def test_get_data_months_run_start_date_prev_year(self):
         """_get_data_months returns data months for run start date in prev yr
@@ -317,12 +313,12 @@ class TestClimateDataProcessor(unittest.TestCase):
             mock_date.today.return_value = date(2012, 2, 1)
             mock_date.side_effect = date
             data_months = processor._get_data_months()
-        self.assertEqual(data_months[0], date(2011, 1, 1))
-        self.assertEqual(data_months[11], date(2011, 12, 1))
-        self.assertEqual(data_months[-1], date(2012, 2, 1))
+        assert data_months[0] == date(2011, 1, 1)
+        assert data_months[11] == date(2011, 12, 1)
+        assert data_months[-1] == date(2012, 2, 1)
 
 
-class TestWindProcessor(unittest.TestCase):
+class TestWindProcessor():
     """Unit tests for WindProcessor object.
     """
     def _get_target_class(self):
@@ -342,9 +338,8 @@ class TestWindProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 11, 0, 0), (2.0, -1.0)),
         ]
         wind.interpolate_values('wind', 1, 1)
-        self.assertEqual(
-            wind.data['wind'][1],
-            (datetime(2011, 9, 25, 10, 0, 0), (1.5, -1.5)))
+        expected = (datetime(2011, 9, 25, 10, 0, 0), (1.5, -1.5))
+        assert wind.data['wind'][1] == expected
 
     def test_interpolate_values_2_hour_gap(self):
         """interpolate_values interpolates value for 2 hour gap in data
@@ -357,12 +352,10 @@ class TestWindProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 12, 0, 0), (2.5, -0.5)),
         ]
         wind.interpolate_values('wind', 1, 2)
-        self.assertEqual(
-            wind.data['wind'][1],
-            (datetime(2011, 9, 25, 10, 0, 0), (1.5, -1.5)))
-        self.assertEqual(
-            wind.data['wind'][2],
-            (datetime(2011, 9, 25, 11, 0, 0), (2.0, -1.0)))
+        expected = (datetime(2011, 9, 25, 10, 0, 0), (1.5, -1.5))
+        assert wind.data['wind'][1] == expected
+        expected = (datetime(2011, 9, 25, 11, 0, 0), (2.0, -1.0))
+        assert wind.data['wind'][2] == expected
 
     def test_interpolate_values_gap_gt_11_hr_logs_warning(self):
         """wind data gap >11 hr generates warning log message
@@ -389,10 +382,10 @@ class TestWindProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, 9, 0, 0), (1.0, 2.0)),
         ]
         line = next(wind.format_data())
-        self.assertEqual(line, '25 09 2011 9.0 1.000000 2.000000\n')
+        assert line == '25 09 2011 9.0 1.000000 2.000000\n'
 
 
-class TestMeteoProcessor(unittest.TestCase):
+class TestMeteoProcessor():
     """Unit tests for MeteoProcessor object.
     """
     def _get_target_class(self):
@@ -412,7 +405,7 @@ class TestMeteoProcessor(unittest.TestCase):
         record = Mock(name='record')
         record.find().text = 'Drizzle'
         cloud_faction = meteo.read_cloud_fraction(record)
-        self.assertEqual(cloud_faction, 9.9675925925925934)
+        assert cloud_faction == 9.9675925925925934
 
     def test_read_cloud_fraction_monthly_avg(self):
         """read_cloud_fraction returns expected value for monthly avg CF list
@@ -433,7 +426,7 @@ class TestMeteoProcessor(unittest.TestCase):
             return parts[part]
         record.get = mock_timestamp_data
         cloud_faction = meteo.read_cloud_fraction(record)
-        self.assertEqual(cloud_faction, 9.5)
+        assert cloud_faction == 9.5
 
     def test_format_data(self):
         """format_data generator returns formatted forcing data file line
@@ -444,10 +437,10 @@ class TestMeteoProcessor(unittest.TestCase):
             (datetime(2011, 9, 25, i, 0, 0), 215.0)
             for i in range(24)]
         line = next(meteo.format_data('air_temperature'))
-        self.assertEqual(line, '889 2011 09 25 42' + ' 215.00' * 24 + '\n')
+        assert line == '889 2011 09 25 42' + ' 215.00' * 24 + '\n'
 
 
-class TestRiverProcessor(unittest.TestCase):
+class TestRiverProcessor():
     """Uni tests for RiverProcessor object.
     """
     def _get_target_class(self):
@@ -462,16 +455,15 @@ class TestRiverProcessor(unittest.TestCase):
         """
         rivers = self._make_one(Mock(name='config'))
         rivers.config.data_date = date(2011, 11, 30)
-        params = rivers._date_params(2011)
-        self.assertEqual(
-            params, {
+        expected = {
                 'syr': 2011,
                 'smo': 1,
                 'sday': 1,
                 'eyr': 2011,
                 'emo': 12,
                 'eday': 1,
-            })
+        }
+        assert rivers._date_params(2011) == expected
 
     def test_process_data_1_row(self):
         """process_data produces expected result for 1 row of data
@@ -487,7 +479,7 @@ class TestRiverProcessor(unittest.TestCase):
         ]
         rivers.raw_data = BeautifulSoup(''.join(test_data))
         rivers.process_data('major')
-        self.assertEqual(rivers.data['major'], [(date(2011, 9, 27), 4200.0)])
+        assert rivers.data['major'] == [(date(2011, 9, 27), 4200.0)]
 
     def test_process_data_2_rows_1_day(self):
         """process_data produces result for 2 rows of data from same day
@@ -507,7 +499,7 @@ class TestRiverProcessor(unittest.TestCase):
         ]
         rivers.raw_data = BeautifulSoup(''.join(test_data))
         rivers.process_data('major')
-        self.assertEqual(rivers.data['major'], [(date(2011, 9, 27), 4300.0)])
+        assert rivers.data['major'] == [(date(2011, 9, 27), 4300.0)]
 
     def test_process_data_2_rows_2_days(self):
         """process_data produces expected result for 2 rows of data from 2 days
@@ -527,10 +519,11 @@ class TestRiverProcessor(unittest.TestCase):
         ]
         rivers.raw_data = BeautifulSoup(''.join(test_data))
         rivers.process_data('major')
-        self.assertEqual(
-            rivers.data['major'], [
-                (date(2011, 9, 27), 4200.0),
-                (date(2011, 9, 28), 4400.0)])
+        expected = [
+            (date(2011, 9, 27), 4200.0),
+            (date(2011, 9, 28), 4400.0),
+        ]
+        assert rivers.data['major'] == expected
 
     def test_process_data_4_rows_2_days(self):
         """process_data produces expected result for 4 rows of data from 2 days
@@ -557,10 +550,11 @@ class TestRiverProcessor(unittest.TestCase):
         ]
         rivers.raw_data = BeautifulSoup(''.join(test_data))
         rivers.process_data('major')
-        self.assertEqual(
-            rivers.data['major'], [
-                (date(2011, 9, 27), 4300.0),
-                (date(2011, 9, 28), 3300.0)])
+        expected = [
+            (date(2011, 9, 27), 4300.0),
+            (date(2011, 9, 28), 3300.0),
+        ]
+        assert rivers.data['major'] == expected
 
     def test_format_data(self):
         """format_data generator returns formatted forcing data file line
@@ -570,7 +564,7 @@ class TestRiverProcessor(unittest.TestCase):
             (date(2011, 9, 27), 4200.0)
         ]
         line = next(rivers.format_data('major'))
-        self.assertEqual(line, '2011 09 27 4.200000e+03\n')
+        assert line == '2011 09 27 4.200000e+03\n'
 
     def test_patch_data_1_day_gap(self):
         """patch_data correctly flags 1 day gap in data for interpolation
@@ -584,8 +578,8 @@ class TestRiverProcessor(unittest.TestCase):
         processor.interpolate_values = Mock(name='interpolate_values')
         with patch.object(rivers, 'log') as mock_log:
             processor.patch_data('major')
-        self.assertEqual(
-            processor.data['major'][1], (date(2011, 10, 24), None))
+        expected = (date(2011, 10, 24), None)
+        assert processor.data['major'][1] == expected
         mock_log.debug.assert_called_once_with(
             'major river data patched for 2011-10-24')
         processor.interpolate_values.assert_called_once_with(
@@ -603,13 +597,13 @@ class TestRiverProcessor(unittest.TestCase):
         processor.interpolate_values = Mock(name='interpolate_values')
         with patch.object(rivers, 'log') as mock_log:
             processor.patch_data('major')
-        self.assertEqual(
-            processor.data['major'][1:3],
-            [(date(2011, 10, 24), None), (date(2011, 10, 25), None)])
-        self.assertEqual(
-            mock_log.debug.call_args_list,
-            [(('major river data patched for 2011-10-24',),),
-             (('major river data patched for 2011-10-25',),), ])
+        expected = [(date(2011, 10, 24), None), (date(2011, 10, 25), None)]
+        assert processor.data['major'][1:3] == expected
+        expected = [
+            (('major river data patched for 2011-10-24',),),
+            (('major river data patched for 2011-10-25',),),
+        ]
+        assert mock_log.debug.call_args_list == expected
         processor.interpolate_values.assert_called_once_with(
             'major', 1, 2)
 
@@ -627,19 +621,18 @@ class TestRiverProcessor(unittest.TestCase):
         processor.interpolate_values = Mock(name='interpolate_values')
         with patch.object(rivers, 'log') as mock_log:
             processor.patch_data('major')
-        self.assertEqual(
-            processor.data['major'][1], (date(2011, 10, 24), None))
-        self.assertEqual(
-            processor.data['major'][4:6],
-            [(date(2011, 10, 27), None), (date(2011, 10, 28), None)])
-        self.assertEqual(
-            mock_log.debug.call_args_list,
-            [(('major river data patched for 2011-10-24',),),
-             (('major river data patched for 2011-10-27',),),
-             (('major river data patched for 2011-10-28',),), ])
-        self.assertEqual(
-            processor.interpolate_values.call_args_list,
-            [(('major', 1, 1),), (('major', 4, 5),)])
+        expected = (date(2011, 10, 24), None)
+        assert processor.data['major'][1] == expected
+        expected = [(date(2011, 10, 27), None), (date(2011, 10, 28), None)]
+        assert processor.data['major'][4:6] == expected
+        expected = [
+            (('major river data patched for 2011-10-24',),),
+            (('major river data patched for 2011-10-27',),),
+            (('major river data patched for 2011-10-28',),),
+        ]
+        assert mock_log.debug.call_args_list == expected
+        expected = [(('major', 1, 1),), (('major', 4, 5),)]
+        assert processor.interpolate_values.call_args_list == expected
 
     def test_interpolate_values_1_day_gap(self):
         """interpolate_values interpolates value for 1 day gap in data
@@ -652,8 +645,8 @@ class TestRiverProcessor(unittest.TestCase):
             (date(2011, 10, 25), 4500.0),
         ]
         processor.interpolate_values('major', 1, 1)
-        self.assertEqual(
-            processor.data['major'][1], (date(2011, 10, 24), 4400.0))
+        expected = (date(2011, 10, 24), 4400.0)
+        assert processor.data['major'][1] == expected
 
     def test_interpolate_values_2_day_gap(self):
         """interpolate_values interpolates value for 2 day gap in data
@@ -667,6 +660,5 @@ class TestRiverProcessor(unittest.TestCase):
             (date(2011, 10, 26), 4600.0),
         ]
         processor.interpolate_values('major', 1, 2)
-        self.assertEqual(
-            processor.data['major'][1:3],
-            [(date(2011, 10, 24), 4400.0), (date(2011, 10, 25), 4500.0)])
+        expected = [(date(2011, 10, 24), 4400.0), (date(2011, 10, 25), 4500.0)]
+        assert processor.data['major'][1:3] == expected
