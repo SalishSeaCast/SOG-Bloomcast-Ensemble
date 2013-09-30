@@ -1,14 +1,13 @@
 """Meteorolgical forcing data processing module for SoG-bloomcast project.
 """
-# Standard library:
-from datetime import date
+import datetime
 import logging
 import sys
-# contextlib2:
-from contextlib import ExitStack
-# Bloomcast:
-from .utils import ClimateDataProcessor
-from .utils import Config
+import contextlib
+from .utils import (
+    ClimateDataProcessor,
+    Config,
+)
 
 
 log = logging.getLogger('bloomcast.meteo')
@@ -42,7 +41,7 @@ class MeteoProcessor(ClimateDataProcessor):
         for data_month in self._get_data_months():
             self.get_climate_data('meteo', data_month)
             log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
-        with ExitStack() as stack:
+        with contextlib.ExitStack() as stack:
             files = dict(
                 [(qty,
                   stack.enter_context(open(
@@ -136,7 +135,7 @@ def run(config_file):
     logging.basicConfig(level=logging.DEBUG)
     config = Config()
     config.load_config(config_file)
-    config.data_date = date.today()
+    config.data_date = datetime.date.today()
     meteo = MeteoProcessor(config)
     meteo.make_forcing_data_files()
 

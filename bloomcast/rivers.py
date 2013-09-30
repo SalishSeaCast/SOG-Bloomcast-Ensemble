@@ -1,19 +1,15 @@
 """Rivers flows forcing data processing module for SoG-bloomcast project.
 """
-# Standard library:
-from datetime import date
-from datetime import datetime
-from datetime import timedelta
+import datetime
 import logging
 import sys
-from time import sleep
-# HTTP Requests library:
+import time
 import requests
-# BeautifulSoup:
-from bs4 import BeautifulSoup
-# Bloomcast:
-from .utils import Config
-from .utils import ForcingDataProcessor
+import bs4
+from .utils import (
+    Config,
+    ForcingDataProcessor,
+)
 
 
 log = logging.getLogger('bloomcast.rivers')
@@ -49,7 +45,7 @@ class RiversProcessor(ForcingDataProcessor):
         """
         params = self.config.rivers.params
         params['stn'] = getattr(self.config.rivers, river).station_id
-        today = date.today()
+        today = datetime.date.today()
         start_year = (self.config.run_start_date.year
                       if self.config.run_start_date.year != today.year
                       else today.year)
@@ -57,11 +53,11 @@ class RiversProcessor(ForcingDataProcessor):
         with requests.session() as s:
             s.post(self.config.rivers.disclaimer_url,
                    data=self.config.rivers.accept_disclaimer)
-            sleep(5)
+            time.sleep(5)
             response = s.get(self.config.rivers.data_url, params=params)
             log.debug('got {0} river data for {1}-01-01 to {2:%Y-%m-%d}'
                       .format(river, start_year, self.config.data_date))
-        soup = BeautifulSoup(response.content)
+        soup = bs4.BeautifulSoup(response.content)
         self.raw_data = soup.find('table', id='dataTable')
 
     def _date_params(self, start_year):
@@ -73,7 +69,7 @@ class RiversProcessor(ForcingDataProcessor):
 
         The values are date components as integers.
         """
-        end_date = self.config.data_date + timedelta(days=1)
+        end_date = self.config.data_date + datetime.timedelta(days=1)
         params = {
             'syr': start_year,
             'smo': 1,
@@ -84,7 +80,7 @@ class RiversProcessor(ForcingDataProcessor):
         }
         return params
 
-    def process_data(self, qty, end_date=date.today()):
+    def process_data(self, qty, end_date=datetime.date.today()):
         """Process data from BeautifulSoup parser object to a list of
         hourly timestamps and data values.
         """
@@ -125,7 +121,7 @@ class RiversProcessor(ForcingDataProcessor):
         """Read datestamp from BeautifulSoup parser object and return
         it as a date instance.
         """
-        return datetime.strptime(string, '%Y-%m-%d %H:%M:%S').date()
+        return datetime.datetime.strptime(string, '%Y-%m-%d %H:%M:%S').date()
 
     def patch_data(self, qty):
         """Patch missing data values by interpolation.
@@ -140,7 +136,7 @@ class RiversProcessor(ForcingDataProcessor):
             if delta > 1:
                 gap_start = i + 1
                 for j in range(1, delta):
-                    missing_date = data[i][0] + j * timedelta(days=1)
+                    missing_date = data[i][0] + j * datetime.timedelta(days=1)
                     data.insert(i + j, (missing_date, None))
                     log.debug('{0} river data patched for {1}'
                               .format(qty, missing_date))
@@ -176,7 +172,7 @@ def run(config_file):
     logging.basicConfig(level=logging.DEBUG)
     config = Config()
     config.load_config(config_file)
-    config.data_date = date.today()
+    config.data_date = datetime.date.today()
     rivers = RiversProcessor(config)
     rivers.make_forcing_data_files()
 

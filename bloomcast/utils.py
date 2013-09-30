@@ -2,23 +2,14 @@
 
 A collection of classes that are used in other bloomcast modules.
 """
-
-# Standard library:
-from datetime import date
-from datetime import datetime
-from datetime import timedelta
+import datetime
 import logging
-from io import StringIO
+import io
 from xml.etree import cElementTree as ElementTree
-# HTTP Requests library:
-import requests
-# YAML library:
-import yaml
-# NumPy:
+import matplotlib.dates
 import numpy as np
-# Matplotlib:
-from matplotlib.dates import date2num
-# SOG command processor:
+import requests
+import yaml
 import SOGcommand
 
 
@@ -243,7 +234,7 @@ class ClimateDataProcessor(ForcingDataProcessor):
             self.config.climate, data_type).station_id
         params.update(self._date_params(data_month))
         response = requests.get(self.config.climate.url, params=params)
-        tree = ElementTree.parse(StringIO(response.text))
+        tree = ElementTree.parse(io.StringIO(response.text))
         root = tree.getroot()
         self.raw_data.extend(root.findall('stationdata'))
 
@@ -260,7 +251,7 @@ class ClimateDataProcessor(ForcingDataProcessor):
         The value of data_month defaults to yesterday's date.
         """
         if not data_month:
-            data_month = date.today() - timedelta(days=1)
+            data_month = datetime.date.today() - datetime.timedelta(days=1)
         params = {
             'Year': data_month.year,
             'Month': data_month.month,
@@ -276,17 +267,17 @@ class ClimateDataProcessor(ForcingDataProcessor):
         and ends with the current month, wrapping through the end of
         the run start date year if necessary.
         """
-        today = date.today()
+        today = datetime.date.today()
         this_year = today.year
-        data_months = [date(this_year, month, 1)
+        data_months = [datetime.date(this_year, month, 1)
                        for month in range(1, today.month + 1)]
         if self.config.run_start_date.year != this_year:
             last_year = self.config.run_start_date.year
-            data_months = [date(last_year, month, 1)
+            data_months = [datetime.date(last_year, month, 1)
                            for month in range(1, 13)] + data_months
         return data_months
 
-    def process_data(self, qty, end_date=date.today()):
+    def process_data(self, qty, end_date=datetime.date.today()):
         """Process data from XML data records to a list of hourly
         timestamps and data values.
         """
@@ -304,7 +295,7 @@ class ClimateDataProcessor(ForcingDataProcessor):
         """Read timestamp from XML data object and return it as a
         datetime instance.
         """
-        timestamp = datetime(
+        timestamp = datetime.datetime(
             int(record.get('year')),
             int(record.get('month')),
             int(record.get('day')),
@@ -394,8 +385,8 @@ class SOG_Timeseries(SOG_Relation):
         """Calculate matplotlib dates from the independent data array
         and the ``run_start_date``.
         """
-        self.mpl_dates = np.array(date2num(
-            [run_start_date + timedelta(hours=hours)
+        self.mpl_dates = np.array(matplotlib.dates.date2num(
+            [run_start_date + datetime.timedelta(hours=hours)
              for hours in self.indep_data]))
 
 
