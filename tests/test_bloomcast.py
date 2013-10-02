@@ -3,97 +3,141 @@
 import bs4
 import datetime
 import unittest.mock as mock
+import pytest
+
+
+@pytest.fixture
+def make_config():
+    from bloomcast.utils import Config
+    return Config()
+
+
+@pytest.fixture(scope='function')
+def config_dict():
+    config_dict = {
+        'get_forcing_data': None,
+        'run_SOG': None,
+        'SOG_executable': None,
+        'infiles': {
+            'base': None,
+            'edits': {
+                'avg_forcing': None,
+                'early_bloom_forcing': None,
+                'late_bloom_forcing': None,
+            },
+        },
+        'climate': {
+            'url': None,
+            'params': None,
+            'meteo': {
+                'station_id': None,
+                'quantities': [],
+                'cloud_fraction_mapping': None,
+            },
+            'wind': {
+                'station_id': None
+            },
+        },
+        'rivers': {
+            'disclaimer_url': None,
+            'accept_disclaimer': {
+                'disclaimer_action': None,
+            },
+            'data_url': None,
+            'params': {
+                'mode': None,
+                'prm1': None,
+            },
+            'major': {
+                'station_id': None,
+            },
+            'minor': {
+                'station_id': None,
+            },
+        },
+        'logging': {
+            'debug': None,
+            'toaddrs': [],
+            'use_test_smtpd':  None,
+        },
+        'results_dir': None,
+    }
+    return config_dict
+
+
+@pytest.fixture(scope='function')
+def infile_dict():
+    infile_dict = {
+        'run_start_date': datetime.datetime(2011, 11, 11, 12, 33, 42),
+        'SOG_timestep': '900',
+        'std_phys_ts_outfile': None,
+        'std_bio_ts_outfile': None,
+        'Hoffmueller_profiles_outfile': None,
+        'forcing_data_files': {
+            'air_temperature': None,
+            'relative_humidity': None,
+            'cloud_fraction': None,
+            'wind': None,
+            'major_river': None,
+            'minor_river': None,
+        },
+    }
+    return infile_dict
+
+
+@pytest.fixture
+def mock_config():
+    return mock.Mock(name='config')
+
+
+@pytest.fixture
+def make_ForcingDataProcessor():
+    from bloomcast.utils import ForcingDataProcessor
+    return ForcingDataProcessor(mock_config)
+
+
+@pytest.fixture
+def make_ClimateDataProcessor():
+    from bloomcast.wind import ClimateDataProcessor
+    mock_config_ = mock_config()
+    mock_config_.climate.params = {}
+    mock_config_.run_start_date = datetime.date(2011, 9, 19)
+    mock_data_readers = mock.Mock(name='data_readers')
+    return ClimateDataProcessor(mock_config_, mock_data_readers)
+
+
+@pytest.fixture
+def make_WindProcessor():
+    from bloomcast.wind import WindProcessor
+    return WindProcessor(mock_config)
+
+
+@pytest.fixture
+def make_MeteoProcessor():
+    from bloomcast.meteo import MeteoProcessor
+    mock_config_ = mock_config()
+    return MeteoProcessor(mock_config_)
+
+
+@pytest.fixture
+def make_RiversProcessor():
+    from bloomcast.rivers import RiversProcessor
+    mock_config_ = mock_config()
+    return RiversProcessor(mock_config_)
 
 
 class TestConfig():
     """Unit tests for Config object.
     """
-    def _get_target_class(self):
-        from bloomcast.utils import Config
-        return Config
-
-    def _make_one(self, *args, **kwargs):
-        return self._get_target_class()(*args, **kwargs)
-
-    def _make_mock_config_dict(self):
-        mock_config_dict = {
-            'get_forcing_data': None,
-            'run_SOG': None,
-            'SOG_executable': None,
-            'infiles': {
-                'base': None,
-                'edits': {
-                    'avg_forcing': None,
-                    'early_bloom_forcing': None,
-                    'late_bloom_forcing': None,
-                },
-            },
-            'climate': {
-                'url': None,
-                'params': None,
-                'meteo': {
-                    'station_id': None,
-                    'quantities': [],
-                    'cloud_fraction_mapping': None,
-                },
-                'wind': {
-                    'station_id': None
-                },
-            },
-            'rivers': {
-                'disclaimer_url': None,
-                'accept_disclaimer': {
-                    'disclaimer_action': None,
-                },
-                'data_url': None,
-                'params': {
-                    'mode': None,
-                    'prm1': None,
-                },
-                'major': {
-                    'station_id': None,
-                },
-                'minor': {
-                    'station_id': None,
-                },
-            },
-            'logging': {
-                'debug': None,
-                'toaddrs': [],
-                'use_test_smtpd':  None,
-            },
-            'results_dir': None,
-        }
-        return mock_config_dict
-
-    def _make_mock_infile_dict(self):
-        mock_infile_dict = {
-            'run_start_date': datetime.datetime(2011, 11, 11, 12, 33, 42),
-            'SOG_timestep': '900',
-            'std_phys_ts_outfile': None,
-            'std_bio_ts_outfile': None,
-            'Hoffmueller_profiles_outfile': None,
-            'forcing_data_files': {
-                'air_temperature': None,
-                'relative_humidity': None,
-                'cloud_fraction': None,
-                'wind': None,
-                'major_river': None,
-                'minor_river': None,
-            },
-        }
-        return mock_infile_dict
-
     def test_load_config_climate_url(self):
         """load_config puts expected value in config.climate.url
         """
         test_url = 'http://example.com/climateData/bulkdata_e.html'
-        mock_config_dict = self._make_mock_config_dict()
+        mock_config_dict = config_dict()
         mock_config_dict['climate']['url'] = test_url
-        mock_infile_dict = self._make_mock_infile_dict()
-        config = self._make_one()
+        config = make_config()
         config._read_yaml_file = mock.Mock(return_value=mock_config_dict)
-        config._read_SOG_infile = mock.Mock(return_value=mock_infile_dict)
+        config._read_SOG_infile = mock.Mock(return_value=infile_dict())
         config.load_config('config_file')
         assert config.climate.url == test_url
 
@@ -105,12 +149,11 @@ class TestConfig():
             'Prov': 'BC',
             'format': 'xml',
         }
-        mock_config_dict = self._make_mock_config_dict()
+        mock_config_dict = config_dict()
         mock_config_dict['climate']['params'] = test_params
-        mock_infile_dict = self._make_mock_infile_dict()
-        config = self._make_one()
+        config = make_config()
         config._read_yaml_file = mock.Mock(return_value=mock_config_dict)
-        config._read_SOG_infile = mock.Mock(return_value=mock_infile_dict)
+        config._read_SOG_infile = mock.Mock(return_value=infile_dict())
         config.load_config('config_file')
         assert config.climate.params == test_params
 
@@ -118,28 +161,26 @@ class TestConfig():
         """_load_meteo_config puts exp value in config.climate.meteo.station_id
         """
         test_station_id = 889
-        mock_config_dict = self._make_mock_config_dict()
+        mock_config_dict = config_dict()
         mock_config_dict['climate']['meteo']['station_id'] = test_station_id
-        mock_infile_dict = self._make_mock_infile_dict()
-        config = self._make_one()
+        config = make_config()
         config.climate = mock.Mock()
         config._read_yaml_file = mock.Mock(return_value=mock_config_dict)
-        config._load_meteo_config(mock_config_dict, mock_infile_dict)
+        config._load_meteo_config(mock_config_dict, infile_dict())
         assert config.climate.meteo.station_id == test_station_id
 
     def test_load_meteo_config_cloud_fraction_mapping(self):
         """_load_meteo_config puts expected value in cloud_fraction_mapping
         """
         test_cloud_fraction_mapping_file = 'cloud_fraction_mapping.yaml'
-        mock_config_dict = self._make_mock_config_dict()
+        mock_config_dict = config_dict()
         mock_config_dict['climate']['meteo']['cloud_fraction_mapping'] = (
             test_cloud_fraction_mapping_file)
-        mock_infile_dict = self._make_mock_infile_dict()
         test_cloud_fraction_mapping = {
             'Drizzle':  [9.9675925925925934],
             'Clear': [0.0] * 12,
         }
-        config = self._make_one()
+        config = make_config()
         config.climate = mock.Mock()
 
         def side_effect(config_file):   # NOQA
@@ -147,7 +188,7 @@ class TestConfig():
                     else test_cloud_fraction_mapping)
         config._read_yaml_file = mock.Mock(
             return_value=mock_config_dict, side_effect=side_effect)
-        config._load_meteo_config(mock_config_dict, mock_infile_dict)
+        config._load_meteo_config(mock_config_dict, infile_dict())
         expected = test_cloud_fraction_mapping
         assert config.climate.meteo.cloud_fraction_mapping == expected
 
@@ -155,30 +196,22 @@ class TestConfig():
         """_load_wind_config puts value in config.climate.wind.station_id
         """
         test_station_id = 889
-        mock_config_dict = self._make_mock_config_dict()
+        mock_config_dict = config_dict()
         mock_config_dict['climate']['wind']['station_id'] = test_station_id
-        mock_infile_dict = self._make_mock_infile_dict()
-        config = self._make_one()
+        config = make_config()
         config.climate = mock.Mock()
         config._read_yaml_file = mock.Mock(return_value=mock_config_dict)
-        config._load_wind_config(mock_config_dict, mock_infile_dict)
+        config._load_wind_config(mock_config_dict, infile_dict())
         assert config.climate.wind.station_id == test_station_id
 
 
 class TestForcingDataProcessor():
     """Unit tests for ForcingDataProcessor object.
     """
-    def _get_target_class(self):
-        from bloomcast.utils import ForcingDataProcessor
-        return ForcingDataProcessor
-
-    def _make_one(self, *args, **kwargs):
-        return self._get_target_class()(*args, **kwargs)
-
     def test_patch_data_1_hour_gap(self):
         """patch_data correctly flags 1 hour gap in data for interpolation
         """
-        processor = self._make_one(mock.Mock(name='config'))
+        processor = make_ForcingDataProcessor()
         processor.data['air_temperature'] = [
             (datetime.datetime(2011, 9, 25, 9, 0, 0), 215.0),
             (datetime.datetime(2011, 9, 25, 10, 0, 0), None),
@@ -195,7 +228,7 @@ class TestForcingDataProcessor():
     def test_patch_data_2_hour_gap(self):
         """patch_data correctly flags 2 hour gap in data for interpolation
         """
-        processor = self._make_one(mock.Mock(name='config'))
+        processor = make_ForcingDataProcessor()
         processor.data = {}
         processor.data['air_temperature'] = [
             (datetime.datetime(2011, 9, 25, 9, 0, 0), 215.0),
@@ -217,7 +250,7 @@ class TestForcingDataProcessor():
     def test_patch_data_2_gaps(self):
         """patch_data correctly flags 2 gaps in data for interpolation
         """
-        processor = self._make_one(mock.Mock(name='config'))
+        processor = make_ForcingDataProcessor()
         processor.data['air_temperature'] = [
             (datetime.datetime(2011, 9, 25, 9, 0, 0), 215.0),
             (datetime.datetime(2011, 9, 25, 10, 0, 0), None),
@@ -241,7 +274,7 @@ class TestForcingDataProcessor():
     def test_interpolate_values_1_hour_gap(self):
         """interpolate_values interpolates value for 1 hour gap in data
         """
-        processor = self._make_one(mock.Mock(name='config'))
+        processor = make_ForcingDataProcessor()
         processor.data = {}
         processor.data['air_temperature'] = [
             (datetime.datetime(2011, 9, 25, 9, 0, 0), 215.0),
@@ -255,7 +288,7 @@ class TestForcingDataProcessor():
     def test_interpolate_values_2_hour_gap(self):
         """interpolate_values interpolates value for 2 hour gap in data
         """
-        processor = self._make_one(mock.Mock(name='config'))
+        processor = make_ForcingDataProcessor()
         processor.data = {}
         processor.data['air_temperature'] = [
             (datetime.datetime(2011, 9, 25, 9, 0, 0), 215.0),
@@ -273,20 +306,10 @@ class TestForcingDataProcessor():
 class TestClimateDataProcessor():
     """Unit tests for ClimateDataProcessor object.
     """
-    def _get_target_class(self):
-        from bloomcast.wind import ClimateDataProcessor
-        return ClimateDataProcessor
-
-    def _make_one(self, *args, **kwargs):
-        return self._get_target_class()(*args, **kwargs)
-
     def test_get_data_months_run_start_date_same_year(self):
         """_get_data_months returns data months for run start date in same year
         """
-        mock_config = mock.Mock()
-        mock_config.climate.params = {}
-        mock_config.run_start_date = datetime.date(2011, 9, 19)
-        processor = self._make_one(mock_config, mock.Mock(name='data_readers'))
+        processor = make_ClimateDataProcessor()
         with mock.patch('bloomcast.utils.datetime') as mock_datetime:
             mock_datetime.date.today.return_value = datetime.date(2011, 9, 1)
             mock_datetime.date.side_effect = datetime.date
@@ -297,10 +320,7 @@ class TestClimateDataProcessor():
     def test_get_data_months_run_start_date_prev_year(self):
         """_get_data_months returns data months for run start date in prev yr
         """
-        mock_config = mock.Mock()
-        mock_config.climate.params = {}
-        mock_config.run_start_date = datetime.date(2011, 9, 19)
-        processor = self._make_one(mock_config, mock.Mock(name='data_readers'))
+        processor = make_ClimateDataProcessor()
         with mock.patch('bloomcast.utils.datetime') as mock_datetime:
             mock_datetime.date.today.return_value = datetime.date(2012, 2, 1)
             mock_datetime.date.side_effect = datetime.date
@@ -313,17 +333,10 @@ class TestClimateDataProcessor():
 class TestWindProcessor():
     """Unit tests for WindProcessor object.
     """
-    def _get_target_class(self):
-        from bloomcast.wind import WindProcessor
-        return WindProcessor
-
-    def _make_one(self, *args, **kwargs):
-        return self._get_target_class()(*args, **kwargs)
-
     def test_interpolate_values_1_hour_gap(self):
         """interpolate_values interpolates value for 1 hour gap in data
         """
-        wind = self._make_one(mock.Mock(name='config'))
+        wind = make_WindProcessor()
         wind.data['wind'] = [
             (datetime.datetime(2011, 9, 25, 9, 0, 0), (1.0, -2.0)),
             (datetime.datetime(2011, 9, 25, 10, 0, 0), (None, None)),
@@ -336,7 +349,7 @@ class TestWindProcessor():
     def test_interpolate_values_2_hour_gap(self):
         """interpolate_values interpolates value for 2 hour gap in data
         """
-        wind = self._make_one(mock.Mock(name='config'))
+        wind = make_WindProcessor()
         wind.data['wind'] = [
             (datetime.datetime(2011, 9, 25, 9, 0, 0), (1.0, -2.0)),
             (datetime.datetime(2011, 9, 25, 10, 0, 0), (None, None)),
@@ -352,7 +365,7 @@ class TestWindProcessor():
     def test_interpolate_values_gap_gt_11_hr_logs_warning(self):
         """wind data gap >11 hr generates warning log message
         """
-        wind = self._make_one(mock.Mock(name='config'))
+        wind = make_WindProcessor()
         wind.data['wind'] = [(datetime.datetime(2011, 9, 25, 0, 0, 0), (1.0, -2.0))]
         wind.data['wind'].extend([
             (datetime.datetime(2011, 9, 25, 1 + i, 0, 0), (None, None))
@@ -368,7 +381,7 @@ class TestWindProcessor():
     def test_format_data(self):
         """format_data generator returns formatted forcing data file line
         """
-        wind = self._make_one(mock.Mock(name='config'))
+        wind = make_WindProcessor()
         wind.data['wind'] = [
             (datetime.datetime(2011, 9, 25, 9, 0, 0), (1.0, 2.0)),
         ]
@@ -379,17 +392,10 @@ class TestWindProcessor():
 class TestMeteoProcessor():
     """Unit tests for MeteoProcessor object.
     """
-    def _get_target_class(self):
-        from bloomcast.meteo import MeteoProcessor
-        return MeteoProcessor
-
-    def _make_one(self, *args, **kwargs):
-        return self._get_target_class()(*args, **kwargs)
-
     def test_read_cloud_fraction_single_avg(self):
         """read_cloud_fraction returns expected value for single avg CF list
         """
-        meteo = self._make_one(mock.Mock(name='config'))
+        meteo = make_MeteoProcessor()
         meteo.config.climate.meteo.cloud_fraction_mapping = {
             'Drizzle': [9.9675925925925934],
         }
@@ -401,7 +407,7 @@ class TestMeteoProcessor():
     def test_read_cloud_fraction_monthly_avg(self):
         """read_cloud_fraction returns expected value for monthly avg CF list
         """
-        meteo = self._make_one(mock.Mock(name='config'))
+        meteo = make_MeteoProcessor()
         meteo.config.climate.meteo.cloud_fraction_mapping = {
             'Fog': [
                 9.6210045662100452, 9.3069767441860467, 9.5945945945945947,
@@ -422,7 +428,7 @@ class TestMeteoProcessor():
     def test_format_data(self):
         """format_data generator returns formatted forcing data file line
         """
-        meteo = self._make_one(mock.Mock(name='config'))
+        meteo = make_MeteoProcessor()
         meteo.config.climate.meteo.station_id = '889'
         meteo.data['air_temperature'] = [
             (datetime.datetime(2011, 9, 25, i, 0, 0), 215.0)
@@ -434,17 +440,10 @@ class TestMeteoProcessor():
 class TestRiverProcessor():
     """Uni tests for RiverProcessor object.
     """
-    def _get_target_class(self):
-        from bloomcast.rivers import RiversProcessor
-        return RiversProcessor
-
-    def _make_one(self, *args, **kwargs):
-        return self._get_target_class()(*args, **kwargs)
-
     def test_date_params(self):
         """_date_params handles month-end rollover correctly
         """
-        rivers = self._make_one(mock.Mock(name='config'))
+        rivers = make_RiversProcessor()
         rivers.config.data_date = datetime.date(2011, 11, 30)
         expected = {
             'syr': 2011,
@@ -459,7 +458,7 @@ class TestRiverProcessor():
     def test_process_data_1_row(self):
         """process_data produces expected result for 1 row of data
         """
-        rivers = self._make_one(mock.Mock(name='config'))
+        rivers = make_RiversProcessor()
         test_data = [
             '<table>',
             '  <tr>',
@@ -475,7 +474,7 @@ class TestRiverProcessor():
     def test_process_data_2_rows_1_day(self):
         """process_data produces result for 2 rows of data from same day
         """
-        rivers = self._make_one(mock.Mock(name='config'))
+        rivers = make_RiversProcessor()
         test_data = [
             '<table>',
             '  <tr>',
@@ -495,7 +494,7 @@ class TestRiverProcessor():
     def test_process_data_2_rows_2_days(self):
         """process_data produces expected result for 2 rows of data from 2 days
         """
-        rivers = self._make_one(mock.Mock(name='config'))
+        rivers = make_RiversProcessor()
         test_data = [
             '<table>',
             '  <tr>',
@@ -519,7 +518,7 @@ class TestRiverProcessor():
     def test_process_data_4_rows_2_days(self):
         """process_data produces expected result for 4 rows of data from 2 days
         """
-        rivers = self._make_one(mock.Mock(name='config'))
+        rivers = make_RiversProcessor()
         test_data = [
             '<table>',
             '  <tr>',
@@ -550,7 +549,7 @@ class TestRiverProcessor():
     def test_format_data(self):
         """format_data generator returns formatted forcing data file line
         """
-        rivers = self._make_one(mock.Mock(name='config'))
+        rivers = make_RiversProcessor()
         rivers.data['major'] = [
             (datetime.date(2011, 9, 27), 4200.0)
         ]
@@ -560,7 +559,7 @@ class TestRiverProcessor():
     def test_patch_data_1_day_gap(self):
         """patch_data correctly flags 1 day gap in data for interpolation
         """
-        processor = self._make_one(mock.Mock(name='config'))
+        processor = make_RiversProcessor()
         processor.data['major'] = [
             (datetime.date(2011, 10, 23), 4300.0),
             (datetime.date(2011, 10, 25), 4500.0),
@@ -578,7 +577,7 @@ class TestRiverProcessor():
     def test_patch_data_2_day_gap(self):
         """patch_data correctly flags 2 day gap in data for interpolation
         """
-        processor = self._make_one(mock.Mock(name='config'))
+        processor = make_RiversProcessor()
         processor.data['major'] = [
             (datetime.date(2011, 10, 23), 4300.0),
             (datetime.date(2011, 10, 26), 4600.0),
@@ -599,7 +598,7 @@ class TestRiverProcessor():
     def test_patch_data_2_gaps(self):
         """patch_data correctly flags 2 gaps in data for interpolation
         """
-        processor = self._make_one(mock.Mock(name='config'))
+        processor = make_RiversProcessor()
         processor.data['major'] = [
             (datetime.date(2011, 10, 23), 4300.0),
             (datetime.date(2011, 10, 25), 4500.0),
@@ -625,7 +624,7 @@ class TestRiverProcessor():
     def test_interpolate_values_1_day_gap(self):
         """interpolate_values interpolates value for 1 day gap in data
         """
-        processor = self._make_one(mock.Mock(name='config'))
+        processor = make_RiversProcessor()
         processor.data = {}
         processor.data['major'] = [
             (datetime.date(2011, 10, 23), 4300.0),
@@ -639,7 +638,7 @@ class TestRiverProcessor():
     def test_interpolate_values_2_day_gap(self):
         """interpolate_values interpolates value for 2 day gap in data
         """
-        processor = self._make_one(mock.Mock(name='config'))
+        processor = make_RiversProcessor()
         processor.data = {}
         processor.data['major'] = [
             (datetime.date(2011, 10, 23), 4300.0),
