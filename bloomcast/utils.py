@@ -32,6 +32,7 @@ class Config(object):
         self.get_forcing_data = config_dict['get_forcing_data']
         self.run_SOG = config_dict['run_SOG']
         self.SOG_executable = config_dict['SOG_executable']
+        self.html_results = config_dict['html_results']
         self.infiles = config_dict['infiles']
         self.results_dir = config_dict['results_dir']
         self.std_bio_ts_outfiles = {}
