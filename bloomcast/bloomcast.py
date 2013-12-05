@@ -145,7 +145,7 @@ class Bloomcast(object):
                  .format(self.config.data_date))
         try:
             with open('wind_data_date', 'rt') as file_obj:
-                last_data_date = datetime.strptime(
+                last_data_date = datetime.datetime.strptime(
                     file_obj.readline().strip(), '%Y-%m-%d').date()
         except IOError:
             # Fake a wind data date to get things rolling
@@ -176,7 +176,7 @@ class Bloomcast(object):
                 key + '.stdout')
             processes[key] = proc
             log.info('SOG {0} run started at {1:%Y-%m-%d %H:%M:%S} as pid {2}'
-                     .format(key, datetime.now(), proc.pid))
+                     .format(key, datetime.datetime.now(), proc.pid))
         while processes:
             time.sleep(30)
             for key, proc in copy(processes).items():
@@ -185,7 +185,7 @@ class Bloomcast(object):
                 else:
                     processes.pop(key)
                     log.info('SOG {0} run finished at {1:%Y-%m-%d %H:%M:%S}'
-                             .format(key, datetime.now()))
+                             .format(key, datetime.datetime.now()))
 
     def _get_results_timeseries(self):
         """Read SOG results time series of interest and create
@@ -334,7 +334,7 @@ class Bloomcast(object):
     def _create_profile_graphs(self):
         """Create profile graph objects.
         """
-        profile_datetime = datetime.combine(
+        profile_datetime = datetime.datetime.combine(
             self.config.data_date, datetime.time(12))
         profile_dt = profile_datetime - self.config.run_start_date
         profile_hour = profile_dt.days * 24 + profile_dt.seconds / 3600
@@ -553,11 +553,11 @@ class Bloomcast(object):
             try:
                 for key in 'early_bloom_forcing late_bloom_forcing'.split():
                     fig.ax_left.axvline(
-                        date2num(datetime.combine(
+                        date2num(datetime.datetime.combine(
                             self.bloom_date[key], datetime.time(12))),
                         color=self.diatoms_colours['bounds'])
                 bloom_date_line = fig.ax_left.axvline(
-                    date2num(datetime.combine(
+                    date2num(datetime.datetime.combine(
                         self.bloom_date['avg_forcing'], datetime.time(12))),
                     color=self.diatoms_colours['avg'])
                 fig.legend(
@@ -589,7 +589,7 @@ def main():
         print('Expected config file path/name')
         sys.exit(1)
     try:
-        data_date = datetime.strptime(sys.argv[2], '%Y-%m-%d').date()
+        data_date = datetime.datetime.strptime(sys.argv[2], '%Y-%m-%d').date()
     except ValueError:
         print('Expected %Y-%m-%d for data date, got: {0[2]}'.format(sys.argv))
         sys.exit(1)
