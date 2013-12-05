@@ -1,9 +1,10 @@
 # SoG bloomcast configuration file
 
-get_forcing_data: True
+get_forcing_data: False
 run_SOG: True
 
-SOG_executable: ../SOG-code-bloomcast/SOG
+SOG_executable: ../../SOG-code-bloomcast/SOG
+html_results: ../bloomcast/html
 
 infiles:
   base: 2013_bloomcast_infile.yaml

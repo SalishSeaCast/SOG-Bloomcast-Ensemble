@@ -526,7 +526,9 @@ class Bloomcast(object):
     def _render_results(self):
         """Render bloomcast results page and graphs to files.
         """
-        tmpl = mako.template.Template(filename='bloomcast/html/results.mako')
+        tmpl_path = os.path.abspath(
+            os.path.join(self.config.html_results, 'results.mako'))
+        tmpl = mako.template.Template(filename=tmpl_path)
         filename = self.config.logging.bloom_date_log_filename
         with open(filename, 'rt') as file_obj:
             bloom_date_log = [line.split() for line in file_obj
@@ -537,7 +539,8 @@ class Bloomcast(object):
             'bloom_date': self.bloom_date,
             'bloom_date_log': bloom_date_log,
         }
-        with open('bloomcast/html/results.html', 'wt') as file_obj:
+        results_path = os.path.join(self.config.html_results, 'results.html')
+        with open(results_path, 'wt') as file_obj:
             file_obj.write(tmpl.render(**context))
         graphs = [
             (self.fig_nitrate_diatoms_profile, 'nitrate_diatoms_profiles.svg'),
@@ -569,7 +572,7 @@ class Bloomcast(object):
             except AttributeError:
                 pass
             canvas = FigureCanvasAgg(fig)
-            canvas.print_svg(os.path.join('bloomcast/html', filename))
+            canvas.print_svg(os.path.join(self.config.html_results, filename))
 
     def _push_results_to_web(self):
         """Push results page, graphs, styles, etc. to web server directory
@@ -578,7 +581,7 @@ class Bloomcast(object):
         if os.access(self.config.results_dir, os.F_OK):
             subprocess.check_call(
                 'rsync -rq --exclude=results.mako {0}/ {1}'
-                .format(os.path.abspath('bloomcast/html'),
+                .format(os.path.abspath(self.config.html_results),
                         self.config.results_dir).split())
 
 
