@@ -18,6 +18,7 @@ def config_dict():
         'get_forcing_data': None,
         'run_SOG': None,
         'SOG_executable': None,
+        'html_results': None,
         'infiles': {
             'base': None,
             'edits': {
