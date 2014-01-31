@@ -9,27 +9,27 @@ forcing_data:
     variable_name: use_average_forcing_data
     description: yes=avg only; no=fail if data runs out; fill=historic then avg
   avg_historical_wind_file:
-    value: ../SOG-forcing/wind/SH_earlybloom_9293.dat
+    value: ../../SOG-forcing/wind/SH_earlybloom_9293.dat
     variable_name: n/a
     description: average/historical wind forcing data path/filename
   avg_historical_air_temperature_file:
-    value: ../SOG-forcing/met/YVR_AT_earlybloom_9293
+    value: ../../SOG-forcing/met/YVR_AT_earlybloom_9293
     variable_name: n/a
     description: average/historical air temperature forcing data path/filename
   avg_historical_cloud_file:
-    value: ../SOG-forcing/met/YVR_CF_earlybloom_9293
+    value: ../../SOG-forcing/met/YVR_CF_earlybloom_9293
     variable_name: n/a
     description: average/historical cloud fraction forcing data path/filename
   avg_historical_humidity_file:
-    value: ../SOG-forcing/met/YVR_hum_earlybloom_9293
+    value: ../../SOG-forcing/met/YVR_hum_earlybloom_9293
     variable_name: n/a
     description: average/historical humidity forcing data path/filename
   avg_historical_major_river_file:
-    value: ../SOG-forcing/rivers/fraser_earlybloom_9293.fmt
+    value: ../../SOG-forcing/rivers/fraser_earlybloom_9293.fmt
     variable_name: n/a
     description: average/historical major river forcing data path/filename
   avg_historical_minor_river_file:
-    value: ../SOG-forcing/rivers/englishman_earlybloom_9293.dat
+    value: ../../SOG-forcing/rivers/englishman_earlybloom_9293.dat
     variable_name: n/a
     description: average/historical minor river forcing data path/filename
 
