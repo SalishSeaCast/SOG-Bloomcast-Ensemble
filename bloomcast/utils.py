@@ -282,13 +282,17 @@ class ClimateDataProcessor(ForcingDataProcessor):
         """Process data from XML data records to a list of hourly
         timestamps and data values.
         """
+        YVR_STN_CHG_DATE = datetime.date(2013, 6, 13)
         reader = self.data_readers[qty]
         self.data[qty] = []
         for record in self.raw_data:
             timestamp = self.read_timestamp(record)
             if timestamp.date() > end_date:
                 break
-            self.data[qty].append((timestamp, reader(record)))
+            if qty != 'wind' and (timestamp.date() < YVR_STN_CHG_DATE):
+                self.data[qty].append((timestamp, 0))
+            else:
+                self.data[qty].append((timestamp, reader(record)))
         self._trim_data(qty)
         self.patch_data(qty)
 
