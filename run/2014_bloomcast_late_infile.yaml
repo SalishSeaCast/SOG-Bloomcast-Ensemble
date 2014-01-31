@@ -1,0 +1,82 @@
+# SOG code infile edits for 2014 bloomcast run with late bloom forcing data
+
+# These edits are intended to be applied to 2014_bloomcast_infile.yaml
+
+forcing_data:
+  use_average_forcing_data:
+    value: "histfill"
+    # NOTE: value must be quoted because yes/no == True/False in YAML
+    variable_name: use_average_forcing_data
+    description: yes=avg only; no=fail if data runs out; fill=historic then avg
+  avg_historical_wind_file:
+    value: ../SOG-forcing/wind/SH_latebloom_9899.dat
+    variable_name: n/a
+    description: average/historical wind forcing data path/filename
+  avg_historical_air_temperature_file:
+    value: ../SOG-forcing/met/YVR_AT_latebloom_9899
+    variable_name: n/a
+    description: average/historical air temperature forcing data path/filename
+  avg_historical_cloud_file:
+    value: ../SOG-forcing/met/YVR_CF_latebloom_9899
+    variable_name: n/a
+    description: average/historical cloud fraction forcing data path/filename
+  avg_historical_humidity_file:
+    value: ../SOG-forcing/met/YVR_hum_latebloom_9899
+    variable_name: n/a
+    description: average/historical humidity forcing data path/filename
+  avg_historical_major_river_file:
+    value: ../SOG-forcing/rivers/fraser_latebloom_9899.fmt
+    variable_name: n/a
+    description: average/historical major river forcing data path/filename
+  avg_historical_minor_river_file:
+    value: ../SOG-forcing/rivers/englishman_latebloom_9899.dat
+    variable_name: n/a
+    description: average/historical minor river forcing data path/filename
+
+timeseries_results:
+  std_physics:
+    value: timeseries/std_phys_2014_bloomcast_late.out
+    variable_name: std_phys_ts_out
+    description: path/filename for standard physics time series output
+  user_physics:
+    value: timeseries/user_phys_2014_bloomcast_late.out
+    variable_name: user_phys_ts_out
+    description: path/filename for user physics time series output
+  std_biology:
+    value: timeseries/std_bio_2014_bloomcast_late.out
+    variable_name: std_bio_ts_out
+    description: path/filename for standard biology time series output
+  user_biology:
+    value: timeseries/user_bio_2014_bloomcast_late.out
+    variable_name: user_bio_ts_out
+    description: path/filename for user biology time series output
+  std_chemistry:
+    value: timeseries/std_chem_2014_bloomcast_late.out
+    variable_name: std_chem_ts_out
+    description: path/filename for standard chemistry time series output
+  user_chemistry:
+    value: timeseries/user_chem_2014_bloomcast_late.out
+    variable_name: user_chem_ts_out
+    description: path/filename for user chemistry time series output
+
+profiles_results:
+  profile_file_base:
+    value: profiles/2014_bloomcast_late
+    variable_name: profilesBase_fn
+    description: path/filename base for profiles (datetime will be appended)
+  user_profile_file_base:
+    value: profiles/2014_bloomcast_late_user
+    variable_name: userprofilesBase_fn
+    description: path/filename base for user profiles (datetime appended)
+  halocline_file:
+    value: profiles/halo_2014_bloomcast_late.out
+    variable_name: haloclines_fn
+    description: path/filename for halocline results
+  hoffmueller_file:
+    value: profiles/hoff_2014_bloomcast_late.out
+    variable_name: Hoffmueller_fn
+    description: path/filename for Hoffmueller results
+  user_hoffmueller_file:
+    value: profiles/hoff_2014_bloomcast_early_user.out
+    variable_name: userHoffmueller_fn
+    description: path/filename for user Hoffmueller results
