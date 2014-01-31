@@ -16,6 +16,7 @@ other_classifiers = [
 ]
 
 install_requires = [
+    'arrow',
     'BeautifulSoup4',
     'mako',
     'matplotlib',
