@@ -73,6 +73,12 @@ class Bloomcast(object):
         * Calculate the spring diatom bloom date.
         """
         self._configure_logging()
+        if not self.config.get_forcing_data and self.config.data_date is None:
+            log.debug(
+                'This will not end well: '
+                'get_forcing_data={0.get_forcing_data} '
+                'and data_date={0.data_date}'.format(self.config))
+            return
         log.debug('run start date/time is {0:%Y-%m-%d %H:%M:%S}'
                   .format(self.config.run_start_date))
         # Check run start date and current date to ensure that
