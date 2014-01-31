@@ -42,13 +42,13 @@ initial_conditions:
     variable_name: initDatetime
     description: initial CTD profile date/time
   CTD_file:
-    value: ../SOG-initial/ctd/SG-39-2001-09-19.sog
+    value: ../../SOG-initial/ctd/SG-39-2001-09-19.sog
     variable_name: ctd_in
     description: path/filename for initialization CTD file
   # Give a path/filename for either STRATOGEM nutrients file
   # or IOS bottle file; set the other to N/A
   nutrients_file:
-    value: ../SOG-initial/stratogem_nuts/Nuts-39-2001-09-19.sog
+    value: ../../SOG-initial/stratogem_nuts/Nuts-39-2001-09-19.sog
     variable_name: nuts_in
     description: path/filename for STRATOGEM nutrients data file
   bottle_file:
@@ -56,7 +56,7 @@ initial_conditions:
     variable_name: botl_in
     description: path/filename for IOS nutrients bottle data file
   chemistry_file:
-    value: ../SOG-initial/chem/Chem-SOG42-2010-73.sog
+    value: ../../SOG-initial/chem/Chem-SOG42-2010-73.sog
     variable_name: chem_in
     description: path/filename for IOS chemistry bottle data file
   init_chl_ratios:
@@ -1465,7 +1465,7 @@ forcing_data:
   # The avg_historical_wind_file parameter is only used when
   # use_average_forcing_data == yes or fill or histfill
   avg_historical_wind_file:
-    value: ../SOG-forcing/wind/SHavg
+    value: ../../SOG-forcing/wind/SHavg
     variable_name: n/a
     description: average/historical wind forcing data path/filename
 
@@ -1476,7 +1476,7 @@ forcing_data:
   # The avg_historical_air_temperature_file parameter is only used when
   # use_average_forcing_data == yes or fill or histfill
   avg_historical_air_temperature_file:
-    value: ../SOG-forcing/met/YVRavgAT
+    value: ../../SOG-forcing/met/YVRavgAT
     variable_name: n/a
     description: average/historical air temperature forcing data path/filename
 
@@ -1487,7 +1487,7 @@ forcing_data:
   # The avg_historical_cloud_file parameter is only used when
   # use_average_forcing_data == yes or fill or histfill
   avg_historical_cloud_file:
-    value: ../SOG-forcing/met/YVRavgCF
+    value: ../../SOG-forcing/met/YVRavgCF
     variable_name: n/a
     description: average/historical cloud fraction forcing data path/filename
 
@@ -1498,7 +1498,7 @@ forcing_data:
   # The avg_historical_humidity_file parameter is only used when
   # use_average_forcing_data == yes or fill or histfill
   avg_historical_humidity_file:
-    value: ../SOG-forcing/met/YVRavgHum
+    value: ../../SOG-forcing/met/YVRavgHum
     variable_name: n/a
     description: average/historical humidity forcing data path/filename
 
@@ -1509,7 +1509,7 @@ forcing_data:
   # The avg_historical_major_river_file parameter is only used when
   # use_average_forcing_data == yes or fill or histfill
   avg_historical_major_river_file:
-    value: ../SOG-forcing/rivers/fraser_average
+    value: ../../SOG-forcing/rivers/fraser_average
     variable_name: n/a
     description: average/historical major river forcing data path/filename
   use_river_temperature:
@@ -1517,7 +1517,7 @@ forcing_data:
     variable_name: UseRiverTemp
     description: include cooling/heating effect of major river water
   river_nutrients_file:
-    value: ../SOG-forcing/rivers/fraser_nuts.dat
+    value: ../../SOG-forcing/rivers/fraser_nuts.dat
     variable_name: n/a
     description: file containing monthly climatology values of NO3 and Si
 
@@ -1528,11 +1528,11 @@ forcing_data:
   # The avg_historical_minor_river_file parameter is only used when
   # use_average_forcing_data == yes or fill or histfill
   avg_historical_minor_river_file:
-    value: ../SOG-forcing/rivers/englishman_average
+    value: ../../SOG-forcing/rivers/englishman_average
     variable_name: n/a
     description: average/historical minor river forcing data path/filename
   alt_minor_river_forcing_file:
-    value: ../SOG-forcing/rivers/NanimoNorm_historic.dat
+    value: ../../SOG-forcing/rivers/NanimoNorm_historic.dat
     variable_name: n/a
     description: alternative minor river flow forcing data path/filename
   minor_river_integration_days:
