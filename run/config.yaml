@@ -21,7 +21,7 @@ climate:
     timeframe: 1        # Daily
     format: xml
   meteo:
-    station_id: 889     # YVR
+    station_id: 51442   # YVR
     quantities:
       - air_temperature
       - relative_humidity
