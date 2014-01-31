@@ -9,6 +9,7 @@ import os
 import subprocess
 import sys
 import time
+import arrow
 import numpy as np
 import mako.template
 from matplotlib.dates import (
@@ -74,6 +75,19 @@ class Bloomcast(object):
         self._configure_logging()
         log.debug('run start date/time is {0:%Y-%m-%d %H:%M:%S}'
                   .format(self.config.run_start_date))
+        # Check run start date and current date to ensure that
+        # river flow data are available.
+        # River flow data are only available in a rolling 18-month window.
+        run_start_yr_jan1 = (
+            arrow.get(self.config.run_start_date).replace(month=1, day=1))
+        river_date_limit = arrow.now().replace(months=-18)
+        if run_start_yr_jan1 < river_date_limit:
+            log.error(
+                'A bloomcast run starting {0.run_start_date:%Y-%m-%d} cannot '
+                'be done today because there are no river flow data availble '
+                'prior to {1}'
+                .format(self.config, river_date_limit.format('YYYY-MM-DD')))
+            return
         try:
             self._get_forcing_data()
         except NoNewWindData:
