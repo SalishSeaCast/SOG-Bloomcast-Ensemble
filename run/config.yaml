@@ -1,19 +1,19 @@
 # SoG bloomcast configuration file
 
-get_forcing_data: False
+get_forcing_data: True
 run_SOG: True
 
 SOG_executable: ../../SOG-code-bloomcast/SOG
 html_results: ../bloomcast/html
 
 infiles:
-  base: 2013_bloomcast_infile.yaml
+  base: 2014_bloomcast_infile.yaml
   edits:
     avg_forcing: []
     early_bloom_forcing:
-      - 2013_bloomcast_early_infile.yaml
+      - 2014_bloomcast_early_infile.yaml
     late_bloom_forcing:
-      - 2013_bloomcast_late_infile.yaml
+      - 2014_bloomcast_late_infile.yaml
 
 climate:
   url: http://climate.weather.gc.ca/climateData/bulkdata_e.html
