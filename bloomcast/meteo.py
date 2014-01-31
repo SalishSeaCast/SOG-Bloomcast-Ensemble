@@ -86,7 +86,7 @@ class MeteoProcessor(ClimateDataProcessor):
         try:
             cloud_fraction = mapping[weather_desc]
         except KeyError:
-            if weather_desc is None:
+            if weather_desc is None or weather_desc == 'NA':
                 # None indicates missing data
                 cloud_fraction = [None]
             else:
