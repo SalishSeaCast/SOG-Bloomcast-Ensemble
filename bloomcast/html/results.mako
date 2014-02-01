@@ -68,12 +68,15 @@
         </ul>
 
         <p>
-          [1] Allen, S. E. and M. A. Wolfe, in press.
+          [1] Allen, S. E. and M. A. Wolfe,
               Hindcast of the Timing of the Spring Phytoplankton Bloom
               in the Strait of Georgia,
               1968-2010.
-              Prog. Oceanogr.
-              Accepted for publication March 2012.
+              Progress in Oceanography,
+              vol 115, pp 6-13 (2013).
+              <a href="http://dx.doi.org/10.1016/j.pocean.2013.05.026">
+                  http://dx.doi.org/10.1016/j.pocean.2013.05.026
+              </a>
         </p>
 
         <h2>Data Sources</h2>
