@@ -2,5 +2,5 @@
 #
 # make sure that this file has mode 744
 
-PYTHON=/ocean/dlatorne/.virtualenvs/SoG-bloomcast/bin/python
-cd /ocean/dlatorne/SoG/SOG/SoG-bloomcast && $PYTHON bloomcast/bloomcast.py config.yaml
+BLOOMCAST=/data/dlatorne/.virtualenvs/bloomcast/bin/bloomcast
+cd /data/dlatorne/SOG-projects/SoG-bloomcast/run && $BLOOMCAST config.yaml
