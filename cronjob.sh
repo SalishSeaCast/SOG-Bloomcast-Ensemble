@@ -1,6 +1,8 @@
 # cron script to run SoG-bloomcast
 #
 # make sure that this file has mode 744
+# and that MAILTO is set in crontab
 
-BLOOMCAST=/data/dlatorne/.virtualenvs/bloomcast/bin/bloomcast
-cd /data/dlatorne/SOG-projects/SoG-bloomcast/run && $BLOOMCAST config.yaml
+VENV=/data/dlatorne/.virtualenvs/bloomcast
+RUN_DIR=/data/dlatorne/SOG-projects/SoG-bloomcast/run
+. $VENV/bin/activate && cd $RUN_DIR && $VENV/bin/bloomcast config.yaml
