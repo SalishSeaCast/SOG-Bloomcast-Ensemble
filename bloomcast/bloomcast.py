@@ -157,7 +157,7 @@ class Bloomcast(object):
         log.addHandler(disk)
 
         mailhost = (('localhost', 1025) if self.config.logging.use_test_smtpd
-                    else 'localhost')
+                    else 'smtp.eos.ubc.ca')
         email = logging.handlers.SMTPHandler(
             mailhost, fromaddr='SoG-bloomcast@eos.ubc.ca',
             toaddrs=self.config.logging.toaddrs,
