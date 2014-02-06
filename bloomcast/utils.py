@@ -200,14 +200,23 @@ class ForcingDataProcessor(object):
         """Patch missing data values by interpolation.
         """
         gap_start = gap_end = None
+        gap_count = 0
         for i, data in enumerate(self.data[qty]):
             if self._valuegetter(data[1]) is None:
                 gap_start = i if gap_start is None else gap_start
                 gap_end = i
-                log.debug('{0} data patched for {1[0]}'.format(qty, data))
+                log.debug(
+                    '{qty} data patched for {date}'
+                    .format(qty=qty, date=data[0]))
+                gap_count += 1
             elif gap_start is not None:
                 self.interpolate_values(qty, gap_start, gap_end)
                 gap_start = gap_end = None
+        if gap_count:
+            log.debug(
+                '{count} {qty} data values patched; '
+                'see debug log on disk for details'
+                .format(count=gap_count, qty=qty))
 
     def interpolate_values(self, qty, gap_start, gap_end):
         """Calculate values for missing data via linear interpolation.

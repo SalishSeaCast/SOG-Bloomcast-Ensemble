@@ -132,12 +132,19 @@ class Bloomcast(object):
         """
         log.setLevel(logging.DEBUG)
 
+        def patched_data_filter(record):
+            if (record.funcName == 'patch_data'
+                    and 'data patched' in record.msg):
+                return 0
+            return 1
+
         console = logging.StreamHandler()
         console.setFormatter(
             logging.Formatter('%(levelname)s:%(name)s:%(message)s'))
         console.setLevel(logging.INFO)
         if self.config.logging.debug:
             console.setLevel(logging.DEBUG)
+        console.addFilter(patched_data_filter)
         log.addHandler(console)
 
         disk = logging.handlers.RotatingFileHandler(
