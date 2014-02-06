@@ -221,8 +221,12 @@ class TestForcingDataProcessor():
         processor.interpolate_values = mock.Mock(name='interpolate_values')
         with mock.patch('bloomcast.utils.log') as mock_log:
             processor.patch_data('air_temperature')
-        mock_log.debug.assert_called_once_with(
-            'air_temperature data patched for 2011-09-25 10:00:00')
+        expected = [
+            (('air_temperature data patched for 2011-09-25 10:00:00',),),
+            (('1 air_temperature data values patched; '
+              'see debug log on disk for details',),),
+        ]
+        assert mock_log.debug.call_args_list == expected
         processor.interpolate_values.assert_called_once_with(
             'air_temperature', 1, 1)
 
@@ -243,6 +247,8 @@ class TestForcingDataProcessor():
         expected = [
             (('air_temperature data patched for 2011-09-25 10:00:00',),),
             (('air_temperature data patched for 2011-09-25 11:00:00',),),
+            (('2 air_temperature data values patched; '
+              'see debug log on disk for details',),),
         ]
         assert mock_log.debug.call_args_list == expected
         processor.interpolate_values.assert_called_once_with(
@@ -267,6 +273,8 @@ class TestForcingDataProcessor():
             (('air_temperature data patched for 2011-09-25 10:00:00',),),
             (('air_temperature data patched for 2011-09-25 11:00:00',),),
             (('air_temperature data patched for 2011-09-25 13:00:00',),),
+            (('3 air_temperature data values patched; '
+              'see debug log on disk for details',),),
         ]
         assert mock_log.debug.call_args_list == expected
         expected = [(('air_temperature', 1, 2),), (('air_temperature', 4, 4),)]
@@ -572,8 +580,12 @@ class TestRiverProcessor():
             processor.patch_data('major')
         expected = (datetime.date(2011, 10, 24), None)
         assert processor.data['major'][1] == expected
-        mock_log.debug.assert_called_once_with(
-            'major river data patched for 2011-10-24')
+        expected = [
+            (('major river data patched for 2011-10-24',),),
+            (('1 major river data values patched; '
+              'see debug log on disk for details',),),
+        ]
+        assert mock_log.debug.call_args_list == expected
         processor.interpolate_values.assert_called_once_with(
             'major', 1, 1)
 
@@ -596,6 +608,8 @@ class TestRiverProcessor():
         expected = [
             (('major river data patched for 2011-10-24',),),
             (('major river data patched for 2011-10-25',),),
+            (('2 major river data values patched; '
+              'see debug log on disk for details',),),
         ]
         assert mock_log.debug.call_args_list == expected
         processor.interpolate_values.assert_called_once_with(
@@ -625,6 +639,8 @@ class TestRiverProcessor():
             (('major river data patched for 2011-10-24',),),
             (('major river data patched for 2011-10-27',),),
             (('major river data patched for 2011-10-28',),),
+            (('3 major river data values patched; '
+              'see debug log on disk for details',),),
         ]
         assert mock_log.debug.call_args_list == expected
         expected = [(('major', 1, 1),), (('major', 4, 5),)]

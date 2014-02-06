@@ -142,6 +142,7 @@ class RiversProcessor(ForcingDataProcessor):
         """
         i = 0
         data = self.data[qty]
+        gap_count = 0
         while True:
             try:
                 delta = (data[i + 1][0] - data[i][0]).days
@@ -152,11 +153,18 @@ class RiversProcessor(ForcingDataProcessor):
                 for j in range(1, delta):
                     missing_date = data[i][0] + j * datetime.timedelta(days=1)
                     data.insert(i + j, (missing_date, None))
-                    log.debug('{0} river data patched for {1}'
-                              .format(qty, missing_date))
+                    log.debug(
+                        '{qty} river data patched for {date}'
+                        .format(qty=qty, date=missing_date))
+                    gap_count += 1
                 gap_end = i + delta - 1
                 self.interpolate_values(qty, gap_start, gap_end)
             i += delta
+        if gap_count:
+            log.debug(
+                '{count} {qty} river data values patched; '
+                'see debug log on disk for details'
+                .format(count=gap_count, qty=qty))
 
     def format_data(self, qty):
         """Generate lines of river flow forcing data in the format
