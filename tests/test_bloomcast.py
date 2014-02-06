@@ -59,7 +59,7 @@ def config_dict():
         'logging': {
             'debug': None,
             'toaddrs': [],
-            'use_test_smtpd':  None,
+            'use_test_smtpd': None,
         },
         'results_dir': None,
     }
@@ -178,7 +178,7 @@ class TestConfig():
         mock_config_dict['climate']['meteo']['cloud_fraction_mapping'] = (
             test_cloud_fraction_mapping_file)
         test_cloud_fraction_mapping = {
-            'Drizzle':  [9.9675925925925934],
+            'Drizzle': [9.9675925925925934],
             'Clear': [0.0] * 12,
         }
         config = make_config()
@@ -367,7 +367,9 @@ class TestWindProcessor():
         """wind data gap >11 hr generates warning log message
         """
         wind = make_WindProcessor()
-        wind.data['wind'] = [(datetime.datetime(2011, 9, 25, 0, 0, 0), (1.0, -2.0))]
+        wind.data['wind'] = [
+            (datetime.datetime(2011, 9, 25, 0, 0, 0), (1.0, -2.0))
+        ]
         wind.data['wind'].extend([
             (datetime.datetime(2011, 9, 25, 1 + i, 0, 0), (None, None))
             for i in range(15)])
@@ -586,7 +588,10 @@ class TestRiverProcessor():
         processor.interpolate_values = mock.Mock(name='interpolate_values')
         with mock.patch('bloomcast.rivers.log') as mock_log:
             processor.patch_data('major')
-        expected = [(datetime.date(2011, 10, 24), None), (datetime.date(2011, 10, 25), None)]
+        expected = [
+            (datetime.date(2011, 10, 24), None),
+            (datetime.date(2011, 10, 25), None),
+        ]
         assert processor.data['major'][1:3] == expected
         expected = [
             (('major river data patched for 2011-10-24',),),
@@ -611,7 +616,10 @@ class TestRiverProcessor():
             processor.patch_data('major')
         expected = (datetime.date(2011, 10, 24), None)
         assert processor.data['major'][1] == expected
-        expected = [(datetime.date(2011, 10, 27), None), (datetime.date(2011, 10, 28), None)]
+        expected = [
+            (datetime.date(2011, 10, 27), None),
+            (datetime.date(2011, 10, 28), None),
+        ]
         assert processor.data['major'][4:6] == expected
         expected = [
             (('major river data patched for 2011-10-24',),),
@@ -648,5 +656,8 @@ class TestRiverProcessor():
             (datetime.date(2011, 10, 26), 4600.0),
         ]
         processor.interpolate_values('major', 1, 2)
-        expected = [(datetime.date(2011, 10, 24), 4400.0), (datetime.date(2011, 10, 25), 4500.0)]
+        expected = [
+            (datetime.date(2011, 10, 24), 4400.0),
+            (datetime.date(2011, 10, 25), 4500.0),
+        ]
         assert processor.data['major'][1:3] == expected
