@@ -161,7 +161,9 @@ class Bloomcast(object):
         email = logging.handlers.SMTPHandler(
             mailhost, fromaddr='SoG-bloomcast@eos.ubc.ca',
             toaddrs=self.config.logging.toaddrs,
-            subject='Warning Message from SoG-bloomcast')
+            subject='Warning Message from SoG-bloomcast',
+            timeout=10.0,
+        )
         email.setFormatter(
             logging.Formatter('%(levelname)s:%(name)s:%(message)s'))
         email.setLevel(logging.WARNING)
