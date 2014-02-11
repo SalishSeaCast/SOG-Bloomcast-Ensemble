@@ -39,9 +39,9 @@ rivers:
     mode: text
     prm1: 6              # discharge
   major:
-    station_id: 08MF005  # Fraser Rivar at Hope
+    station_id: 08MF005  # Fraser River at Hope
   minor:
-    station_id: 08HB002  # Englishman Rivar at Parksville
+    station_id: 08HB002  # Englishman River at Parksville
 
 logging:
   debug: True
