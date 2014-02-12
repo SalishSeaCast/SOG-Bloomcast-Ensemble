@@ -311,6 +311,25 @@ class TestForcingDataProcessor():
         expected = (datetime.datetime(2011, 9, 25, 11, 0, 0), 225.0)
         assert processor.data['air_temperature'][2] == expected
 
+    def test_interpolate_values_gap_gt_11_hr_logs_warning(self):
+        """data gap >11 hr generates warning log message
+        """
+        processor = make_ForcingDataProcessor()
+        processor.data['air_temperature'] = [
+            (datetime.datetime(2014, 2, 11, 0, 0, 0), 15.0)
+        ]
+        processor.data['air_temperature'].extend([
+            (datetime.datetime(2014, 2, 11, 1 + i, 0, 0), None)
+            for i in range(15)])
+        processor.data['air_temperature'].append(
+            (datetime.datetime(2014, 2, 11, 16, 0, 0), 30.0))
+        with mock.patch('bloomcast.utils.log', mock.Mock()) as mock_log:
+            processor.interpolate_values(
+                'air_temperature', gap_start=1, gap_end=15)
+            mock_log.warning.assert_called_once_with(
+                'A air_temperature forcing data gap > 11 hr starting at '
+                '2014-02-11 01:00 has been patched by linear interpolation')
+
 
 class TestClimateDataProcessor():
     """Unit tests for ClimateDataProcessor object.
