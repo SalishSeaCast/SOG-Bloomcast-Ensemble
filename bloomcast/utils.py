@@ -231,6 +231,16 @@ class ForcingDataProcessor(object):
           data gaps that exceed 11 hours are to be patched but also
           reported via email.
         """
+        gap_hours = gap_end - gap_start + 1
+        if gap_hours > 11:
+            log.warning(
+                'A {qty} forcing data gap > 11 hr starting at '
+                '{gap_start:%Y-%m-%d %H:00} has been patched '
+                'by linear interpolation'
+                .format(
+                    qty=qty,
+                    gap_start=self.data[qty][gap_start][0])
+            )
         last_value = self.data[qty][gap_start - 1][1]
         next_value = self.data[qty][gap_end + 1][1]
         delta = (next_value - last_value) / (gap_end - gap_start + 2)
