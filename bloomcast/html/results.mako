@@ -28,7 +28,7 @@
 
   <div id="main" class="wrapper">
 	<article>
-	  <header>
+	  <header id="forecast-section">
         <p>
           The current best estimate of the first spring diatom bloom
           in the Strait of Georgia is
@@ -139,7 +139,7 @@
         </object>
       </header>
 
-      <header>
+      <header id="profiles-section">
         <h2>Profiles at ${data_date} 12:00</h2>
         <div id="temperature-salinity-profile-graph">
           <object class="profiles-graph" type="image/svg+xml"
@@ -153,7 +153,7 @@
         </div>
       </header>
 
-      <header>
+      <header id="bloom-date-evolution-section">
         <h2>Bloom Date Evolution</h2>
         <table>
           <thead>
