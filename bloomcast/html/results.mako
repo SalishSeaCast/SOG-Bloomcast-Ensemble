@@ -126,6 +126,19 @@
         </p>
 	  </header>
 
+      <header id="time-series-section">
+        <h2>Time Series</h2>
+        <object class="timeseries-graph" type="image/svg+xml"
+                data="nitrate_diatoms_timeseries.svg">
+        </object>
+        <object class="timeseries-graph" type="image/svg+xml"
+                data="temperature_salinity_timeseries.svg">
+        </object>
+        <object class="timeseries-graph" type="image/svg+xml"
+                data="mixing_layer_depth_timeseries.svg">
+        </object>
+      </header>
+
       <header>
         <h2>Profiles at ${data_date} 12:00</h2>
         <div id="temperature-salinity-profile-graph">
@@ -138,19 +151,6 @@
                   data="nitrate_diatoms_profiles.svg">
           </object>
         </div>
-      </header>
-
-      <header id="time-series-section">
-        <h2>Time Series</h2>
-        <object class="timeseries-graph" type="image/svg+xml"
-                data="nitrate_diatoms_timeseries.svg">
-        </object>
-        <object class="timeseries-graph" type="image/svg+xml"
-                data="temperature_salinity_timeseries.svg">
-        </object>
-        <object class="timeseries-graph" type="image/svg+xml"
-                data="mixing_layer_depth_timeseries.svg">
-        </object>
       </header>
 
       <header>
