@@ -28,16 +28,6 @@
 
   <div id="main" class="wrapper">
 	<article>
-      <header>
-        <p class="attention">
-          <strong>NOTE:</strong>
-          The results presented on this page are presently considered to be
-          unreliable due to a recent change in the reporting of weather
-          description data at YVR that is thought to be be causing the model
-          to use inaccurate cloud fraction forcing values.
-        </p>
-      </header>
-
 	  <header>
         <p>
           The current best estimate of the first spring diatom bloom
