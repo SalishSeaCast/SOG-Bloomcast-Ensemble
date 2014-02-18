@@ -338,12 +338,20 @@ class Bloomcast(object):
         ax.plot(mpl_dates, dep_data, color='magenta')
         ax.set_ylabel(
             'Mixing Layer Depth [m]', color='magenta', size='x-small')
+        # Add line to mark profile time
+        profile_datetime = datetime.datetime.combine(
+            self.config.data_date, datetime.time(12))
+        profile_datetime_line = ax.axvline(
+            date2num(profile_datetime), color='black')
         ax.xaxis.set_major_locator(DayLocator())
         ax.xaxis.set_major_formatter(DateFormatter('%j\n%d-%b'))
         ax.xaxis.set_minor_locator(HourLocator(interval=6))
         for label in ax.get_xticklabels() + ax.get_yticklabels():
             label.set_size('x-small')
         ax.set_xlim((int(mpl_dates[0]), math.ceil(mpl_dates[-1])))
+        fig.legend(
+            [profile_datetime_line], ['Profile Time'],
+            loc='upper right', prop={'size': 'xx-small'})
         return fig
 
     def _get_results_profiles(self):
