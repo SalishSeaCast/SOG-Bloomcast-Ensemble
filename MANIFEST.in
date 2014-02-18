@@ -1,4 +1,2 @@
-include README.rst
-include LICENSE
-include CITATON
+include README.rst LICENSE CITATION
 recursive-include bloomcast *.py
