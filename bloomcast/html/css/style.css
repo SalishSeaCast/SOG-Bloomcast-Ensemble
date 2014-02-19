@@ -279,9 +279,6 @@ object.profiles-graph {
 #temperature-salinity-profile-graph, #nitrate-diatoms-profile-graph {
     float: left;
 }
-#time-series-section {
-    clear: both;
-}
 
 th, td {
     padding: 5px;
