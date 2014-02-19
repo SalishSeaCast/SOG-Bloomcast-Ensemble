@@ -139,7 +139,7 @@
         </object>
       </header>
 
-      <header id="profiles-section">
+      <header id="profiles-section" class="clearfix">
         <h2>Profiles at ${data_date} 12:00</h2>
         <div id="temperature-salinity-profile-graph">
           <object class="profiles-graph" type="image/svg+xml"
