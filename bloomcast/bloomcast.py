@@ -349,7 +349,7 @@ class Bloomcast(object):
         for label in ax.get_xticklabels() + ax.get_yticklabels():
             label.set_size('x-small')
         ax.set_xlim((int(mpl_dates[0]), math.ceil(mpl_dates[-1])))
-        ax.set_xlabel('Year-Day')
+        ax.set_xlabel('Year-Day', size='x-small')
         fig.legend(
             [profile_datetime_line], ['Profile Time'],
             loc='upper right', prop={'size': 'xx-small'})
