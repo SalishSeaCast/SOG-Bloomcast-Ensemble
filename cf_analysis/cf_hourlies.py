@@ -27,7 +27,7 @@ from cStringIO import StringIO
 from datetime import (
     date,
     datetime,
-    )
+)
 import logging
 from xml.etree import cElementTree as ElementTree
 import requests
@@ -63,16 +63,16 @@ with open(MAPPING_FILE, 'rt') as f:
 def run():
     data_months = (
         date(year, month, 1)
-        for year in xrange(START_YEAR, END_YEAR + 1)
-        for month in xrange(1, 13)
-        )
+        for year in range(START_YEAR, END_YEAR + 1)
+        for month in range(1, 13)
+    )
     request_params = {
         'timeframe': 1,                 # Daily
         'Prov': 'BC',
         'format': 'xml',
         'StationID': 889,               # YVR
         'Day': 1,
-        }
+    }
     data = []
     for data_month in data_months:
         ec_data = get_EC_data(data_month, request_params)
@@ -82,9 +82,9 @@ def run():
             timestamp = datetime(*map(int, parts))
             data.append((timestamp, read_cloud_fraction(timestamp, record)))
         patch_data(data)
-    hourly_file_name = ('{0}_{1}_{2}'
-                       .format(HOURLY_FILE_ROOT, START_YEAR, END_YEAR))
-    with open(hourly_file_name, 'wt') as  hourly_file:
+    hourly_file_name = (
+        '{0}_{1}_{2}'.format(HOURLY_FILE_ROOT, START_YEAR, END_YEAR))
+    with open(hourly_file_name, 'wt') as hourly_file:
         hourly_file.writelines(format_data(data))
 
 
@@ -92,7 +92,7 @@ def get_EC_data(data_month, request_params):
     request_params.update({
         'Year': data_month.year,
         'Month': data_month.month,
-        })
+    })
     response = requests.get(EC_URL, params=request_params)
     log.info('got meteo data for {0:%Y-%m}'.format(data_month))
     tree = ElementTree.parse(StringIO(response.content))
@@ -141,7 +141,7 @@ def interpolate_values(data, gap_start, gap_end):
     last_value = data[gap_start - 1][1]
     next_value = data[gap_end + 1][1]
     delta = (next_value - last_value) / (gap_end - gap_start + 2)
-    for i in xrange(gap_end - gap_start + 1):
+    for i in range(gap_end - gap_start + 1):
         timestamp = data[gap_start + i][0]
         value = last_value + delta * (i + 1)
         data[gap_start + i] = (timestamp, value)
@@ -162,7 +162,7 @@ def format_data(data):
     That is followed by 24 hourly cloud fraction values
     expressed as floats with 2 decimal place.
     """
-    for i in xrange(len(data) / 24):
+    for i in range(len(data) / 24):
         item = data[i * 24:(i + 1) * 24]
         timestamp = item[0][0]
         line = '{0} {1:%Y %m %d} 42'.format(STATION_ID, timestamp)
