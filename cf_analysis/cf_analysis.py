@@ -55,7 +55,7 @@ from cStringIO import StringIO
 from datetime import (
     date,
     datetime,
-    )
+)
 import logging
 from xml.etree import cElementTree as ElementTree
 import requests
@@ -92,16 +92,16 @@ log.propagate = False
 def run():
     data_months = (
         date(year, month, 1)
-        for year in xrange(2002, 2012)
-        for month in xrange(1, 13)
-        )
+        for year in range(2002, 2012)
+        for month in range(1, 13)
+    )
     request_params = {
         'timeframe': 1,                 # Daily
         'Prov': 'BC',
         'format': 'xml',
         'StationID': 889,               # YVR
         'Day': 1,
-        }
+    }
     mapping = {}
     yvr_file = open(YVR_CF_FILE, 'rt')
     context = contextlib.nested(yvr_file)
@@ -137,7 +137,7 @@ def get_EC_data(data_month, request_params):
     request_params.update({
         'Year': data_month.year,
         'Month': data_month.month,
-        })
+    })
     response = requests.get(EC_URL, params=request_params)
     log.info('got meteo data for {0:%Y-%m}'.format(data_month))
     tree = ElementTree.parse(StringIO(response.content))
@@ -154,7 +154,7 @@ def get_yvr_line(yvr_file, start_year):
         yvr_data = {
             'date': data_date,
             'hourly_cfs': map(float, parts[5:29]),
-            }
+        }
         yield yvr_data
 
 
@@ -173,7 +173,7 @@ def build_raw_mapping(mapping, weather_desc, timestamp, yvr_data):
     except KeyError:
         mapping[weather_desc] = [
             [], [], [], [], [], [], [], [], [], [], [], [], [],
-            ]
+        ]
         mapping[weather_desc][timestamp.month].append(
             yvr_data['hourly_cfs'][timestamp.hour])
         log.info('"{0}" added to mapping'.format(weather_desc))
@@ -198,7 +198,7 @@ def calc_mapping_averages(mapping):
                 .format(total_observations, weather_desc))
             mapping[weather_desc] = [
                 sum(sum(month) for month in months) / total_observations
-                ]
+            ]
 
 
 if __name__ == '__main__':
