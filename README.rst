@@ -15,8 +15,6 @@ and publishes its results to the web at http://eos.ubc.ca/~sallen/SoG-bloomcast/
 
 SoG-bloomcast is written in Python.
 
-Documentation for the project is included in the docs/ directory and is rendered at http://SoG-bloomcast.readthedocs.org/.
-
 
 License
 =======
