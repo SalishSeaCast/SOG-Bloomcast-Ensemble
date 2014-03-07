@@ -50,7 +50,7 @@ setuptools.setup(
     author='Doug Latornell',
     author_email='djl@douglatornell.ca',
     url='http://eos.ubc.ca/~sallen/SoG-bloomcast/results.html',
-    license="New BSD License",
+    license='Apache License, Version 2.0',
     classifiers=python_classifiers + other_classifiers,
     install_requires=install_requires,
     packages=setuptools.find_packages(),
