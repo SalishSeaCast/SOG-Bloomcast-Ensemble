@@ -30,7 +30,10 @@ other_classifiers = [
     'Intended Audience :: Science/Research',
     'Intended Audience :: Education',
 ]
-
+try:
+    long_description = open('README.rst', 'rt').read()
+except IOError:
+    long_description = ''
 install_requires = [
     'arrow',
     'BeautifulSoup4',
@@ -45,15 +48,21 @@ install_requires = [
 
 setuptools.setup(
     name='SoG-bloomcast',
-    version='3.0b1',
+    version='3.1dev',
     description='Strait of Georgia spring diatom bloom predictor',
+    long_description=long_description,
     author='Doug Latornell',
     author_email='djl@douglatornell.ca',
     url='http://eos.ubc.ca/~sallen/SoG-bloomcast/results.html',
+    download_url=(
+        'https://bitbucket.org/douglatornell/sog-bloomcast/get/default.tar.gz'),
     license='Apache License, Version 2.0',
     classifiers=python_classifiers + other_classifiers,
+    platforms=['MacOS X', 'Linux'],
     install_requires=install_requires,
     packages=setuptools.find_packages(),
+    include_package_data=True,
+    zip_safe=False,
     entry_points={
         'console_scripts': ['bloomcast = bloomcast.bloomcast:main']},
 )
