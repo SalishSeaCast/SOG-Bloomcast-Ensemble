@@ -17,11 +17,14 @@ Spring Phytoplankton Bloom
 """
 import setuptools
 
+import __pkg_metadata__
+
+
 python_classifiers = [
     'Programming Language :: Python :: {0}'.format(py_version)
     for py_version in ['3', '3.3']]
 other_classifiers = [
-    'Development Status :: 5 - Production/Stable',
+    'Development Status :: ' + __pkg_metadata__.DEV_STATUS,
     'License :: OSI Approved :: BSD License',
     'Programming Language :: Python :: Implementation :: CPython',
     'Operating System :: Unix',
@@ -37,6 +40,7 @@ except IOError:
 install_requires = [
     'arrow',
     'BeautifulSoup4',
+    'cliff',
     'mako',
     'matplotlib',
     'numpy',
@@ -47,9 +51,9 @@ install_requires = [
 ]
 
 setuptools.setup(
-    name='SoG-bloomcast',
-    version='3.1dev',
-    description='Strait of Georgia spring diatom bloom predictor',
+    name=__pkg_metadata__.PROJECT,
+    version=__pkg_metadata__.VERSION,
+    description=__pkg_metadata__.DESCRIPTION,
     long_description=long_description,
     author='Doug Latornell',
     author_email='djl@douglatornell.ca',
@@ -64,5 +68,13 @@ setuptools.setup(
     include_package_data=True,
     zip_safe=False,
     entry_points={
-        'console_scripts': ['bloomcast = bloomcast.bloomcast:main']},
+        # The bloomcast command:
+        'console_scripts': [
+            'bloomcast = bloomcast.main:main',
+        ],
+        # Sub-command plug-ins:
+        'bloomcast.app': [
+            'ensemble = bloomcast.ensemble:Ensemble',
+        ],
+    },
 )
