@@ -115,7 +115,10 @@ class Config(object):
         the specified config file as YAML.
         """
         with open(config_file, 'rt') as file_obj:
-            return yaml.load(file_obj.read())
+            config = yaml.load(file_obj.read())
+        log.debug(
+            'configuration read from {}'.format(config_file))
+        return config
 
     def _read_SOG_infile(self, yaml_file):
         """Return a dict of selected values read from the SOG infile.
@@ -142,10 +145,14 @@ class Config(object):
             value = SOGcommand.api.read_infile(yaml_file, [], infile_key)
             result_key = infile_values[infile_key]
             infile_dict[result_key] = value
+        log.debug(
+            'run start date, time step, and output file names read from {}'
+            .format(yaml_file))
         for infile_key in forcing_data_files:
             value = SOGcommand.api.read_infile(yaml_file, [], infile_key)
             result_key = forcing_data_files[infile_key]
             infile_dict['forcing_data_files'][result_key] = value
+        log.debug('forcing data file names read from {}'.format(yaml_file))
         return infile_dict
 
 
