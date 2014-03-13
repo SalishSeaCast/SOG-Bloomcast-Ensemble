@@ -19,13 +19,8 @@ def config_dict():
         'run_SOG': None,
         'SOG_executable': None,
         'html_results': None,
-        'infiles': {
-            'base': None,
-            'edits': {
-                'avg_forcing': None,
-                'early_bloom_forcing': None,
-                'late_bloom_forcing': None,
-            },
+        'ensemble': {
+            'base_infile': None,
         },
         'climate': {
             'url': None,
