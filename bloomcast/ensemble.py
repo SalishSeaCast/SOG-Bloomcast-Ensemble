@@ -56,7 +56,7 @@ class Ensemble(cliff.command.Command):
     def take_action(self, parsed_args):
         self.config = utils.Config()
         self.config.load_config(parsed_args.config_file)
-        configure_logging(self.config, self.log, self.bloom_date_log)
+        configure_logging(self.config, self.bloom_date_log)
         # Wind data date for development and debugging; overwritten if
         # wind forcing data is collected and processed
         self.config.data_date = parsed_args.data_date
@@ -91,7 +91,7 @@ class Ensemble(cliff.command.Command):
             return
 
 
-def configure_logging(config, log, bloom_date_log):
+def configure_logging(config, bloom_date_log):
     """Configure logging of debug & warning messages to console
     and email, and bloom date evolution to disk file.
 
@@ -122,7 +122,8 @@ def configure_logging(config, log, bloom_date_log):
             '%(asctime)s %(levelname)s [%(name)s] %(message)s',
             datefmt='%Y-%m-%d %H:%M'))
     disk.setLevel(logging.DEBUG)
-    log.addHandler(disk)
+    disk.addFilter(requests_info_debug_filter)
+    root_logger.addHandler(disk)
 
     mailhost = (('localhost', 1025) if config.logging.use_test_smtpd
                 else 'smtp.eos.ubc.ca')
@@ -135,7 +136,7 @@ def configure_logging(config, log, bloom_date_log):
     email.setFormatter(
         logging.Formatter('%(levelname)s:%(name)s:%(message)s'))
     email.setLevel(logging.WARNING)
-    log.addHandler(email)
+    root_logger.addHandler(email)
 
     bloom_date_evolution = logging.FileHandler(
         config.logging.bloom_date_log_filename)
