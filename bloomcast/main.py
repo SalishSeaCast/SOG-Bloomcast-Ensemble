@@ -33,6 +33,8 @@ __all__ = [
 
 
 class BloomcastApp(cliff.app.App):
+    CONSOLE_MESSAGE_FORMAT = '%(levelname)s:%(name)s:%(message)s'
+
     def __init__(self):
         app_namespace = 'bloomcast.app'
         super(BloomcastApp, self).__init__(
