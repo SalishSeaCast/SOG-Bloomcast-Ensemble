@@ -85,8 +85,9 @@ class Ensemble(cliff.command.Command):
             get_forcing_data(self.config, self.log)
         except ValueError:
             self.log.info(
-                'Wind data date {data_date} is unchanged since last run'
-                .format(data_date=self.config.data_date.format('YYYY-MM-DD')))
+                'Wind data date {0.data_date:%Y-%m-%d} '
+                'is unchanged since last run'
+                .format(self.config))
             return
 
 

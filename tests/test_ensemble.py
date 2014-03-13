@@ -79,7 +79,7 @@ class TestEnsembleTakeAction():
     def test_no_new_wind_data(self, m_config, ensemble):
         parsed_args = Mock(
             config_file='config.yaml',
-            data_date=arrow.get(2014, 3, 12),
+            data_date=None,
         )
         m_config.return_value = Mock(
             get_forcing_data=True,
@@ -87,8 +87,14 @@ class TestEnsembleTakeAction():
         )
         ensemble.log = Mock()
         p_config_logging = patch('bloomcast.ensemble.configure_logging')
+
+        def get_forcing_data(config, log):
+            config.data_date = datetime.date(2014, 3, 12)
+            raise ValueError
         p_get_forcing_data = patch(
-            'bloomcast.ensemble.get_forcing_data', side_effect=ValueError)
+            'bloomcast.ensemble.get_forcing_data',
+            side_effect=get_forcing_data,
+        )
         with p_config_logging, p_get_forcing_data:
             ensemble.take_action(parsed_args)
         ensemble.log.info.assert_called_once_with(
