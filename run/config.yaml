@@ -6,14 +6,8 @@ run_SOG: True
 SOG_executable: ../../SOG-code-bloomcast/SOG
 html_results: ../bloomcast/html
 
-infiles:
-  base: 2014_bloomcast_infile.yaml
-  edits:
-    avg_forcing: []
-    early_bloom_forcing:
-      - 2014_bloomcast_early_infile.yaml
-    late_bloom_forcing:
-      - 2014_bloomcast_late_infile.yaml
+ensemble:
+  base_infile: 2014_bloomcast_infile.yaml
 
 climate:
   url: http://climate.weather.gc.ca/climateData/bulkdata_e.html

@@ -47,23 +47,17 @@ class Config(object):
         self.run_SOG = config_dict['run_SOG']
         self.SOG_executable = config_dict['SOG_executable']
         self.html_results = config_dict['html_results']
-        self.infiles = config_dict['infiles']
+        self.ensemble = config_dict['ensemble']
         self.results_dir = config_dict['results_dir']
-        self.std_bio_ts_outfiles = {}
-        self.std_phys_ts_outfiles = {}
-        self.Hoffmueller_profiles_outfiles = {}
-        for key in self.infiles['edits']:
-            infile_dict = self._read_SOG_infile(
-                self.infiles['base'], self.infiles['edits'][key])
-            if key == 'avg_forcing':
-                self.run_start_date = (
-                    infile_dict['run_start_date']
-                    .replace(hour=0, minute=0, second=0, microsecond=0))
-                self.SOG_timestep = int(infile_dict['SOG_timestep'])
-            self.std_bio_ts_outfiles[key] = infile_dict['std_bio_ts_outfile']
-            self.std_phys_ts_outfiles[key] = infile_dict['std_phys_ts_outfile']
-            self.Hoffmueller_profiles_outfiles[key] = infile_dict[
-                'Hoffmueller_profiles_outfile']
+        infile_dict = self._read_SOG_infile(self.ensemble['base_infile'])
+        self.run_start_date = (
+            infile_dict['run_start_date']
+            .replace(hour=0, minute=0, second=0, microsecond=0))
+        self.SOG_timestep = int(infile_dict['SOG_timestep'])
+        self.std_bio_ts_outfile = infile_dict['std_bio_ts_outfile']
+        self.std_phys_ts_outfile = infile_dict['std_phys_ts_outfile']
+        self.Hoffmueller_profiles_outfile = infile_dict[
+            'Hoffmueller_profiles_outfile']
         self.climate = _Container()
         self.climate.__dict__.update(config_dict['climate'])
         self._load_meteo_config(config_dict, infile_dict)
@@ -123,7 +117,7 @@ class Config(object):
         with open(config_file, 'rt') as file_obj:
             return yaml.load(file_obj.read())
 
-    def _read_SOG_infile(self, yaml_file, edit_files):
+    def _read_SOG_infile(self, yaml_file):
         """Return a dict of selected values read from the SOG infile.
         """
         # Mappings between SOG YAML infile keys and Config object attributes
@@ -145,13 +139,11 @@ class Config(object):
         }
         infile_dict = {'forcing_data_files': {}}
         for infile_key in infile_values:
-            value = SOGcommand.api.read_infile(
-                yaml_file, edit_files, infile_key)
+            value = SOGcommand.api.read_infile(yaml_file, [], infile_key)
             result_key = infile_values[infile_key]
             infile_dict[result_key] = value
         for infile_key in forcing_data_files:
-            value = SOGcommand.api.read_infile(
-                yaml_file, edit_files, infile_key)
+            value = SOGcommand.api.read_infile(yaml_file, [], infile_key)
             result_key = forcing_data_files[infile_key]
             infile_dict['forcing_data_files'][result_key] = value
         return infile_dict
