@@ -108,6 +108,13 @@ def configure_logging(config, log, bloom_date_log):
         return 1
     console_handler.addFilter(patched_data_filter)
 
+    def requests_info_debug_filter(record):
+        if (record.name.startswith('requests.')
+                and record.levelname in {'INFO', 'DEBUG'}):
+            return 0
+        return 1
+    console_handler.addFilter(requests_info_debug_filter)
+
     disk = logging.handlers.RotatingFileHandler(
         config.logging.bloomcast_log_filename, maxBytes=1024 * 1024)
     disk.setFormatter(
