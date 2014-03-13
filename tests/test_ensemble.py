@@ -14,8 +14,13 @@
 
 """Unit tests for SoG-bloomcast ensemble module.
 """
-from unittest.mock import Mock
+import datetime
+from unittest.mock import (
+    Mock,
+    patch,
+)
 
+import arrow
 import cliff.app
 import pytest
 
@@ -29,3 +34,63 @@ def ensemble():
 def test_get_parser(ensemble):
     parser = ensemble.get_parser('bloomcast ensemble')
     assert parser.prog == 'bloomcast ensemble'
+
+
+@pytest.mark.usefixtures('ensemble')
+class TestEnsembleTakeAction():
+    """Unit tests for take_action method of Ensemble class.
+    """
+    @patch('bloomcast.ensemble.utils.Config')
+    def test_get_forcing_data_conflicts_w_data_date(self, m_config, ensemble):
+        parsed_args = Mock(
+            config_file='config.yaml',
+            data_date=None,
+        )
+        m_config.return_value = Mock(get_forcing_data=False)
+        ensemble.log = Mock()
+        with patch('bloomcast.ensemble.configure_logging'):
+            ensemble.take_action(parsed_args)
+        ensemble.log.debug.assert_called_once_with(
+            'This will not end well: get_forcing_data=False '
+            'and data_date=None'
+        )
+
+    @patch('bloomcast.ensemble.utils.Config')
+    @patch('bloomcast.ensemble.arrow.now', return_value=arrow.get(2014, 3, 12))
+    def test_no_river_flow_data_by_date(self, m_now, m_config, ensemble):
+        parsed_args = Mock(
+            config_file='config.yaml',
+            data_date=None,
+        )
+        m_config.return_value = Mock(
+            get_forcing_data=True,
+            run_start_date=datetime.datetime(2012, 9, 19),
+        )
+        ensemble.log = Mock()
+        with patch('bloomcast.ensemble.configure_logging'):
+            ensemble.take_action(parsed_args)
+        ensemble.log.error.assert_called_once_with(
+            'A bloomcast run starting 2012-09-19 cannot be done today '
+            'because there are no river flow data available prior to '
+            '2012-09-12'
+        )
+
+    @patch('bloomcast.ensemble.utils.Config')
+    def test_no_new_wind_data(self, m_config, ensemble):
+        parsed_args = Mock(
+            config_file='config.yaml',
+            data_date=arrow.get(2014, 3, 12),
+        )
+        m_config.return_value = Mock(
+            get_forcing_data=True,
+            run_start_date=datetime.datetime(2013, 9, 19),
+        )
+        ensemble.log = Mock()
+        p_config_logging = patch('bloomcast.ensemble.configure_logging')
+        p_get_forcing_data = patch(
+            'bloomcast.ensemble.get_forcing_data', side_effect=ValueError)
+        with p_config_logging, p_get_forcing_data:
+            ensemble.take_action(parsed_args)
+        ensemble.log.info.assert_called_once_with(
+            'Wind data date 2014-03-12 is unchanged since last run'
+        )
