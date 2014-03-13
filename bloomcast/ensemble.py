@@ -98,22 +98,15 @@ def configure_logging(config, log, bloom_date_log):
     Debug logging on/off & email recipient(s) for warning messages
     are set in config file.
     """
-    log.setLevel(logging.DEBUG)
+    root_logger = logging.getLogger('')
+    console_handler = root_logger.handlers[0]
 
     def patched_data_filter(record):
         if (record.funcName == 'patch_data'
                 and 'data patched' in record.msg):
             return 0
         return 1
-
-    console = logging.StreamHandler()
-    console.setFormatter(
-        logging.Formatter('%(levelname)s:%(name)s:%(message)s'))
-    console.setLevel(logging.INFO)
-    if config.logging.debug:
-        console.setLevel(logging.DEBUG)
-    console.addFilter(patched_data_filter)
-    log.addHandler(console)
+    console_handler.addFilter(patched_data_filter)
 
     disk = logging.handlers.RotatingFileHandler(
         config.logging.bloomcast_log_filename, maxBytes=1024 * 1024)
