@@ -42,14 +42,16 @@ class Config(object):
         attributes of the Config object.
         """
         config_dict = self._read_yaml_file(config_file)
-        self._load_logging_config(config_dict)
+        self.logging = _Container()
+        self.logging.__dict__.update(config_dict['logging'])
         self.get_forcing_data = config_dict['get_forcing_data']
         self.run_SOG = config_dict['run_SOG']
         self.SOG_executable = config_dict['SOG_executable']
         self.html_results = config_dict['html_results']
-        self.ensemble = config_dict['ensemble']
         self.results_dir = config_dict['results_dir']
-        infile_dict = self._read_SOG_infile(self.ensemble['base_infile'])
+        self.ensemble = _Container()
+        self.ensemble.__dict__.update(config_dict['ensemble'])
+        infile_dict = self._read_SOG_infile(self.ensemble.base_infile)
         self.run_start_date = (
             infile_dict['run_start_date']
             .replace(hour=0, minute=0, second=0, microsecond=0))
@@ -65,12 +67,6 @@ class Config(object):
         self.rivers = _Container()
         self.rivers.__dict__.update(config_dict['rivers'])
         self._load_rivers_config(config_dict, infile_dict)
-
-    def _load_logging_config(self, config_dict):
-        """Load Config values for logging.
-        """
-        self.logging = _Container()
-        self.logging.__dict__.update(config_dict['logging'])
 
     def _load_meteo_config(self, config_dict, infile_dict):
         """Load Config values for meteorological forcing data.

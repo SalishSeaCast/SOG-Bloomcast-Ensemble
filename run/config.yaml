@@ -8,6 +8,15 @@ html_results: ../bloomcast/html
 
 ensemble:
   base_infile: 2014_bloomcast_infile.yaml
+  start_year: 1981   # 1st bloomcast year
+  end_year: 1981     # last bloomcast year
+  forcing_data_file_roots:
+    wind: ../../SOG-forcing/wind/2yr_chunks/SH_pp_08Feb2014.dat
+    air_temperature: ../../SOG-forcing/met/2yr_chunks/YVRhistAT
+    cloud_fraction: ../../SOG-forcing/met/2yr_chunks/YVRhistCF
+    relative_humidity: ../../SOG-forcing/met/2yr_chunks/YVRhistHum
+    major_river: ../../SOG-forcing/rivers/2yr_chunks/Fraser_total_10Jul2012.dat
+    minor_river: ../../SOG-forcing/rivers/2yr_chunks/Englishman_total_21Aug2012.dat
 
 climate:
   url: http://climate.weather.gc.ca/climateData/bulkdata_e.html

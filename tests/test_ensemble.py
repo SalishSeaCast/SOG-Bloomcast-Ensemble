@@ -17,6 +17,7 @@
 import datetime
 from unittest.mock import (
     Mock,
+    mock_open,
     patch,
 )
 
@@ -29,6 +30,12 @@ import pytest
 def ensemble():
     import bloomcast.ensemble
     return bloomcast.ensemble.Ensemble(Mock(spec=cliff.app.App), [])
+
+
+@pytest.fixture
+def ensemble_mod():
+    import bloomcast.ensemble
+    return bloomcast.ensemble
 
 
 def test_get_parser(ensemble):
@@ -100,3 +107,37 @@ class TestEnsembleTakeAction():
         ensemble.log.info.assert_called_once_with(
             'Wind data date 2014-03-12 is unchanged since last run'
         )
+
+    @patch('bloomcast.ensemble.yaml')
+    @patch('bloomcast.ensemble.utils.Config')
+    def test_create_infile_edits_forcing_data(
+        self, m_config, m_yaml, ensemble,
+    ):
+        ensemble.config = Mock(
+            ensemble=Mock(
+                base_infile='foo.yaml',
+                start_year=1981,
+                end_year=1981,
+                forcing_data_file_roots={
+                    'wind': 'wind_data',
+                    'air_temperature': 'AT_data',
+                    'cloud_fraction': 'CF_data',
+                    'relative_humidity': 'Hum_data',
+                    'major_river': 'major_river_data',
+                    'minor_river': 'minor_river_data',
+                }
+            )
+        )
+        ensemble.log = Mock()
+        with patch('bloomcast.ensemble.open', mock_open(), create=True):
+            ensemble._create_infile_edits()
+        result = m_yaml.dump.call_args[0][0]['forcing_data']
+        assert result['avg_historical_wind_file']['value'] == 'wind_data_8081'
+        ensemble.log.debug.assert_called_once_with(
+            'wrote infile edit file foo_8081.yaml'
+        )
+
+
+def test_two_yr_suffix(ensemble_mod):
+    suffix = ensemble_mod.two_yr_suffix(1981)
+    assert suffix == '_8081'
