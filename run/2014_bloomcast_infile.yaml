@@ -275,7 +275,7 @@ profiles_results:
     variable_name: profilesBase_fn
     description: path/filename base for profiles (datetime will be appended)
   user_profile_file_base:
-    value: profiles/2014_bloomcast_user
+    value: profiles/user_2014_bloomcast
     variable_name: userprofilesBase_fn
     description: path/filename base for user profiles (datetime appended)
   halocline_file:
@@ -287,7 +287,7 @@ profiles_results:
     variable_name: Hoffmueller_fn
     description: path/filename for Hoffmueller results
   user_hoffmueller_file:
-    value: profiles/hoff_2014_bloomcast_user.out
+    value: profiles/user_hoff_2014_bloomcast.out
     variable_name: userHoffmueller_fn
     description: path/filename for user Hoffmueller results
   # TODO: Replace Hoffmueller results start and end year, day & second

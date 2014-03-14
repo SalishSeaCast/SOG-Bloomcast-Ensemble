@@ -100,7 +100,7 @@ class Ensemble(cliff.command.Command):
         start_year = ensemble_config.start_year
         end_year = ensemble_config.end_year + 1
         forcing_data_file_roots = ensemble_config.forcing_data_file_roots
-        key_pairs = (
+        forcing_data_key_pairs = (
             ('wind', 'avg_historical_wind_file'),
             ('air_temperature', 'avg_historical_air_temperature_file'),
             ('cloud_fraction', 'avg_historical_cloud_file'),
@@ -108,14 +108,37 @@ class Ensemble(cliff.command.Command):
             ('major_river', 'avg_historical_major_river_file'),
             ('minor_river', 'avg_historical_minor_river_file'),
         )
+        timeseries_key_pairs = (
+            ('std_phys_ts_outfile', 'std_physics'),
+            ('user_phys_ts_outfile', 'user_physics'),
+            ('std_bio_ts_outfile', 'std_biology'),
+            ('user_bio_ts_outfile', 'user_biology'),
+            ('std_chem_ts_outfile', 'std_chemistry'),
+            ('user_chem_ts_outfile', 'user_chemistry'),
+        )
+        profiles_key_pairs = (
+            ('profiles_outfile_base', 'profile_file_base'),
+            ('user_profiles_outfile_base', 'user_profile_file_base'),
+            ('halocline_outfile', 'halocline_file'),
+            ('Hoffmueller_profiles_outfile', 'hoffmueller_file'),
+            ('user_Hoffmueller_profiles_outfile', 'user_hoffmueller_file'),
+        )
         for year in range(start_year, end_year):
             suffix = two_yr_suffix(year)
             member_infile_edits = infile_edits_template.copy()
             forcing_data = member_infile_edits['forcing_data']
-            for data_file_key, infile_key in key_pairs:
+            timeseries_results = member_infile_edits['timeseries_results']
+            profiles_results = member_infile_edits['profiles_results']
+            for config_key, infile_key in forcing_data_key_pairs:
                 filename = ''.join(
-                    (forcing_data_file_roots[data_file_key], suffix))
+                    (forcing_data_file_roots[config_key], suffix))
                 forcing_data[infile_key]['value'] = filename
+            for config_key, infile_key in timeseries_key_pairs:
+                filename = ''.join((getattr(self.config, config_key), suffix))
+                timeseries_results[infile_key]['value'] = filename
+            for config_key, infile_key in profiles_key_pairs:
+                filename = ''.join((getattr(self.config, config_key), suffix))
+                profiles_results[infile_key]['value'] = filename
             name, ext = os.path.splitext(ensemble_config.base_infile)
             filename = ''.join((name, suffix, ext))
             with open(filename, 'wt') as f:
@@ -311,15 +334,15 @@ infile_edits_template = {   # pragma: no cover
             'value': None,
             'variable_name': 'haloclines_fn',
         },
-        'user_hoffmueller_file': {
-            'description': 'path/filename for user Hoffmueller results',
-            'value': None,
-            'variable_name': 'userHoffmueller_fn',
-        },
         'hoffmueller_file': {
             'description': 'path/filename for Hoffmueller results',
             'value': None,
             'variable_name': 'Hoffmueller_fn',
+        },
+        'user_hoffmueller_file': {
+            'description': 'path/filename for user Hoffmueller results',
+            'value': None,
+            'variable_name': 'userHoffmueller_fn',
         },
     },
 }

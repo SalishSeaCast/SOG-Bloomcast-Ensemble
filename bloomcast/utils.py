@@ -56,10 +56,20 @@ class Config(object):
             infile_dict['run_start_date']
             .replace(hour=0, minute=0, second=0, microsecond=0))
         self.SOG_timestep = int(infile_dict['SOG_timestep'])
-        self.std_bio_ts_outfile = infile_dict['std_bio_ts_outfile']
-        self.std_phys_ts_outfile = infile_dict['std_phys_ts_outfile']
-        self.Hoffmueller_profiles_outfile = infile_dict[
-            'Hoffmueller_profiles_outfile']
+        timeseries_keys = (
+            'std_phys_ts_outfile user_phys_ts_outfile '
+            'std_bio_ts_outfile user_bio_ts_outfile '
+            'std_chem_ts_outfile user_chem_ts_outfile'
+            .split())
+        for key in timeseries_keys:
+            setattr(self, key, infile_dict[key])
+        profiles_keys = (
+            'profiles_outfile_base user_profiles_outfile_base '
+            'halocline_outfile '
+            'Hoffmueller_profiles_outfile user_Hoffmueller_profiles_outfile'
+            .split())
+        for key in profiles_keys:
+            setattr(self, key, infile_dict[key])
         self.climate = _Container()
         self.climate.__dict__.update(config_dict['climate'])
         self._load_meteo_config(config_dict, infile_dict)
@@ -123,10 +133,22 @@ class Config(object):
         infile_values = {
             'initial_conditions.init_datetime': 'run_start_date',
             'numerics.dt': 'SOG_timestep',
-            'timeseries_results.std_biology': 'std_bio_ts_outfile',
             'timeseries_results.std_physics': 'std_phys_ts_outfile',
+            'timeseries_results.user_physics': 'user_phys_ts_outfile',
+            'timeseries_results.std_biology': 'std_bio_ts_outfile',
+            'timeseries_results.user_biology': 'user_bio_ts_outfile',
+            'timeseries_results.std_chemistry': 'std_chem_ts_outfile',
+            'timeseries_results.user_chemistry': 'user_chem_ts_outfile',
+            'profiles_results.profile_file_base': (
+                'profiles_outfile_base'),
+            'profiles_results.user_profile_file_base': (
+                'user_profiles_outfile_base'),
+            'profiles_results.halocline_file': (
+                'halocline_outfile'),
             'profiles_results.hoffmueller_file': (
                 'Hoffmueller_profiles_outfile'),
+            'profiles_results.user_hoffmueller_file': (
+                'user_Hoffmueller_profiles_outfile'),
         }
         forcing_data_files = {
             'forcing_data.wind_forcing_file': 'wind',

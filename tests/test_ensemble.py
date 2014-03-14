@@ -33,9 +33,40 @@ def ensemble():
 
 
 @pytest.fixture
-def ensemble_mod():
+def ensemble_module():
     import bloomcast.ensemble
     return bloomcast.ensemble
+
+
+@pytest.fixture(scope='function')
+def ensemble_config():
+    config = Mock(
+        ensemble=Mock(
+            base_infile='foo.yaml',
+            start_year=1981,
+            end_year=1981,
+            forcing_data_file_roots={
+                'wind': 'wind_data',
+                'air_temperature': 'AT_data',
+                'cloud_fraction': 'CF_data',
+                'relative_humidity': 'Hum_data',
+                'major_river': 'major_river_data',
+                'minor_river': 'minor_river_data',
+            }
+        ),
+        std_phys_ts_outfile='std_phys_bloomcast.out',
+        user_phys_ts_outfile='user_phys_bloomcast.out',
+        std_bio_ts_outfile='std_bio_bloomcast.out',
+        user_bio_ts_outfile='user_bio_bloomcast.out',
+        std_chem_ts_outfile='std_chem_bloomcast.out',
+        user_chem_ts_outfile='user_chem_bloomcast.out',
+        profiles_outfile_base='profiles/bloomcast',
+        user_profiles_outfile_base='profiles/user_bloomcast',
+        halocline_outfile='profiles/halo_bloomcast.out',
+        Hoffmueller_profiles_outfile='hoff_bloomcast.out',
+        user_Hoffmueller_profiles_outfile='user_hoff_bloomcast.out',
+    )
+    return config
 
 
 def test_get_parser(ensemble):
@@ -113,31 +144,69 @@ class TestEnsembleTakeAction():
     def test_create_infile_edits_forcing_data(
         self, m_config, m_yaml, ensemble,
     ):
-        ensemble.config = Mock(
-            ensemble=Mock(
-                base_infile='foo.yaml',
-                start_year=1981,
-                end_year=1981,
-                forcing_data_file_roots={
-                    'wind': 'wind_data',
-                    'air_temperature': 'AT_data',
-                    'cloud_fraction': 'CF_data',
-                    'relative_humidity': 'Hum_data',
-                    'major_river': 'major_river_data',
-                    'minor_river': 'minor_river_data',
-                }
-            )
-        )
+        ensemble.config = ensemble_config()
         ensemble.log = Mock()
         with patch('bloomcast.ensemble.open', mock_open(), create=True):
             ensemble._create_infile_edits()
         result = m_yaml.dump.call_args[0][0]['forcing_data']
         assert result['avg_historical_wind_file']['value'] == 'wind_data_8081'
+        expected_keys = (
+            'avg_historical_wind_file avg_historical_air_temperature_file '
+            'avg_historical_cloud_file avg_historical_humidity_file '
+            'avg_historical_major_river_file avg_historical_minor_river_file'
+            .split())
+        for key in expected_keys:
+            assert result[key]['value'] is not None
+        ensemble.log.debug.assert_called_once_with(
+            'wrote infile edit file foo_8081.yaml'
+        )
+
+    @patch('bloomcast.ensemble.yaml')
+    @patch('bloomcast.ensemble.utils.Config')
+    def test_create_infile_edits_timeseries_results(
+        self, m_config, m_yaml, ensemble,
+    ):
+        ensemble.config = ensemble_config()
+        ensemble.log = Mock()
+        with patch('bloomcast.ensemble.open', mock_open(), create=True):
+            ensemble._create_infile_edits()
+        result = m_yaml.dump.call_args[0][0]['timeseries_results']
+        assert result['std_physics']['value'] == 'std_phys_bloomcast.out_8081'
+        expected_keys = (
+            'std_physics user_physics '
+            'std_biology user_biology '
+            'std_chemistry user_chemistry'
+            .split())
+        for key in expected_keys:
+            assert result[key]['value'] is not None
+        ensemble.log.debug.assert_called_once_with(
+            'wrote infile edit file foo_8081.yaml'
+        )
+
+    @patch('bloomcast.ensemble.yaml')
+    @patch('bloomcast.ensemble.utils.Config')
+    def test_create_infile_edits_profiles_results(
+        self, m_config, m_yaml, ensemble,
+    ):
+        ensemble.config = ensemble_config()
+        ensemble.log = Mock()
+        with patch('bloomcast.ensemble.open', mock_open(), create=True):
+            ensemble._create_infile_edits()
+        result = m_yaml.dump.call_args[0][0]['profiles_results']
+        expected = 'profiles/bloomcast_8081'
+        assert result['profile_file_base']['value'] == expected
+        expected_keys = (
+            'profile_file_base user_profile_file_base '
+            'halocline_file '
+            'hoffmueller_file user_hoffmueller_file'
+            .split())
+        for key in expected_keys:
+            assert result[key]['value'] is not None
         ensemble.log.debug.assert_called_once_with(
             'wrote infile edit file foo_8081.yaml'
         )
 
 
-def test_two_yr_suffix(ensemble_mod):
-    suffix = ensemble_mod.two_yr_suffix(1981)
+def test_two_yr_suffix(ensemble_module):
+    suffix = ensemble_module.two_yr_suffix(1981)
     assert suffix == '_8081'
