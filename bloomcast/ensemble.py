@@ -16,9 +16,11 @@
 the first spring diatom phytoplankon bloom in the Strait of Georgia.
 """
 import logging
+import os
 
 import arrow
 import cliff.command
+import yaml
 
 from . import utils
 from .meteo import MeteoProcessor
@@ -89,6 +91,36 @@ class Ensemble(cliff.command.Command):
                 'is unchanged since last run'
                 .format(self.config))
             return
+        self._create_infile_edits()
+
+    def _create_infile_edits(self):
+        """Create YAML infile edit files for each ensemble member SOG run.
+        """
+        ensemble_config = self.config.ensemble
+        start_year = ensemble_config.start_year
+        end_year = ensemble_config.end_year + 1
+        forcing_data_file_roots = ensemble_config.forcing_data_file_roots
+        key_pairs = (
+            ('wind', 'avg_historical_wind_file'),
+            ('air_temperature', 'avg_historical_air_temperature_file'),
+            ('cloud_fraction', 'avg_historical_cloud_file'),
+            ('relative_humidity', 'avg_historical_humidity_file'),
+            ('major_river', 'avg_historical_major_river_file'),
+            ('minor_river', 'avg_historical_minor_river_file'),
+        )
+        for year in range(start_year, end_year):
+            suffix = two_yr_suffix(year)
+            member_infile_edits = infile_edits_template.copy()
+            forcing_data = member_infile_edits['forcing_data']
+            for data_file_key, infile_key in key_pairs:
+                filename = ''.join(
+                    (forcing_data_file_roots[data_file_key], suffix))
+                forcing_data[infile_key]['value'] = filename
+            name, ext = os.path.splitext(ensemble_config.base_infile)
+            filename = ''.join((name, suffix, ext))
+            with open(filename, 'wt') as f:
+                yaml.dump(member_infile_edits, f)
+            self.log.debug('wrote infile edit file {}'.format(filename))
 
 
 def configure_logging(config, bloom_date_log):
@@ -171,3 +203,123 @@ def get_forcing_data(config, log):
     meteo.make_forcing_data_files()
     rivers = RiversProcessor(config)
     rivers.make_forcing_data_files()
+
+
+def two_yr_suffix(year):
+    """Return a suffix string of the form ``_XXYY`` based on year,
+    where XX = the last 2 digits of year - 1,
+    and YY = the last 2 digits of year
+
+    :arg year: Year from which to build the suffix;
+               2nd year in suffix;
+               e.g. 1891 produces ``_8081``
+    :type year: int
+
+    :returns: String of the form ``_XXYY`` like ``_8081`` for 1981
+    """
+    return ('_{year_m1}{year}'
+            .format(
+                year_m1=str(year - 1)[-2:],
+                year=str(year)[-2:]))
+
+
+infile_edits_template = {   # pragma: no cover
+    'forcing_data': {
+        'use_average_forcing_data': {
+            'description': 'yes=avg only; no=fail if data runs out; fill=historic then avg',
+            'value': 'histfill',
+            'variable_name': 'use_average_forcing_data'
+        },
+        'avg_historical_wind_file': {
+            'description': 'average/historical wind forcing data path/filename',
+            'value': None,
+            'variable_name': 'n/a',
+        },
+        'avg_historical_air_temperature_file': {
+            'description': 'average/historical air temperature forcing data path/filename',
+            'value': None,
+            'variable_name': 'n/a',
+        },
+        'avg_historical_cloud_file': {
+            'description': 'average/historical cloud fraction forcing data path/filename',
+            'value': None,
+            'variable_name': 'n/a'
+        },
+        'avg_historical_humidity_file': {
+            'description': 'average/historical humidity forcing data path/filename',
+            'value': None,
+            'variable_name': 'n/a',
+        },
+        'avg_historical_major_river_file': {
+            'description': 'average/historical major river forcing data path/filename',
+            'value': None,
+            'variable_name': 'n/a',
+        },
+        'avg_historical_minor_river_file': {
+            'description': 'average/historical minor river forcing data path/filename',
+            'value': None,
+            'variable_name': 'n/a',
+        },
+    },
+
+    'timeseries_results': {
+        'std_physics': {
+            'description': 'path/filename for standard physics time series output',
+            'value': None,
+            'variable_name': 'std_phys_ts_out',
+        },
+        'user_physics': {
+            'description': 'path/filename for user physics time series output',
+            'value': None,
+            'variable_name': 'user_phys_ts_out',
+        },
+        'std_biology': {
+            'description': 'path/filename for standard biology time series output',
+            'value': None,
+            'variable_name': 'std_bio_ts_out',
+        },
+        'user_biology': {
+            'description': 'path/filename for user biology time series output',
+            'value': None,
+            'variable_name': 'user_bio_ts_out',
+        },
+        'std_chemistry': {
+            'description': 'path/filename for standard chemistry time series output',
+            'value': None,
+            'variable_name': 'std_chem_ts_out',
+        },
+        'user_chemistry': {
+            'description': 'path/filename for user chemistry time series output',
+            'value': None,
+            'variable_name': 'user_chem_ts_out',
+        },
+    },
+
+    'profiles_results': {
+        'profile_file_base': {
+            'description': 'path/filename base for profiles (datetime will be appended)',
+            'value': None,
+            'variable_name': 'profilesBase_fn',
+        },
+        'user_profile_file_base': {
+            'description': 'path/filename base for user profiles (datetime appended)',
+            'value': None,
+            'variable_name': 'userprofilesBase_fn',
+        },
+        'halocline_file': {
+            'description': 'path/filename for halocline results',
+            'value': None,
+            'variable_name': 'haloclines_fn',
+        },
+        'user_hoffmueller_file': {
+            'description': 'path/filename for user Hoffmueller results',
+            'value': None,
+            'variable_name': 'userHoffmueller_fn',
+        },
+        'hoffmueller_file': {
+            'description': 'path/filename for Hoffmueller results',
+            'value': None,
+            'variable_name': 'Hoffmueller_fn',
+        },
+    },
+}
