@@ -42,6 +42,7 @@ def ensemble_module():
 def ensemble_config():
     config = Mock(
         ensemble=Mock(
+            max_concurrent_jobs=32,
             base_infile='foo.yaml',
             start_year=1981,
             end_year=1981,
@@ -204,6 +205,47 @@ class TestEnsembleTakeAction():
             assert result[key]['value'] is not None
         ensemble.log.debug.assert_called_once_with(
             'wrote infile edit file foo_8081.yaml'
+        )
+
+    @patch('bloomcast.ensemble.yaml')
+    @patch('bloomcast.ensemble.utils.Config')
+    def test_create_infile_edits_sets_edit_files_list_attr(
+        self, m_config, m_yaml, ensemble,
+    ):
+        ensemble.config = ensemble_config()
+        ensemble.config.ensemble.end_year = 1982
+        ensemble.log = Mock()
+        with patch('bloomcast.ensemble.open', mock_open(), create=True):
+            ensemble._create_infile_edits()
+        assert ensemble.edit_files == [
+            ('_8081', 'foo_8081.yaml'),
+            ('_8182', 'foo_8182.yaml'),
+        ]
+
+    @patch('bloomcast.ensemble.yaml')
+    def test_create_batch_description(self, m_yaml, ensemble):
+        ensemble.config = ensemble_config()
+        ensemble.config.ensemble.end_year = 1982
+        ensemble.log = Mock()
+        ensemble.edit_files = [
+            ('_8081', 'foo_8081.yaml'),
+            ('_8182', 'foo_8182.yaml'),
+        ]
+        ensemble._create_batch_description()
+        result = m_yaml.dump.call_args[0][0]
+        expected = ensemble.config.ensemble.max_concurrent_jobs
+        assert result['max_concurrent_jobs'] == expected
+        assert result['SOG_executable'] == ensemble.config.SOG_executable
+        assert result['base_infile'] == ensemble.config.ensemble.base_infile
+        assert result['jobs'] == [
+            {''.join(('bloomcast', suffix)): {
+                'edit_files': [filename],
+            }}
+            for suffix, filename in ensemble.edit_files
+        ]
+        ensemble.log.debug.assert_called_once_with(
+            'wrote ensemble batch description file: '
+            'bloomcast_ensemble_jobs.yaml'
         )
 
 
