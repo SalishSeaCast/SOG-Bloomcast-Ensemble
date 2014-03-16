@@ -92,6 +92,7 @@ class Ensemble(cliff.command.Command):
                 .format(self.config))
             return
         self._create_infile_edits()
+        self._create_batch_description()
 
     def _create_infile_edits(self):
         """Create YAML infile edit files for each ensemble member SOG run.
@@ -123,6 +124,7 @@ class Ensemble(cliff.command.Command):
             ('Hoffmueller_profiles_outfile', 'hoffmueller_file'),
             ('user_Hoffmueller_profiles_outfile', 'user_hoffmueller_file'),
         )
+        self.edit_files = []
         for year in range(start_year, end_year):
             suffix = two_yr_suffix(year)
             member_infile_edits = infile_edits_template.copy()
@@ -143,7 +145,30 @@ class Ensemble(cliff.command.Command):
             filename = ''.join((name, suffix, ext))
             with open(filename, 'wt') as f:
                 yaml.dump(member_infile_edits, f)
+            self.edit_files.append((suffix, filename))
             self.log.debug('wrote infile edit file {}'.format(filename))
+
+    def _create_batch_description(self):
+        """Create the YAML batch description file for the ensemble runs.
+        """
+        batch_description = {
+            'max_concurrent_jobs': self.config.ensemble.max_concurrent_jobs,
+            'SOG_executable': self.config.SOG_executable,
+            'base_infile': self.config.ensemble.base_infile,
+            'jobs': [],
+        }
+        for suffix, edit_file in self.edit_files:
+            job = {
+                ''.join(('bloomcast', suffix)): {
+                    'edit_files': [edit_file],
+                }
+            }
+            batch_description['jobs'].append(job)
+        filename = 'bloomcast_ensemble_jobs.yaml'
+        with open(filename, 'wt') as f:
+            yaml.dump(batch_description, f)
+        self.log.debug(
+            'wrote ensemble batch description file: {}'.format(filename))
 
 
 def configure_logging(config, bloom_date_log):
