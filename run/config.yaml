@@ -7,10 +7,10 @@ SOG_executable: ../../SOG-code-bloomcast/SOG
 html_results: ../bloomcast/html
 
 ensemble:
-  max_concurrent_jobs: 4
+  max_concurrent_jobs: 32
   base_infile: 2014_bloomcast_infile.yaml
   start_year: 1981   # 1st bloomcast year
-  end_year: 1981     # last bloomcast year
+  end_year: 2010     # last bloomcast year
   forcing_data_file_roots:
     wind: ../../SOG-forcing/wind/2yr_chunks/SH_pp_08Feb2014.dat
     air_temperature: ../../SOG-forcing/met/2yr_chunks/YVRhistAT

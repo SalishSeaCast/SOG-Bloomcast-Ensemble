@@ -22,6 +22,7 @@ import arrow
 import cliff.command
 import yaml
 
+import SOGcommand
 from . import utils
 from .meteo import MeteoProcessor
 from .rivers import RiversProcessor
@@ -93,6 +94,7 @@ class Ensemble(cliff.command.Command):
             return
         self._create_infile_edits()
         self._create_batch_description()
+        self._run_SOG_batch(parsed_args.debug)
 
     def _create_infile_edits(self):
         """Create YAML infile edit files for each ensemble member SOG run.
@@ -169,6 +171,18 @@ class Ensemble(cliff.command.Command):
             yaml.dump(batch_description, f)
         self.log.debug(
             'wrote ensemble batch description file: {}'.format(filename))
+
+    def _run_SOG_batch(self, debug):
+        """Run the ensemble of SOG runs at a batch job.
+        """
+        if not self.config.run_SOG:
+            self.log.info('Skipped running SOG')
+            return
+        returncode = SOGcommand.api.batch(
+            'bloomcast_ensemble_jobs.yaml', debug=debug)
+        self.log.info(
+            'ensemble batch SOG runs completed with return code {}'
+            .format(returncode))
 
 
 def configure_logging(config, bloom_date_log):

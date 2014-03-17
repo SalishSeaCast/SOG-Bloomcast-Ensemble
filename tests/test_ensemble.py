@@ -231,7 +231,8 @@ class TestEnsembleTakeAction():
             ('_8081', 'foo_8081.yaml'),
             ('_8182', 'foo_8182.yaml'),
         ]
-        ensemble._create_batch_description()
+        with patch('bloomcast.ensemble.open', mock_open(), create=True):
+            ensemble._create_batch_description()
         result = m_yaml.dump.call_args[0][0]
         expected = ensemble.config.ensemble.max_concurrent_jobs
         assert result['max_concurrent_jobs'] == expected
@@ -247,6 +248,27 @@ class TestEnsembleTakeAction():
             'wrote ensemble batch description file: '
             'bloomcast_ensemble_jobs.yaml'
         )
+
+    @patch('bloomcast.ensemble.SOGcommand')
+    def test_run_SOG_batch_skip(self, m_SOGcommand, ensemble):
+        ensemble.config = ensemble_config()
+        ensemble.config.run_SOG = False
+        ensemble.log = Mock()
+        ensemble._run_SOG_batch(debug=False)
+        ensemble.log.info.assert_called_once_with('Skipped running SOG')
+        assert not m_SOGcommand.api.batch.called
+
+    @patch('bloomcast.ensemble.SOGcommand')
+    def test_run_SOG_batch(self, m_SOGcommand, ensemble):
+        ensemble.config = ensemble_config()
+        ensemble.config.run_SOG = True
+        ensemble.log = Mock()
+        m_SOGcommand.api.batch.return_value = 0
+        ensemble._run_SOG_batch(debug=False)
+        m_SOGcommand.api.batch.assert_called_once_with(
+            'bloomcast_ensemble_jobs.yaml', debug=False)
+        ensemble.log.info.assert_called_once_with(
+            'ensemble batch SOG runs completed with return code 0')
 
 
 def test_two_yr_suffix(ensemble_module):
