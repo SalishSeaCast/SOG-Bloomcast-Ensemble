@@ -254,7 +254,7 @@ class TestEnsembleTakeAction():
         ensemble.config = ensemble_config()
         ensemble.config.run_SOG = False
         ensemble.log = Mock()
-        ensemble._run_SOG_batch(debug=False)
+        ensemble._run_SOG_batch()
         ensemble.log.info.assert_called_once_with('Skipped running SOG')
         assert not m_SOGcommand.api.batch.called
 
@@ -264,9 +264,9 @@ class TestEnsembleTakeAction():
         ensemble.config.run_SOG = True
         ensemble.log = Mock()
         m_SOGcommand.api.batch.return_value = 0
-        ensemble._run_SOG_batch(debug=False)
+        ensemble._run_SOG_batch()
         m_SOGcommand.api.batch.assert_called_once_with(
-            'bloomcast_ensemble_jobs.yaml', debug=False)
+            'bloomcast_ensemble_jobs.yaml')
         ensemble.log.info.assert_called_once_with(
             'ensemble batch SOG runs completed with return code 0')
 
