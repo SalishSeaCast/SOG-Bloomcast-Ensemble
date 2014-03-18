@@ -20,6 +20,7 @@ from unittest.mock import (
     mock_open,
     patch,
 )
+import unittest.mock as mock
 
 import arrow
 import cliff.app
@@ -269,6 +270,53 @@ class TestEnsembleTakeAction():
             'bloomcast_ensemble_jobs.yaml')
         ensemble.log.info.assert_called_once_with(
             'ensemble batch SOG runs completed with return code 0')
+
+    @patch('bloomcast.utils.SOG_Timeseries')
+    def test_load_biology_timeseries_instances(self, m_SOG_ts, ensemble):
+        ensemble.config = ensemble_config()
+        ensemble.edit_files = [('_8081', 'foo_8081.yaml')]
+        ensemble._load_biology_timeseries()
+        expected = [
+            mock.call('std_bio_bloomcast.out_8081'),
+            mock.call('std_bio_bloomcast.out_8081'),
+        ]
+        assert m_SOG_ts.call_args_list == expected
+
+    @patch('bloomcast.utils.SOG_Timeseries')
+    def test_load_biology_timeseries_read_nitrate(self, m_SOG_ts, ensemble):
+        ensemble.config = ensemble_config()
+        ensemble.edit_files = [('_8081', 'foo_8081.yaml')]
+        ensemble._load_biology_timeseries()
+        call = ensemble.nitrate_ts['_8081'].read_data.call_args_list[0]
+        assert call == mock.call('time', '3 m avg nitrate concentration')
+
+    @patch('bloomcast.utils.SOG_Timeseries')
+    def test_load_biology_timeseries_read_diatoms(self, m_SOG_ts, ensemble):
+        ensemble.config = ensemble_config()
+        ensemble.edit_files = [('_8081', 'foo_8081.yaml')]
+        ensemble._load_biology_timeseries()
+        call = ensemble.diatoms_ts['_8081'].read_data.call_args_list[1]
+        assert call == mock.call('time', '3 m avg micro phytoplankton biomass')
+
+    @patch('bloomcast.utils.SOG_Timeseries')
+    def test_load_biology_timeseries_mpl_dates(self, m_SOG_ts, ensemble):
+        ensemble.config = ensemble_config()
+        ensemble.edit_files = [('_8081', 'foo_8081.yaml')]
+        ensemble._load_biology_timeseries()
+        ensemble.nitrate_ts['_8081'].calc_mpl_dates.assert_called_with(
+            ensemble.config.run_start_date)
+        ensemble.diatoms_ts['_8081'].calc_mpl_dates.assert_called_with(
+            ensemble.config.run_start_date)
+
+    @patch('bloomcast.utils.SOG_Timeseries')
+    def test_load_biology_timeseries_copies(self, m_SOG_ts, ensemble):
+        ensemble.config = ensemble_config()
+        ensemble.edit_files = [('_8081', 'foo_8081.yaml')]
+        ensemble._load_biology_timeseries()
+        assert ensemble.nitrate == ensemble.nitrate_ts
+        assert ensemble.nitrate is not ensemble.nitrate_ts
+        assert ensemble.diatoms == ensemble.diatoms_ts
+        assert ensemble.diatoms is not ensemble.diatoms_ts
 
 
 def test_two_yr_suffix(ensemble_module):
