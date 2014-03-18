@@ -15,6 +15,7 @@
 """SoG-bloomcast command plug-in to run an ensemble forecast to predict
 the first spring diatom phytoplankon bloom in the Strait of Georgia.
 """
+import copy
 import logging
 import os
 
@@ -23,7 +24,10 @@ import cliff.command
 import yaml
 
 import SOGcommand
-from . import utils
+from . import (
+    bloomcast,
+    utils,
+)
 from .meteo import MeteoProcessor
 from .rivers import RiversProcessor
 from .wind import WindProcessor
@@ -95,6 +99,7 @@ class Ensemble(cliff.command.Command):
         self._create_infile_edits()
         self._create_batch_description()
         self._run_SOG_batch()
+        self._load_biology_timeseries()
 
     def _create_infile_edits(self):
         """Create YAML infile edit files for each ensemble member SOG run.
@@ -182,6 +187,25 @@ class Ensemble(cliff.command.Command):
         self.log.info(
             'ensemble batch SOG runs completed with return code {}'
             .format(returncode))
+
+    def _load_biology_timeseries(self):
+        """Load biological timeseries results from SOG runs.
+        """
+        self.nitrate_ts, self.diatoms_ts = {}, {}
+        for member, edit_file in self.edit_files:
+            filename = ''.join((self.config.std_bio_ts_outfile, member))
+            self.nitrate_ts[member] = utils.SOG_Timeseries(filename)
+            self.nitrate_ts[member].read_data(
+                'time', '3 m avg nitrate concentration')
+            self.nitrate_ts[member].calc_mpl_dates(self.config.run_start_date)
+            self.diatoms_ts[member] = utils.SOG_Timeseries(filename)
+            self.diatoms_ts[member].read_data(
+                'time', '3 m avg micro phytoplankton biomass')
+            self.diatoms_ts[member].calc_mpl_dates(self.config.run_start_date)
+            self.log.debug(
+                'read nitrate & diatoms timeseries from {}'.format(filename))
+        self.nitrate = copy.deepcopy(self.nitrate_ts)
+        self.diatoms = copy.deepcopy(self.diatoms_ts)
 
 
 def configure_logging(config, bloom_date_log):
