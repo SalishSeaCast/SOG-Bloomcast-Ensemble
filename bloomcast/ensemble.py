@@ -21,6 +21,7 @@ import os
 
 import arrow
 import cliff.command
+import numpy as np
 import yaml
 
 import SOGcommand
@@ -100,6 +101,7 @@ class Ensemble(cliff.command.Command):
         self._create_batch_description()
         self._run_SOG_batch()
         self._load_biology_timeseries()
+        self._calc_bloom_dates()
 
     def _create_infile_edits(self):
         """Create YAML infile edit files for each ensemble member SOG run.
@@ -152,7 +154,7 @@ class Ensemble(cliff.command.Command):
             filename = ''.join((name, suffix, ext))
             with open(filename, 'wt') as f:
                 yaml.dump(member_infile_edits, f)
-            self.edit_files.append((suffix, filename))
+            self.edit_files.append((year, filename, suffix))
             self.log.debug('wrote infile edit file {}'.format(filename))
 
     def _create_batch_description(self):
@@ -164,7 +166,7 @@ class Ensemble(cliff.command.Command):
             'base_infile': self.config.ensemble.base_infile,
             'jobs': [],
         }
-        for suffix, edit_file in self.edit_files:
+        for year, edit_file, suffix in self.edit_files:
             job = {
                 ''.join(('bloomcast', suffix)): {
                     'edit_files': [edit_file],
@@ -192,8 +194,8 @@ class Ensemble(cliff.command.Command):
         """Load biological timeseries results from SOG runs.
         """
         self.nitrate_ts, self.diatoms_ts = {}, {}
-        for member, edit_file in self.edit_files:
-            filename = ''.join((self.config.std_bio_ts_outfile, member))
+        for member, edit_file, suffix in self.edit_files:
+            filename = ''.join((self.config.std_bio_ts_outfile, suffix))
             self.nitrate_ts[member] = utils.SOG_Timeseries(filename)
             self.nitrate_ts[member].read_data(
                 'time', '3 m avg nitrate concentration')
@@ -206,6 +208,58 @@ class Ensemble(cliff.command.Command):
                 'read nitrate & diatoms timeseries from {}'.format(filename))
         self.nitrate = copy.deepcopy(self.nitrate_ts)
         self.diatoms = copy.deepcopy(self.diatoms_ts)
+
+    def _calc_bloom_dates(self):
+        """Calculate the predicted spring bloom date.
+        """
+        run_start_date = self.config.run_start_date
+        bloomcast.clip_results_to_jan1(
+            self.nitrate, self.diatoms, run_start_date)
+        bloomcast.reduce_results_to_daily(
+            self.nitrate, self.diatoms, run_start_date,
+            self.config.SOG_timestep)
+        first_low_nitrate_days = bloomcast.find_low_nitrate_days(
+            self.nitrate, bloomcast.NITRATE_HALF_SATURATION_CONCENTRATION)
+        bloom_dates, bloom_biomasses = bloomcast.find_phytoplankton_peak(
+            self.diatoms, first_low_nitrate_days,
+            bloomcast.PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
+        ord_days = np.array(
+            [bloom_date.toordinal() for bloom_date in bloom_dates.values()])
+        median = np.rint(np.median(ord_days))
+        early_bound, late_bound = np.percentile(ord_days, (5, 95))
+        early_bound = np.trunc(early_bound)
+        late_bound = np.ceil(late_bound)
+        prediction = {
+            'early': find_member(bloom_dates, early_bound),
+            'median': find_member(bloom_dates, median),
+            'late': find_member(bloom_dates, late_bound),
+        }
+        self.log.info(
+            'Predicted earliest bloom date is {}'
+            .format(bloom_dates[prediction['early']]))
+        self.log.debug(
+            'Earliest bloom date is based on forcing from {}/{}'
+            .format(prediction['early'] - 1, prediction['early']))
+        self.log.info(
+            'Predicted median bloom date is {}'
+            .format(bloom_dates[prediction['median']]))
+        self.log.debug(
+            'Median bloom date is based on forcing from {}/{}'
+            .format(prediction['median'] - 1, prediction['median']))
+        self.log.info(
+            'Predicted late bloom date is {}'
+            .format(bloom_dates[prediction['late']]))
+        self.log.debug(
+            'Late bloom date is based on forcing from {}/{}'
+            .format(prediction['late'] - 1, prediction['late']))
+        line = '  {.data_date}'.format(self.config)
+        for key in 'median early late'.split():
+            line += (
+                '      {bloom_date}  {forcing_year}'
+                .format(
+                    bloom_date=bloom_dates[prediction[key]],
+                    forcing_year=prediction[key]))
+        self.bloom_date_log.info(line)
 
 
 def configure_logging(config, bloom_date_log):
@@ -306,6 +360,40 @@ def two_yr_suffix(year):
             .format(
                 year_m1=str(year - 1)[-2:],
                 year=str(year)[-2:]))
+
+
+def find_member(bloom_dates, ord_day):
+    """Find the ensemble member whose bloom date is ord_day.
+
+    If more than one member has ord_day as its bloom date,
+    choose the member with the most recent year's forcing.
+
+    If there is no member with ord_day as its bloom date look at
+    adjacent days and choose the member with the most recent year's
+    forcing.
+
+    :arg bloom_dates: Predicted bloom dates.
+    :type bloom_dates: dict keyed by ensemble member identifier
+
+    :arg ord_day: Bloom date expressed as an ordinal day.
+    :type ord_day: int
+
+    :returns: Ensemble member identifier
+    :rtype: str
+    """
+    def find_matches(day):
+        return [
+            member for member, bloom_date in bloom_dates.items()
+            if bloom_date.toordinal() == day
+        ]
+    matches = find_matches(ord_day)
+    if not matches:
+        for i in range(1, 11):
+            matches.extend(find_matches(ord_day + i))
+            matches.extend(find_matches(ord_day - i))
+            if matches:
+                break
+    return max(matches)
 
 
 infile_edits_template = {   # pragma: no cover

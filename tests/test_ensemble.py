@@ -219,8 +219,8 @@ class TestEnsembleTakeAction():
         with patch('bloomcast.ensemble.open', mock_open(), create=True):
             ensemble._create_infile_edits()
         assert ensemble.edit_files == [
-            ('_8081', 'foo_8081.yaml'),
-            ('_8182', 'foo_8182.yaml'),
+            (1981, 'foo_8081.yaml', '_8081'),
+            (1982, 'foo_8182.yaml', '_8182'),
         ]
 
     @patch('bloomcast.ensemble.yaml')
@@ -229,8 +229,8 @@ class TestEnsembleTakeAction():
         ensemble.config.ensemble.end_year = 1982
         ensemble.log = Mock()
         ensemble.edit_files = [
-            ('_8081', 'foo_8081.yaml'),
-            ('_8182', 'foo_8182.yaml'),
+            (1981, 'foo_8081.yaml', '_8081'),
+            (1982, 'foo_8182.yaml', '_8182'),
         ]
         with patch('bloomcast.ensemble.open', mock_open(), create=True):
             ensemble._create_batch_description()
@@ -243,7 +243,7 @@ class TestEnsembleTakeAction():
             {''.join(('bloomcast', suffix)): {
                 'edit_files': [filename],
             }}
-            for suffix, filename in ensemble.edit_files
+            for year, filename, suffix in ensemble.edit_files
         ]
         ensemble.log.debug.assert_called_once_with(
             'wrote ensemble batch description file: '
@@ -274,7 +274,7 @@ class TestEnsembleTakeAction():
     @patch('bloomcast.utils.SOG_Timeseries')
     def test_load_biology_timeseries_instances(self, m_SOG_ts, ensemble):
         ensemble.config = ensemble_config()
-        ensemble.edit_files = [('_8081', 'foo_8081.yaml')]
+        ensemble.edit_files = [(1981, 'foo_8081.yaml', '_8081')]
         ensemble._load_biology_timeseries()
         expected = [
             mock.call('std_bio_bloomcast.out_8081'),
@@ -285,33 +285,33 @@ class TestEnsembleTakeAction():
     @patch('bloomcast.utils.SOG_Timeseries')
     def test_load_biology_timeseries_read_nitrate(self, m_SOG_ts, ensemble):
         ensemble.config = ensemble_config()
-        ensemble.edit_files = [('_8081', 'foo_8081.yaml')]
+        ensemble.edit_files = [(1981, 'foo_8081.yaml', '_8081')]
         ensemble._load_biology_timeseries()
-        call = ensemble.nitrate_ts['_8081'].read_data.call_args_list[0]
+        call = ensemble.nitrate_ts[1981].read_data.call_args_list[0]
         assert call == mock.call('time', '3 m avg nitrate concentration')
 
     @patch('bloomcast.utils.SOG_Timeseries')
     def test_load_biology_timeseries_read_diatoms(self, m_SOG_ts, ensemble):
         ensemble.config = ensemble_config()
-        ensemble.edit_files = [('_8081', 'foo_8081.yaml')]
+        ensemble.edit_files = [(1981, 'foo_8081.yaml', '_8081')]
         ensemble._load_biology_timeseries()
-        call = ensemble.diatoms_ts['_8081'].read_data.call_args_list[1]
+        call = ensemble.diatoms_ts[1981].read_data.call_args_list[1]
         assert call == mock.call('time', '3 m avg micro phytoplankton biomass')
 
     @patch('bloomcast.utils.SOG_Timeseries')
     def test_load_biology_timeseries_mpl_dates(self, m_SOG_ts, ensemble):
         ensemble.config = ensemble_config()
-        ensemble.edit_files = [('_8081', 'foo_8081.yaml')]
+        ensemble.edit_files = [(1981, 'foo_8081.yaml', '_8081')]
         ensemble._load_biology_timeseries()
-        ensemble.nitrate_ts['_8081'].calc_mpl_dates.assert_called_with(
+        ensemble.nitrate_ts[1981].calc_mpl_dates.assert_called_with(
             ensemble.config.run_start_date)
-        ensemble.diatoms_ts['_8081'].calc_mpl_dates.assert_called_with(
+        ensemble.diatoms_ts[1981].calc_mpl_dates.assert_called_with(
             ensemble.config.run_start_date)
 
     @patch('bloomcast.utils.SOG_Timeseries')
     def test_load_biology_timeseries_copies(self, m_SOG_ts, ensemble):
         ensemble.config = ensemble_config()
-        ensemble.edit_files = [('_8081', 'foo_8081.yaml')]
+        ensemble.edit_files = [(1981, 'foo_8081.yaml', '_8081')]
         ensemble._load_biology_timeseries()
         assert ensemble.nitrate == ensemble.nitrate_ts
         assert ensemble.nitrate is not ensemble.nitrate_ts
@@ -322,3 +322,47 @@ class TestEnsembleTakeAction():
 def test_two_yr_suffix(ensemble_module):
     suffix = ensemble_module.two_yr_suffix(1981)
     assert suffix == '_8081'
+
+
+def test_find_member_single_year_day_match(ensemble_module):
+    bloom_dates = {
+        2014: arrow.get(2014, 3, 26),
+    }
+    member = ensemble_module.find_member(bloom_dates, 735317)
+    assert member == 2014
+
+
+def test_find_member_multiple_year_day_matches(ensemble_module):
+    bloom_dates = {
+        2005: arrow.get(2014, 3, 25),
+        1997: arrow.get(2014, 3, 25),
+    }
+    member = ensemble_module.find_member(bloom_dates, 735316)
+    assert member == 2005
+
+
+def test_find_member_single_next_year_day_match(ensemble_module):
+    bloom_dates = {
+        1995: arrow.get(2014, 3, 27),
+        1991: arrow.get(2014, 3, 21),
+    }
+    member = ensemble_module.find_member(bloom_dates, 735317)
+    assert member == 1995
+
+
+def test_find_member_single_previous_year_day_match(ensemble_module):
+    bloom_dates = {
+        2005: arrow.get(2014, 3, 25),
+        1999: arrow.get(2014, 3, 29),
+    }
+    member = ensemble_module.find_member(bloom_dates, 735317)
+    assert member == 2005
+
+
+def test_find_member_multiple_previous_next_year_day_matches(ensemble_module):
+    bloom_dates = {
+        2005: arrow.get(2014, 3, 25),
+        1995: arrow.get(2014, 3, 27),
+    }
+    member = ensemble_module.find_member(bloom_dates, 735317)
+    assert member == 2005
