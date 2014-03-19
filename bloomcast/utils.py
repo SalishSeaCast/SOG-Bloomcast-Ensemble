@@ -123,7 +123,7 @@ class Config(object):
         with open(config_file, 'rt') as file_obj:
             config = yaml.load(file_obj.read())
         log.debug(
-            'configuration read from {}'.format(config_file))
+            'data structure read from {}'.format(config_file))
         return config
 
     def _read_SOG_infile(self, yaml_file):
