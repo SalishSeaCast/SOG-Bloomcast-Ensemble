@@ -27,11 +27,12 @@ import yaml
 import SOGcommand
 from . import (
     bloomcast,
+    meteo,
+    rivers,
     utils,
+    visualization,
+    wind,
 )
-from .meteo import MeteoProcessor
-from .rivers import RiversProcessor
-from .wind import WindProcessor
 
 
 __all__ = ['Ensemble']
@@ -101,7 +102,8 @@ class Ensemble(cliff.command.Command):
         self._create_batch_description()
         self._run_SOG_batch()
         self._load_biology_timeseries()
-        self._calc_bloom_dates()
+        prediction, bloom_dates = self._calc_bloom_dates()
+        self._load_physics_timeseries(prediction)
 
     def _create_infile_edits(self):
         """Create YAML infile edit files for each ensemble member SOG run.
@@ -191,7 +193,7 @@ class Ensemble(cliff.command.Command):
             .format(returncode))
 
     def _load_biology_timeseries(self):
-        """Load biological timeseries results from SOG runs.
+        """Load biological timeseries results from all ensemble SOG runs.
         """
         self.nitrate_ts, self.diatoms_ts = {}, {}
         for member, edit_file, suffix in self.edit_files:
@@ -260,6 +262,44 @@ class Ensemble(cliff.command.Command):
                     bloom_date=bloom_dates[prediction[key]],
                     forcing_year=prediction[key]))
         self.bloom_date_log.info(line)
+        return prediction, bloom_dates
+
+    def _load_physics_timeseries(self, prediction):
+        """Load physics timeseries results from SOG ensemble members that
+        show median and bounding bloom dates.
+
+        :arg prediction: Ensemble member identifiers for predicted bloom dates.
+        :type prediction: dict
+        """
+        self.temperature, self.salinity = {}, {}
+        self.mixing_layer_depth = {}
+        for member in prediction.values():
+            suffix = two_yr_suffix(member)
+            filename = ''.join((self.config.std_phys_ts_outfile, suffix))
+            self.temperature[member] = utils.SOG_Timeseries(filename)
+            self.temperature[member].read_data('time', '3 m avg temperature')
+            self.temperature[member].calc_mpl_dates(self.config.run_start_date)
+            self.salinity[member] = utils.SOG_Timeseries(filename)
+            self.salinity[member].read_data('time', '3 m avg salinity')
+            self.salinity[member].calc_mpl_dates(self.config.run_start_date)
+            self.log.debug(
+                'read temperature and salinity timeseries from {}'
+                .format(filename))
+        suffix = two_yr_suffix(prediction['median'])
+        filename = ''.join((self.config.std_phys_ts_outfile, suffix))
+        self.mixing_layer_depth = utils.SOG_Timeseries(filename)
+        self.mixing_layer_depth.read_data(
+            'time', 'mixing layer depth')
+        self.mixing_layer_depth.calc_mpl_dates(
+            self.config.run_start_date)
+        self.log.debug(
+            'read mixing layer depth timeseries from {}'.format(filename))
+        filename = 'Sandheads_wind'
+        self.wind = wind.WindTimeseries(filename)
+        self.wind.read_data(self.config.run_start_date)
+        self.wind.calc_mpl_dates(self.config.run_start_date)
+        self.log.debug(
+            'read wind speed forcing timeseries from {}'.format(filename))
 
 
 def configure_logging(config, bloom_date_log):
@@ -323,8 +363,8 @@ def get_forcing_data(config, log):
     if not config.get_forcing_data:
         log.info('Skipped collection and processing of forcing data')
         return
-    wind = WindProcessor(config)
-    config.data_date = wind.make_forcing_data_file()
+    wind_processor = wind.WindProcessor(config)
+    config.data_date = wind_processor.make_forcing_data_file()
     log.info('based on wind data forcing data date is {0:%Y-%m-%d}'
              .format(config.data_date))
     try:
@@ -338,10 +378,10 @@ def get_forcing_data(config, log):
     else:
         with open('wind_data_date', 'wt') as file_obj:
             file_obj.write('{0:%Y-%m-%d}\n'.format(config.data_date))
-    meteo = MeteoProcessor(config)
-    meteo.make_forcing_data_files()
-    rivers = RiversProcessor(config)
-    rivers.make_forcing_data_files()
+    meteo_processor = meteo.MeteoProcessor(config)
+    meteo_processor.make_forcing_data_files()
+    rivers_processor = rivers.RiversProcessor(config)
+    rivers_processor.make_forcing_data_files()
 
 
 def two_yr_suffix(year):
