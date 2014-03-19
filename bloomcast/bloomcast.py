@@ -45,6 +45,57 @@ from .utils import (
 )
 from .wind import WindProcessor
 
+# Bloom peak identification parameters based on:
+
+#   Allen & Wolfe, 2013 [1]:
+
+#   "Although the idea of a spring bloom is well-defined, the exact
+#   timing of a real spring bloom is not.
+#   In Collins, et al, 2009 [2] the peak of the bloom was defined as the
+#   highest concentration of phytoplankton unless an earlier bloom
+#   (more than 5 days earlier) was associated with nitrate going to zero.
+#   Gower, et al, 2013 [3],
+#   using satellite data,
+#   chooses a measure of the start of the bloom as the time when the
+#   whole Strait of Georgia has high chlorophyll.
+#   The nutritional quality of the phytoplankton appears to change when
+#   they become nutrient limited Sastri & Dower, 2009 [4].
+#   Thus here we use a definition that should delineate between nutrient
+#   replete spring conditions and nutrient stressed summer conditions.
+#   We use the peak phytoplankton concentration
+#   (averaged from the surface to 3 m depth)
+#   within four days of the average 0-3 m nitrate concentration going
+#   below 0.5 uM (the half-saturation concentration) for two consecutive
+#   days."
+
+# [1] Allen, S. E. and M. A. Wolfe,
+# Hindcast of the Timing of the Spring Phytoplankton Bloom in the Strait
+# of Georgia, 1968-2010.
+# Progress in Oceanography, vol 115 (2013), pp. 6-13.
+# http://dx.doi.org/10.1016/j.pocean.2013.05.026
+
+# [2] A.K. Collins, S.E. Allen, R. Pawlowicz,
+# The role of wind in determining the timing of the spring bloom in the
+# Strait of Georgia.
+# Canadian Journal of Fisheries and Aquatic Sciences, 66 (2009),
+# pp. 1597–1616.
+# http://dx.doi.org/10.1139/F09-071
+
+# [3] Gower, J., King, S., Statham, S., Fox, R., Young, E.,
+# The Malaspina Dragon: a new pattern of the early spring bloom in the
+# Strait of Georgia.
+# Progress in Oceanography 115 (2013), pp. 181–188.
+# http://dx.doi.org/10.1016/j.pocean.2013.05.024
+
+# [4] A.R. Sastri and J.F. Dower,
+# Interannual variability in chitobiase-based production rates of the
+# crustacean zooplankton community in the Strait of Georgia,
+# British Columbia, Canada.
+# Marine Ecology-Progress Series, 388 (2009), pp. 147–157.
+# http://dx.doi.org/10.3354/meps08111
+NITRATE_HALF_SATURATION_CONCENTRATION = 0.5  # uM
+PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH = 4     # days
+
 
 log = logging.getLogger('bloomcast')
 bloom_date_log = logging.getLogger('bloomcast.bloom_date')
@@ -442,27 +493,7 @@ class Bloomcast(object):
 
     def _calc_bloom_date(self):
         """Calculate the predicted spring bloom date.
-
-        From Allen & Wolfe, in preparation:
-
-        "Although the idea of a spring bloom is well-defined, the exact
-        timing of a real spring bloom is not.  In C09 the peak of the
-        bloom was defined as the highest concentration of phytoplankton
-        unless an earlier bloom (more than 5 days earlier) was associated
-        with nitrate going to zero.  J.Gower using satellite data chooses
-        a measure of the start of the bloom as the time when the whole
-        Strait of Georgia has high chlorophyll.  The nutritional quality
-        of the phytoplankton appears to change when they become nutrient
-        limited \citep{SastriDower2009}.  Thus here we use a definition
-        that should delineate between nutrient replete spring conditions
-        and nutrient stressed summer conditions.  We use the peak
-        phytoplankton concentration (averaged from the surface to 3 m
-        depth) within four days of the average 0-3~m nitrate concentration
-        going below 0.5 uM (the half-saturation concentration) for two
-        consecutive days."
         """
-        NITRATE_HALF_SATURATION_CONCENTRATION = 0.5  # uM
-        PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH = 4     # days
         key = 'avg_forcing'
         self.bloom_date, self.bloom_biomass = {}, {}
         for key in self.config.infiles['edits']:
@@ -635,6 +666,117 @@ class Bloomcast(object):
                 'rsync -rq --exclude=results.mako {0}/ {1}'
                 .format(os.path.abspath(self.config.html_results),
                         self.config.results_dir).split())
+
+
+def clip_results_to_jan1(nitrate, diatoms, run_start_date):
+    """Clip the nitrate concentration and diatom biomass results
+    so that they start on 1-Jan of the bloom year.
+
+    :arg nitrate: Nitrate concentration timeseries
+    :type nitrate: dict of :py:class:`bloomcast.utils.SOG_Timeseries`
+                   instances keyed by ensemble member identifier
+
+    :arg diatoms: Diatom biomass timeseries
+    :type diatoms: dict of :py:class:`bloomcast.utils.SOG_Timeseries`
+                   instances keyed by ensemble member identifier
+
+    :arg run_start_date: SOG run start date
+    :type run_start_date: :py:class:`datetime.date`
+    """
+    jan1 = datetime.datetime(run_start_date.year + 1, 1, 1)
+    discard_hours = jan1 - run_start_date
+    discard_hours = discard_hours.days * 24 + discard_hours.seconds / 3600
+    for member in nitrate:
+        predicate = nitrate[member].indep_data >= discard_hours
+        nitrate[member].boolean_slice(predicate)
+        diatoms[member].boolean_slice(predicate)
+
+
+def reduce_results_to_daily(nitrate, diatoms, run_start_date, SOG_timestep):
+    """Reduce the nitrate concentration and diatom biomass results
+    to daily values.
+
+    Nitrate concentrations are daily minimum values.
+
+    Diatom biomasses are daily maximum values.
+
+    Independent data values are dates.
+
+    :arg nitrate: Nitrate concentration timeseries
+    :type nitrate: dict of :py:class:`bloomcast.utils.SOG_Timeseries`
+                   instances keyed by ensemble member identifier
+
+    :arg diatoms: Diatom biomass timeseries
+    :type diatoms: dict of :py:class:`bloomcast.utils.SOG_Timeseries`
+                   instances keyed by ensemble member identifier
+
+    :arg run_start_date: SOG run start date
+    :type run_start_date: :py:class:`datetime.date`
+
+    :arg SOG_timestep: SOG run time-step
+    :type SOG_timestep: int
+    """
+    # Assume that there are an integral nummber of SOG time steps in a
+    # day
+    day_slice = 86400 // SOG_timestep
+    jan1 = datetime.date(run_start_date.year + 1, 1, 1)
+    for member in nitrate:
+        last_day = nitrate[member].dep_data.shape[0] - day_slice
+        day_iterator = range(0, last_day, day_slice)
+        nitrate[member].dep_data = np.array(
+            [nitrate[member].dep_data[i:i + day_slice].min()
+             for i in day_iterator])
+        nitrate[member].indep_data = np.array(
+            [jan1 + datetime.timedelta(days=i)
+             for i in range(nitrate[member].dep_data.size)])
+
+        last_day = diatoms[member].dep_data.shape[0] - day_slice
+        day_iterator = range(0, last_day, day_slice)
+        diatoms[member].dep_data = np.array(
+            [diatoms[member].dep_data[i:i + day_slice].max()
+             for i in day_iterator])
+        diatoms[member].indep_data = np.array(
+            [jan1 + datetime.timedelta(days=i)
+             for i in range(diatoms[member].dep_data.size)])
+
+
+def find_low_nitrate_days(nitrate, threshold):
+    """Return the start and end dates of the first 2 day period in
+    which the nitrate concentration is below the ``threshold``.
+    """
+    first_low_nitrate_days = {}
+    for member in nitrate:
+        nitrate[member].boolean_slice(nitrate[member].dep_data <= threshold)
+        for i in range(nitrate[member].dep_data.shape[0]):
+            low_nitrate_day_1 = nitrate[member].indep_data[i]
+            days = nitrate[member].indep_data[i + 1] - low_nitrate_day_1
+            if days == datetime.timedelta(days=1):
+                low_nitrate_day_2 = nitrate[member].indep_data[i + 1]
+                break
+        first_low_nitrate_days[member] = (low_nitrate_day_1, low_nitrate_day_2)
+    return first_low_nitrate_days
+
+
+def find_phytoplankton_peak(diatoms, first_low_nitrate_days, peak_half_width):
+    """Return the date within ``peak_half_width`` of the
+    ``first_low_nitrate_days`` on which the diatoms biomass is the
+    greatest.
+    """
+    half_width_days = datetime.timedelta(days=peak_half_width)
+    bloom_dates, bloom_biomasses = {}, {}
+    for member in diatoms:
+        bloom_window_start = (
+            first_low_nitrate_days[member][0] - half_width_days)
+        bloom_window_end = (
+            first_low_nitrate_days[member][1] + half_width_days)
+        diatoms[member].boolean_slice(
+            diatoms[member].indep_data >= bloom_window_start)
+        diatoms[member].boolean_slice(
+            diatoms[member].indep_data <= bloom_window_end)
+        bloom_date_index = diatoms[member].dep_data.argmax()
+        bloom_dates[member] = diatoms[member].indep_data[bloom_date_index]
+        bloom_biomasses[member] = diatoms[member].dep_data[bloom_date_index]
+    return bloom_dates, bloom_biomasses
 
 
 def main():
