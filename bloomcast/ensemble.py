@@ -44,6 +44,8 @@ COLORS = {
     'bg': '#2B3E50',       # bootswatch superhero theme background
     'diatoms': '#7CC643',  # yellow-green that looks good on the background
     'nitrate': '#82AFDC',  # blue-green that looks good on the background
+    'temperature': '#D83F83',
+    'salinity': '#82DCDC',
 }
 
 
@@ -315,7 +317,6 @@ class Ensemble(cliff.command.Command):
     def _create_timeseries_graphs(self, colors, prediction, bloom_dates):
         """Create time series plot figure objects.
         """
-        import ipdb; ipdb.set_trace()
         timeseries_plots = {
             'nitrate_diatoms': visualization.nitrate_diatoms_timeseries(
                 self.nitrate_ts,
@@ -332,6 +333,7 @@ class Ensemble(cliff.command.Command):
                 self.salinity,
                 colors,
                 self.config.data_date,
+                prediction,
                 bloom_dates,
                 titles=('3 m Avg Temperature [deg C]',
                         '3 m Avg Salinity [-]'),

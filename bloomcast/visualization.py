@@ -17,7 +17,7 @@
 import datetime
 
 import matplotlib.dates
-import matplotlib.pyplot as plt
+import matplotlib.figure
 import numpy as np
 
 
@@ -27,8 +27,11 @@ def nitrate_diatoms_timeseries(
     """Create a time series plot figure object showing nitrate and
     diatom biomass for median and bounds bloom predictions.
     """
-    fig, axes_left = plt.subplots(
-        3, 1, figsize=(15, 10), facecolor=colors['bg'], sharex=True)
+    fig = matplotlib.figure.Figure(figsize=(15, 10), facecolor=colors['bg'])
+    ax_late = fig.add_subplot(3, 1, 3)
+    ax_median = fig.add_subplot(3, 1, 2, sharex=ax_late)
+    ax_early = fig.add_subplot(3, 1, 1, sharex=ax_late)
+    axes_left = [ax_early, ax_median, ax_late]
     axes_right = [ax.twinx() for ax in axes_left]
     # Set colours of background, spines, ticks, and labels
     for ax in axes_left:
@@ -66,7 +69,10 @@ def nitrate_diatoms_timeseries(
         add_bloom_date_line(axes_left[i], bloom_dates[member], colors)
     # Set axes limits, tick intervals, and grid visibility
     set_timeseries_x_limits_ticks_label(
-        axes_left[2], nitrate[prediction['median']], colors)
+        ax_late, nitrate[prediction['median']],
+        bloom_dates[prediction['median']], colors)
+    hide_ticklabels(ax_early, 'x')
+    hide_ticklabels(ax_median, 'x')
     for ax in axes_left:
         ax.set_yticks(range(0, 31, 5))
         ax.grid(color=colors['axes'])
@@ -79,17 +85,27 @@ def nitrate_diatoms_timeseries(
 
 
 def two_axis_timeseries(
-    left_ts, right_ts, colors, titles, data_date, bloom_dates,
+    left_ts, right_ts, colors, data_date, prediction, bloom_dates, titles,
 ):
     """Create a time series plot figure object showing 2 time series with
     left and right axes.
     """
-    fig, ax_left = plt.subplots(1, 1, figsize=(8, 3), facecolor=colors['bg'])
+    fig = matplotlib.figure.Figure(figsize=(15, 10), facecolor=colors['bg'])
+    ax_left = fig.add_subplot(1, 1, 1)
     ax_right = ax_left.twinx()
     # Set colours of background, spines, ticks, and labels
     ax_left.set_axis_bgcolor(colors['bg'])
     set_spine_and_tick_colors(ax_left, colors, yticks='temperature')
     set_spine_and_tick_colors(ax_right, colors, yticks='salinity')
+    ax_left.plot(
+        left_ts.mpl_dates, left_ts.dep_data, color=colors['temperature'])
+    ax_right.plot(
+        right_ts.mpl_dates, right_ts.dep_data, color=colors['salinity'])
+    # Add lines at bloom date and actual to ensemble forcing transition
+    add_transition_date_line(ax_left, data_date, colors, yloc=16.5)
+    add_bloom_date_line(ax_left, bloom_dates[prediction['median']], colors)
+    set_timeseries_x_limits_ticks_label(
+        ax_left, left_ts, bloom_dates[prediction['median']], colors)
     return fig
 
 
@@ -99,40 +115,55 @@ def mixing_layer_depth_wind_timeseries(
     pass
 
 
-def set_spine_and_tick_colors(axis, colors, yticks):
+def set_spine_and_tick_colors(axes, colors, yticks):
     for side in 'top bottom left right'.split():
-        axis.spines[side].set_color(colors['axes'])
-    axis.tick_params(color=colors['axes'])
-    for label in axis.get_xticklabels():
+        axes.spines[side].set_color(colors['axes'])
+    axes.tick_params(color=colors['axes'])
+    for label in axes.get_xticklabels():
         label.set_color(colors['axes'])
-    for label in axis.get_yticklabels():
+    for label in axes.get_yticklabels():
         label.set_color(colors[yticks])
 
 
-def add_transition_date_line(axis, data_date, colors, yloc=31):
-    axis.axvline(
+def add_transition_date_line(axes, data_date, colors, yloc=31):
+    axes.axvline(
         matplotlib.dates.date2num(data_date), color=colors['axes'])
-    axis.text(
+    axes.text(
         matplotlib.dates.date2num(data_date), yloc,
         'Actual to Ensemble\nForcing Transition', color=colors['axes'])
 
 
-def add_bloom_date_line(axis, bloom_date, colors):
+def add_bloom_date_line(axes, bloom_date, colors):
     d = datetime.datetime.combine(bloom_date, datetime.time(12))
-    bloom_date_line = axis.axvline(
+    bloom_date_line = axes.axvline(
         matplotlib.dates.date2num(d), color=colors['diatoms'])
     # Add bloom date line legend
-    axis.legend(
+    axes.legend(
         (bloom_date_line,), ('Bloom Date',),
         loc='upper left', fontsize='small')
 
 
-def set_timeseries_x_limits_ticks_label(axis, timeseries, colors):
-    axis.set_xlim((
+def set_timeseries_x_limits_ticks_label(axes, timeseries, bloom_date, colors):
+    axes.set_xlim((
         np.trunc(timeseries.mpl_dates[0]),
         np.ceil(timeseries.mpl_dates[-1]),
     ))
-    axis.xaxis.set_major_locator(matplotlib.dates.MonthLocator())
-    axis.xaxis.set_major_formatter(
+    axes.xaxis.set_major_locator(matplotlib.dates.MonthLocator())
+    axes.xaxis.set_major_formatter(
         matplotlib.dates.DateFormatter('%j\n%b'))
-    axis.set_xlabel('Year-days in 2103 and 2014', color=colors['axes'])
+    axes.set_xlabel(
+        'Year-days in {first_year} and {second_year}'
+        .format(
+            first_year=bloom_date.year - 1,
+            second_year=bloom_date.year,
+        ),
+        color=colors['axes'])
+
+
+def hide_ticklabels(axes, axis='both'):
+    if axis in 'x both'.split():
+        for t in axes.get_xticklabels():
+            t.set_visible(False)
+    if axis in 'y both'.split():
+        for t in axes.get_yticklabels():
+            t.set_visible(False)
