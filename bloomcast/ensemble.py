@@ -46,7 +46,16 @@ COLORS = {
     'nitrate': '#82AFDC',  # blue-green that looks good on the background
     'temperature': '#D83F83',
     'salinity': '#82DCDC',
-}
+    'temperature_lines': {
+        'early': '#F00C27',
+        'median': '#D83F83',
+        'late': '#BD9122',
+    },
+    'salinity_lines': {
+        'early': '#0EB256',
+        'median': '#82DCDC',
+        'late': '#224EBD',
+    }}
 
 
 class Ensemble(cliff.command.Command):
@@ -117,6 +126,7 @@ class Ensemble(cliff.command.Command):
         self._load_physics_timeseries(prediction)
         timeseries_plots = self._create_timeseries_graphs(
             COLORS, prediction, bloom_dates)
+        render_results(timeseries_plots, self.log)
 
     def _create_infile_edits(self):
         """Create YAML infile edit files for each ensemble member SOG run.
@@ -328,7 +338,7 @@ class Ensemble(cliff.command.Command):
                 titles=('3 m Avg Nitrate Concentration [uM N]',
                         '3 m Avg Diatom Biomass [uM N]'),
             ),
-            'temperature_salinity': visualization.two_axis_timeseries(
+            'temperature_salinity': visualization.temperature_salinity_timeseries(
                 self.temperature,
                 self.salinity,
                 colors,
@@ -338,14 +348,14 @@ class Ensemble(cliff.command.Command):
                 titles=('3 m Avg Temperature [deg C]',
                         '3 m Avg Salinity [-]'),
             ),
-            'mld_wind': visualization.mixing_layer_depth_wind_timeseries(
-                self.mixing_layer_depth,
-                self.wind,
-                colors,
-                self.config.data_date,
-                titles=('Mixing Layer Depth [m]',
-                        'Wind Speed [m/s]'),
-            ),
+            # 'mld_wind': visualization.mixing_layer_depth_wind_timeseries(
+            #     self.mixing_layer_depth,
+            #     self.wind,
+            #     colors,
+            #     self.config.data_date,
+            #     titles=('Mixing Layer Depth [m]',
+            #             'Wind Speed [m/s]'),
+            # ),
         }
         return timeseries_plots
 
@@ -482,6 +492,15 @@ def find_member(bloom_dates, ord_day):
             if matches:
                 break
     return max(matches)
+
+
+def render_results(timeseries_plots, log):
+    """Render bloomcast results and plots to files.
+    """
+    for key, fig in timeseries_plots.items():
+        filename = '{}_timeseries.svg'.format(key)
+        visualization.save_as_svg(fig, filename)
+        log.debug('saved {} time series figure as {}'.format(key, filename))
 
 
 infile_edits_template = {   # pragma: no cover

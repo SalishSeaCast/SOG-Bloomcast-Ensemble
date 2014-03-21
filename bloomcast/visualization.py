@@ -16,6 +16,7 @@
 """
 import datetime
 
+import matplotlib.backends.backend_agg
 import matplotlib.dates
 import matplotlib.figure
 import numpy as np
@@ -67,45 +68,62 @@ def nitrate_diatoms_timeseries(
         # Add lines at bloom date and actual to ensemble forcing transition
         add_transition_date_line(axes_left[i], data_date, colors)
         add_bloom_date_line(axes_left[i], bloom_dates[member], colors)
-    # Set axes limits, tick intervals, and grid visibility
+    # Set x-axes limits, tick intervals, title, and grid visibility
     set_timeseries_x_limits_ticks_label(
         ax_late, nitrate[prediction['median']],
         bloom_dates[prediction['median']], colors)
     hide_ticklabels(ax_early, 'x')
     hide_ticklabels(ax_median, 'x')
+    # Set y-axes ticks and labels
     for ax in axes_left:
+        ax.set_ybound(0, 30)
         ax.set_yticks(range(0, 31, 5))
         ax.grid(color=colors['axes'])
     for ax in axes_right:
+        ax.set_ybound(0, 18)
         ax.set_yticks(range(0, 19, 3))
-    # Set axes labels
     axes_left[1].set_ylabel(titles[0], color=colors['nitrate'])
     axes_right[1].set_ylabel(titles[1], color=colors['diatoms'])
     return fig
 
 
-def two_axis_timeseries(
-    left_ts, right_ts, colors, data_date, prediction, bloom_dates, titles,
+def temperature_salinity_timeseries(
+    temperature, salinity, colors, data_date, prediction, bloom_dates, titles,
 ):
-    """Create a time series plot figure object showing 2 time series with
-    left and right axes.
+    """Create a time series plot figure object showing temperature
+    on the left axis and salinity on the right.
     """
-    fig = matplotlib.figure.Figure(figsize=(15, 10), facecolor=colors['bg'])
+    fig = matplotlib.figure.Figure(figsize=(15, 3.33), facecolor=colors['bg'])
     ax_left = fig.add_subplot(1, 1, 1)
     ax_right = ax_left.twinx()
     # Set colours of background, spines, ticks, and labels
     ax_left.set_axis_bgcolor(colors['bg'])
     set_spine_and_tick_colors(ax_left, colors, yticks='temperature')
     set_spine_and_tick_colors(ax_right, colors, yticks='salinity')
-    ax_left.plot(
-        left_ts.mpl_dates, left_ts.dep_data, color=colors['temperature'])
-    ax_right.plot(
-        right_ts.mpl_dates, right_ts.dep_data, color=colors['salinity'])
-    # Add lines at bloom date and actual to ensemble forcing transition
-    add_transition_date_line(ax_left, data_date, colors, yloc=16.5)
-    add_bloom_date_line(ax_left, bloom_dates[prediction['median']], colors)
+    ax_left.set_title('Temperature and Salinity', color=colors['axes'])
+    # Plot time series
+    line_keys = 'early late median'.split()
+    for key in line_keys:
+        ax_left.plot(
+            temperature[prediction[key]].mpl_dates,
+            temperature[prediction[key]].dep_data,
+            color=colors['temperature_lines'][key])
+        ax_right.plot(
+            salinity[prediction[key]].mpl_dates,
+            salinity[prediction[key]].dep_data,
+            color=colors['salinity_lines'][key])
+    # Add line at actual to ensemble forcing transition
+    add_transition_date_line(ax_left, data_date, colors, yloc=18.5)
+    # Set x-axes limits, tick intervals, title, and grid visibility
     set_timeseries_x_limits_ticks_label(
-        ax_left, left_ts, bloom_dates[prediction['median']], colors)
+        ax_left, temperature[prediction['median']],
+        bloom_dates[prediction['median']], colors)
+    # Set y-axes ticks and labels
+    ax_left.set_ybound(4, 18)
+    ax_left.grid(color=colors['axes'])
+    ax_right.set_ybound(16, 30)
+    ax_left.set_ylabel(titles[0], color=colors['temperature'])
+    ax_right.set_ylabel(titles[1], color=colors['salinity'])
     return fig
 
 
@@ -113,24 +131,6 @@ def mixing_layer_depth_wind_timeseries(
     mixing_layer_depth, wind, colors, data_date, titles,
 ):
     pass
-
-
-def set_spine_and_tick_colors(axes, colors, yticks):
-    for side in 'top bottom left right'.split():
-        axes.spines[side].set_color(colors['axes'])
-    axes.tick_params(color=colors['axes'])
-    for label in axes.get_xticklabels():
-        label.set_color(colors['axes'])
-    for label in axes.get_yticklabels():
-        label.set_color(colors[yticks])
-
-
-def add_transition_date_line(axes, data_date, colors, yloc=31):
-    axes.axvline(
-        matplotlib.dates.date2num(data_date), color=colors['axes'])
-    axes.text(
-        matplotlib.dates.date2num(data_date), yloc,
-        'Actual to Ensemble\nForcing Transition', color=colors['axes'])
 
 
 def add_bloom_date_line(axes, bloom_date, colors):
@@ -141,6 +141,38 @@ def add_bloom_date_line(axes, bloom_date, colors):
     axes.legend(
         (bloom_date_line,), ('Bloom Date',),
         loc='upper left', fontsize='small')
+
+
+def add_transition_date_line(axes, data_date, colors, yloc=31):
+    axes.axvline(
+        matplotlib.dates.date2num(data_date), color=colors['axes'])
+    axes.text(
+        matplotlib.dates.date2num(data_date), yloc,
+        'Actual to Ensemble\nForcing Transition', color=colors['axes'])
+
+
+def hide_ticklabels(axes, axis='both'):
+    if axis in 'x both'.split():
+        for t in axes.get_xticklabels():
+            t.set_visible(False)
+    if axis in 'y both'.split():
+        for t in axes.get_yticklabels():
+            t.set_visible(False)
+
+
+def save_as_svg(fig, filename):
+    canvas = matplotlib.backends.backend_agg.FigureCanvasAgg(fig)
+    canvas.print_svg(filename)
+
+
+def set_spine_and_tick_colors(axes, colors, yticks):
+    for side in 'top bottom left right'.split():
+        axes.spines[side].set_color(colors['axes'])
+    axes.tick_params(color=colors['axes'])
+    for label in axes.get_xticklabels():
+        label.set_color(colors['axes'])
+    for label in axes.get_yticklabels():
+        label.set_color(colors[yticks])
 
 
 def set_timeseries_x_limits_ticks_label(axes, timeseries, bloom_date, colors):
@@ -158,12 +190,3 @@ def set_timeseries_x_limits_ticks_label(axes, timeseries, bloom_date, colors):
             second_year=bloom_date.year,
         ),
         color=colors['axes'])
-
-
-def hide_ticklabels(axes, axis='both'):
-    if axis in 'x both'.split():
-        for t in axes.get_xticklabels():
-            t.set_visible(False)
-    if axis in 'y both'.split():
-        for t in axes.get_yticklabels():
-            t.set_visible(False)
