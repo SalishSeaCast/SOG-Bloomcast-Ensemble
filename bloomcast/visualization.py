@@ -47,7 +47,7 @@ def nitrate_diatoms_timeseries(
         'Late Bound Prediction',
     )
     for i, title in enumerate(ax_titles):
-        axes_left[i].set_title(title, color=colors['axes'], loc='left')
+        axes_left[i].set_title(title, color=colors['axes'])
     # Plot time series
     axes_keys = (
         prediction['early'],
