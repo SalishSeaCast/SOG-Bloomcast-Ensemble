@@ -15,6 +15,7 @@
 """SoG-bloomcast command plug-in to run an ensemble forecast to predict
 the first spring diatom phytoplankon bloom in the Strait of Georgia.
 """
+from collections import OrderedDict
 import copy
 import logging
 import os
@@ -252,18 +253,27 @@ class Ensemble(cliff.command.Command):
             [bloom_date.toordinal() for bloom_date in bloom_dates.values()])
         median = np.rint(np.median(ord_days))
         early_bound, late_bound = np.percentile(ord_days, (5, 95))
-        early_bound = np.trunc(early_bound)
-        late_bound = np.ceil(late_bound)
-        prediction = {
-            'early': find_member(bloom_dates, early_bound),
-            'median': find_member(bloom_dates, median),
-            'late': find_member(bloom_dates, late_bound),
-        }
-        self.log.info(
+        prediction = OrderedDict([
+            ('early', find_member(bloom_dates, np.trunc(early_bound))),
+            ('median', find_member(bloom_dates, median)),
+            ('late', find_member(bloom_dates, np.ceil(late_bound))),
+        ])
+        min_bound, max_bound = np.percentile(ord_days, (0, 100))
+        extremes = OrderedDict([
+            ('min', find_member(bloom_dates, np.trunc(min_bound))),
+            ('max', find_member(bloom_dates, np.ceil(max_bound))),
+        ])
+        self.log.debug(
             'Predicted earliest bloom date is {}'
-            .format(bloom_dates[prediction['early']]))
+            .format(bloom_dates[extremes['min']]))
         self.log.debug(
             'Earliest bloom date is based on forcing from {}/{}'
+            .format(extremes['min'] - 1, extremes['min']))
+        self.log.info(
+            'Predicted early bound bloom date is {}'
+            .format(bloom_dates[prediction['early']]))
+        self.log.debug(
+            'Early bound bloom date is based on forcing from {}/{}'
             .format(prediction['early'] - 1, prediction['early']))
         self.log.info(
             'Predicted median bloom date is {}'
@@ -277,13 +287,25 @@ class Ensemble(cliff.command.Command):
         self.log.debug(
             'Late bloom date is based on forcing from {}/{}'
             .format(prediction['late'] - 1, prediction['late']))
+        self.log.debug(
+            'Predicted latest bloom date is {}'
+            .format(bloom_dates[extremes['max']]))
+        self.log.debug(
+            'Latest bloom date is based on forcing from {}/{}'
+            .format(extremes['max'] - 1, extremes['max']))
         line = '  {.data_date}'.format(self.config)
-        for key in 'median early late'.split():
+        for member in 'median early late'.split():
             line += (
                 '      {bloom_date}  {forcing_year}'
                 .format(
-                    bloom_date=bloom_dates[prediction[key]],
-                    forcing_year=prediction[key]))
+                    bloom_date=bloom_dates[prediction[member]],
+                    forcing_year=prediction[member]))
+        for member in extremes.values():
+            line += (
+                '      {bloom_date}  {forcing_year}'
+                .format(
+                    bloom_date=bloom_dates[member],
+                    forcing_year=member))
         self.bloom_date_log.info(line)
         return prediction, bloom_dates
 
