@@ -49,12 +49,7 @@ def nitrate_diatoms_timeseries(
     for i, title in enumerate(ax_titles):
         axes_left[i].set_title(title, color=colors['axes'])
     # Plot time series
-    axes_keys = (
-        prediction['early'],
-        prediction['median'],
-        prediction['late'],
-    )
-    for i, member in enumerate(axes_keys):
+    for i, member in enumerate(prediction.values()):
         axes_left[i].plot(
             nitrate[member].mpl_dates,
             nitrate[member].dep_data,
@@ -102,15 +97,14 @@ def temperature_salinity_timeseries(
     set_spine_and_tick_colors(ax_right, colors, yticks='salinity')
     ax_left.set_title('Temperature and Salinity', color=colors['axes'])
     # Plot time series
-    line_keys = 'early late median'.split()
-    for key in line_keys:
+    for key, member in prediction.items():
         ax_left.plot(
-            temperature[prediction[key]].mpl_dates,
-            temperature[prediction[key]].dep_data,
+            temperature[member].mpl_dates,
+            temperature[member].dep_data,
             color=colors['temperature_lines'][key])
         ax_right.plot(
-            salinity[prediction[key]].mpl_dates,
-            salinity[prediction[key]].dep_data,
+            salinity[member].mpl_dates,
+            salinity[member].dep_data,
             color=colors['salinity_lines'][key])
     # Add line at actual to ensemble forcing transition
     add_transition_date_line(ax_left, data_date, colors, yloc=18.5)
