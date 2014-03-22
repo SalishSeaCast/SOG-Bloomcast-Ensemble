@@ -47,7 +47,10 @@ def nitrate_diatoms_timeseries(
         'Late Bound Prediction',
     )
     for i, title in enumerate(ax_titles):
-        axes_left[i].set_title(title, color=colors['axes'])
+        axes_left[i].annotate(
+            title, xy=(0, 1), xytext=(0, 5),
+            xycoords='axes fraction', textcoords='offset points',
+            size='large', color=colors['axes'])
     # Plot time series
     for i, member in enumerate(prediction.values()):
         axes_left[i].plot(
@@ -95,8 +98,11 @@ def temperature_salinity_timeseries(
     ax_left.set_axis_bgcolor(colors['bg'])
     set_spine_and_tick_colors(ax_left, colors, yticks='temperature')
     set_spine_and_tick_colors(ax_right, colors, yticks='salinity')
-    ax_left.set_title('Temperature and Salinity', color=colors['axes'])
-    # Plot time series
+    ax_left.annotate(
+        'Temperature and Salinity', xy=(0, 1), xytext=(0, 5),
+        xycoords='axes fraction', textcoords='offset points',
+        size='large', color=colors['axes'])
+# Plot time series
     for key, member in prediction.items():
         ax_left.plot(
             temperature[member].mpl_dates,
