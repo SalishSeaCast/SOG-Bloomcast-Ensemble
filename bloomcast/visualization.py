@@ -122,6 +122,7 @@ def temperature_salinity_timeseries(
     ax_right.set_ylabel(titles[1], color=colors['salinity'])
     # Add line at actual to ensemble forcing transition
     add_transition_date_line(ax_left, data_date, colors)
+    fig.tight_layout(rect=(0, 0, 1, 0.95))
     return fig
 
 
