@@ -142,12 +142,12 @@ def mixing_layer_depth_wind_timeseries(
 
 def add_bloom_date_line(axes, bloom_date, colors):
     d = datetime.datetime.combine(bloom_date, datetime.time(12))
-    bloom_date_line = axes.axvline(
+    axes.axvline(
         matplotlib.dates.date2num(d), color=colors['diatoms'])
-    # Add bloom date line legend
-    axes.legend(
-        (bloom_date_line,), ('Bloom Date',),
-        loc='upper left', fontsize='small')
+    axes.annotate(
+        'Bloom Date', xy=(d, axes.get_ylim()[1]), xytext=(2, -12),
+        xycoords='data', textcoords='offset points',
+        size='small', color=colors['axes'])
 
 
 def add_transition_date_line(axes, data_date, colors):
@@ -156,7 +156,7 @@ def add_transition_date_line(axes, data_date, colors):
     axes.annotate(
         'Actual to Ensemble\nForcing Transition',
         xy=(matplotlib.dates.date2num(data_date), axes.get_ylim()[1]),
-        xytext=(0, 5), xycoords='data', textcoords='offset points',
+        xytext=(-70, 5), xycoords='data', textcoords='offset points',
         size='small', color=colors['axes'])
 
 
