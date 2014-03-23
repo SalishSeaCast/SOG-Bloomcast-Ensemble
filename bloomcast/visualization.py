@@ -63,6 +63,12 @@ def nitrate_diatoms_timeseries(
             diatoms[member].dep_data,
             color=colors['diatoms'],
         )
+        # Set y-axes ticks and labels
+        axes_left[i].set_ybound(0, 30)
+        axes_left[i].set_yticks(range(0, 31, 5))
+        axes_left[i].grid(color=colors['axes'])
+        axes_right[i].set_ybound(0, 18)
+        axes_right[i].set_yticks(range(0, 19, 3))
         # Add lines at bloom date and actual to ensemble forcing transition
         add_transition_date_line(axes_left[i], data_date, colors)
         add_bloom_date_line(axes_left[i], bloom_dates[member], colors)
@@ -72,14 +78,6 @@ def nitrate_diatoms_timeseries(
         bloom_dates[prediction['median']], colors)
     hide_ticklabels(ax_early, 'x')
     hide_ticklabels(ax_median, 'x')
-    # Set y-axes ticks and labels
-    for ax in axes_left:
-        ax.set_ybound(0, 30)
-        ax.set_yticks(range(0, 31, 5))
-        ax.grid(color=colors['axes'])
-    for ax in axes_right:
-        ax.set_ybound(0, 18)
-        ax.set_yticks(range(0, 19, 3))
     axes_left[1].set_ylabel(titles[0], color=colors['nitrate'])
     axes_right[1].set_ylabel(titles[1], color=colors['diatoms'])
     return fig
@@ -102,7 +100,7 @@ def temperature_salinity_timeseries(
         'Temperature and Salinity', xy=(0, 1), xytext=(0, 5),
         xycoords='axes fraction', textcoords='offset points',
         size='large', color=colors['axes'])
-# Plot time series
+    # Plot time series
     for key, member in prediction.items():
         ax_left.plot(
             temperature[member].mpl_dates,
@@ -112,8 +110,6 @@ def temperature_salinity_timeseries(
             salinity[member].mpl_dates,
             salinity[member].dep_data,
             color=colors['salinity_lines'][key])
-    # Add line at actual to ensemble forcing transition
-    add_transition_date_line(ax_left, data_date, colors, yloc=18.5)
     # Set x-axes limits, tick intervals, title, and grid visibility
     set_timeseries_x_limits_ticks_label(
         ax_left, temperature[prediction['median']],
@@ -124,6 +120,8 @@ def temperature_salinity_timeseries(
     ax_right.set_ybound(16, 30)
     ax_left.set_ylabel(titles[0], color=colors['temperature'])
     ax_right.set_ylabel(titles[1], color=colors['salinity'])
+    # Add line at actual to ensemble forcing transition
+    add_transition_date_line(ax_left, data_date, colors)
     return fig
 
 
@@ -143,12 +141,14 @@ def add_bloom_date_line(axes, bloom_date, colors):
         loc='upper left', fontsize='small')
 
 
-def add_transition_date_line(axes, data_date, colors, yloc=31):
+def add_transition_date_line(axes, data_date, colors):
     axes.axvline(
         matplotlib.dates.date2num(data_date), color=colors['axes'])
-    axes.text(
-        matplotlib.dates.date2num(data_date), yloc,
-        'Actual to Ensemble\nForcing Transition', color=colors['axes'])
+    axes.annotate(
+        'Actual to Ensemble\nForcing Transition',
+        xy=(matplotlib.dates.date2num(data_date), axes.get_ylim()[1]),
+        xytext=(0, 5), xycoords='data', textcoords='offset points',
+        size='small', color=colors['axes'])
 
 
 def hide_ticklabels(axes, axis='both'):
