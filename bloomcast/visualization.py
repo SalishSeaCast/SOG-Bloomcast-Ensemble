@@ -101,14 +101,15 @@ def temperature_salinity_timeseries(
         xycoords='axes fraction', textcoords='offset points',
         size='large', color=colors['axes'])
     # Plot time series
-    for key, member in prediction.items():
+    # for key, member in prediction.items():
+    for key in 'early late median'.split():
         ax_left.plot(
-            temperature[member].mpl_dates,
-            temperature[member].dep_data,
+            temperature[prediction[key]].mpl_dates,
+            temperature[prediction[key]].dep_data,
             color=colors['temperature_lines'][key])
         ax_right.plot(
-            salinity[member].mpl_dates,
-            salinity[member].dep_data,
+            salinity[prediction[key]].mpl_dates,
+            salinity[prediction[key]].dep_data,
             color=colors['salinity_lines'][key])
     # Set x-axes limits, tick intervals, title, and grid visibility
     set_timeseries_x_limits_ticks_label(
