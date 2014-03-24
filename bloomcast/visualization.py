@@ -74,8 +74,7 @@ def nitrate_diatoms_timeseries(
         add_bloom_date_line(axes_left[i], bloom_dates[member], colors)
     # Set x-axes limits, tick intervals, title, and grid visibility
     set_timeseries_x_limits_ticks_label(
-        ax_late, nitrate[prediction['median']],
-        bloom_dates[prediction['median']], colors)
+        ax_late, nitrate[prediction['median']], colors)
     hide_ticklabels(ax_early, 'x')
     hide_ticklabels(ax_median, 'x')
     axes_left[1].set_ylabel(titles[0], color=colors['nitrate'])
@@ -120,8 +119,7 @@ def temperature_salinity_timeseries(
         fancybox=True, framealpha=0.5, fontsize='small')
     # Set x-axes limits, tick intervals, title, and grid visibility
     set_timeseries_x_limits_ticks_label(
-        ax_left, temperature[prediction['median']],
-        bloom_dates[prediction['median']], colors)
+        ax_left, temperature[prediction['median']], colors)
     # Set y-axes ticks and labels
     ax_left.set_ybound(4, 18)
     ax_left.grid(color=colors['axes'])
@@ -137,7 +135,74 @@ def temperature_salinity_timeseries(
 def mixing_layer_depth_wind_timeseries(
     mixing_layer_depth, wind, colors, data_date, titles,
 ):
-    pass
+    fig = matplotlib.figure.Figure(figsize=(15, 3.33), facecolor=colors['bg'])
+    ax_left = fig.add_subplot(1, 1, 1)
+    ax_right = ax_left.twinx()
+    # Set colours of background, spines, ticks, and labels
+    ax_left.set_axis_bgcolor(colors['bg'])
+    set_spine_and_tick_colors(ax_left, colors, yticks='mld')
+    set_spine_and_tick_colors(ax_right, colors, yticks='wind_speed')
+    ax_left.annotate(
+        'Mixing Layer Depth and Wind Speed', xy=(0, 1), xytext=(0, 5),
+        xycoords='axes fraction', textcoords='offset points',
+        size='large', color=colors['axes'])
+
+    # Plot time series
+    def calc_slice(data):
+        slice = np.logical_and(
+            data.mpl_dates > matplotlib.dates.date2num(
+                data_date - datetime.timedelta(days=6)),
+            data.mpl_dates <= matplotlib.dates.date2num(
+                data_date + datetime.timedelta(days=1)))
+        return slice
+    mld_slice = calc_slice(mixing_layer_depth)
+    mld_dates = mixing_layer_depth.mpl_dates[mld_slice]
+    ax_left.plot(
+        mld_dates, mixing_layer_depth.dep_data[mld_slice],
+        color=colors['mld'],
+    )
+    wind_slice = calc_slice(wind)
+    ax_right.fill_between(
+        wind.mpl_dates[wind_slice], wind.dep_data[wind_slice],
+        color=colors['wind_speed'], alpha=0.25,
+    )
+    # Set x-axes limits, tick intervals, title, and grid visibility
+    ax_left.xaxis.set_major_locator(matplotlib.dates.DayLocator())
+    ax_left.xaxis.set_major_formatter(
+        matplotlib.dates.DateFormatter('%j\n%d-%b'))
+    ax_left.xaxis.set_minor_locator(matplotlib.dates.HourLocator(interval=6))
+    ax_left.xaxis.set_tick_params(which='minor', color=colors['axes'])
+    start_date = matplotlib.dates.num2date(np.trunc(mld_dates[0]))
+    end_date = matplotlib.dates.num2date(np.ceil(mld_dates[-1]))
+    ax_left.set_xlim((start_date, end_date))
+    if start_date.year == end_date.year:
+        label = 'Year-days in {year}'.format(year=start_date.year)
+    else:
+        label = (
+            'Year-days in {first_year} and {second_year}'
+            .format(
+                first_year=start_date.year,
+                second_year=end_date.year))
+    ax_left.set_xlabel(label, color=colors['axes'])
+    # Set y-axes ticks and labels
+    ax_left.invert_yaxis()
+    ax_left.set_ybound(40, 0)
+    ax_left.grid(color=colors['axes'])
+    ax_right.set_ybound(0, 24)
+    ax_right.set_yticks(range(0, 25, 3))
+    ax_left.set_ylabel(titles[0], color=colors['mld'])
+    ax_right.set_ylabel(titles[1], color=colors['wind_speed'])
+    # Add line to mark profile time
+    profile_datetime = matplotlib.dates.date2num(
+        datetime.datetime.combine(data_date.date(), datetime.time(12)))
+    ax_left.axvline(profile_datetime, color=colors['axes'])
+    ax_left.annotate(
+        'Profile Time',
+        xy=(profile_datetime, ax_left.get_ylim()[1]),
+        xytext=(0, 5), xycoords='data', textcoords='offset points',
+        size='small', color=colors['axes'])
+    fig.tight_layout(rect=(0, 0, 1, 0.95))
+    return fig
 
 
 def add_bloom_date_line(axes, bloom_date, colors):
@@ -184,18 +249,19 @@ def set_spine_and_tick_colors(axes, colors, yticks):
         label.set_color(colors[yticks])
 
 
-def set_timeseries_x_limits_ticks_label(axes, timeseries, bloom_date, colors):
-    axes.set_xlim((
-        np.trunc(timeseries.mpl_dates[0]),
-        np.ceil(timeseries.mpl_dates[-1]),
-    ))
+def set_timeseries_x_limits_ticks_label(axes, timeseries, colors):
+    start_date = matplotlib.dates.num2date(np.trunc(timeseries.mpl_dates[0]))
+    end_date = matplotlib.dates.num2date(np.ceil(timeseries.mpl_dates[-1]))
+    axes.set_xlim((start_date, end_date))
     axes.xaxis.set_major_locator(matplotlib.dates.MonthLocator())
     axes.xaxis.set_major_formatter(
         matplotlib.dates.DateFormatter('%j\n%b'))
-    axes.set_xlabel(
-        'Year-days in {first_year} and {second_year}'
-        .format(
-            first_year=bloom_date.year - 1,
-            second_year=bloom_date.year,
-        ),
-        color=colors['axes'])
+    if start_date.year == end_date.year:
+        label = 'Year-days in {year}'.format(year=start_date.year)
+    else:
+        label = (
+            'Year-days in {first_year} and {second_year}'
+            .format(
+                first_year=start_date.year,
+                second_year=end_date.year))
+    axes.set_xlabel(label, color=colors['axes'])
