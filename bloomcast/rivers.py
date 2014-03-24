@@ -18,8 +18,11 @@ import datetime
 import logging
 import sys
 import time
+
+import arrow
 import requests
 import bs4
+
 from .utils import (
     Config,
     ForcingDataProcessor,
@@ -59,7 +62,7 @@ class RiversProcessor(ForcingDataProcessor):
         """
         params = self.config.rivers.params
         params['stn'] = getattr(self.config.rivers, river).station_id
-        today = datetime.date.today()
+        today = arrow.now().date()
         start_year = (self.config.run_start_date.year
                       if self.config.run_start_date.year != today.year
                       else today.year)
@@ -69,8 +72,11 @@ class RiversProcessor(ForcingDataProcessor):
                    data=self.config.rivers.accept_disclaimer)
             time.sleep(5)
             response = s.get(self.config.rivers.data_url, params=params)
-            log.debug('got {0} river data for {1}-01-01 to {2:%Y-%m-%d}'
-                      .format(river, start_year, self.config.data_date))
+            log.debug(
+                'got {0} river data for {1}-01-01 to {2}'
+                .format(
+                    river, start_year,
+                    self.config.data_date.format('YYYY-MM-DD')))
         soup = bs4.BeautifulSoup(response.content)
         self.raw_data = soup.find('table', id='dataTable')
 
@@ -83,7 +89,7 @@ class RiversProcessor(ForcingDataProcessor):
 
         The values are date components as integers.
         """
-        end_date = self.config.data_date + datetime.timedelta(days=1)
+        end_date = self.config.data_date.replace(days=+1)
         params = {
             'syr': start_year,
             'smo': 1,
@@ -94,7 +100,7 @@ class RiversProcessor(ForcingDataProcessor):
         }
         return params
 
-    def process_data(self, qty, end_date=datetime.date.today()):
+    def process_data(self, qty, end_date=arrow.now().date()):
         """Process data from BeautifulSoup parser object to a list of
         hourly timestamps and data values.
         """
@@ -194,7 +200,7 @@ def run(config_file):
     logging.basicConfig(level=logging.DEBUG)
     config = Config()
     config.load_config(config_file)
-    config.data_date = datetime.date.today()
+    config.data_date = arrow.now().floor('day')
     rivers = RiversProcessor(config)
     rivers.make_forcing_data_files()
 

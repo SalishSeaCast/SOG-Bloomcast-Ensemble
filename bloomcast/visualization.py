@@ -151,9 +151,9 @@ def mixing_layer_depth_wind_timeseries(
     def calc_slice(data):
         slice = np.logical_and(
             data.mpl_dates > matplotlib.dates.date2num(
-                data_date - datetime.timedelta(days=6)),
+                data_date.replace(days=-6)),
             data.mpl_dates <= matplotlib.dates.date2num(
-                data_date + datetime.timedelta(days=1)))
+                data_date.replace(days=+1)))
         return slice
     mld_slice = calc_slice(mixing_layer_depth)
     mld_dates = mixing_layer_depth.mpl_dates[mld_slice]
@@ -197,8 +197,7 @@ def mixing_layer_depth_wind_timeseries(
     ax_left.set_ylabel(titles[0], color=colors['mld'])
     ax_right.set_ylabel(titles[1], color=colors['wind_speed'])
     # Add line to mark profile time
-    profile_datetime = matplotlib.dates.date2num(
-        datetime.datetime.combine(data_date, datetime.time(12)))
+    profile_datetime = matplotlib.dates.date2num(data_date.replace(hours=12))
     ax_left.axvline(profile_datetime, color=colors['axes'])
     ax_left.annotate(
         'Profile Time',
