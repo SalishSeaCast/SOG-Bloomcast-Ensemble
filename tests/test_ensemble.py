@@ -129,7 +129,7 @@ class TestEnsembleTakeAction():
         p_config_logging = patch('bloomcast.ensemble.configure_logging')
 
         def get_forcing_data(config, log):
-            config.data_date = datetime.date(2014, 3, 12)
+            config.data_date = arrow.get(2014, 3, 12)
             raise ValueError
         p_get_forcing_data = patch(
             'bloomcast.ensemble.get_forcing_data',

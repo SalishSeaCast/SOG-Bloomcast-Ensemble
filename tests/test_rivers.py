@@ -20,6 +20,7 @@ from unittest.mock import (
     patch,
 )
 
+import arrow
 import bs4
 import pytest
 
@@ -37,7 +38,7 @@ class TestRiverProcessor():
     def test_date_params(self, processor):
         """_date_params handles month-end rollover correctly
         """
-        processor.config.data_date = datetime.date(2011, 11, 30)
+        processor.config.data_date = arrow.get(2011, 11, 30)
         expected = {
             'syr': 2011,
             'smo': 1,

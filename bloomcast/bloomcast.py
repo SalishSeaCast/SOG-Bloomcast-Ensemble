@@ -235,20 +235,20 @@ class Bloomcast(object):
             return
         wind = WindProcessor(self.config)
         self.config.data_date = wind.make_forcing_data_file()
-        log.info('based on wind data forcing data date is {0:%Y-%m-%d}'
-                 .format(self.config.data_date))
+        log.info('based on wind data forcing data date is {}'
+                 .format(self.config.data_date.format('YYYY-MM-DD')))
         try:
-            with open('wind_data_date', 'rt') as file_obj:
-                last_data_date = datetime.datetime.strptime(
-                    file_obj.readline().strip(), '%Y-%m-%d').date()
+            with open('wind_data_date', 'rt') as f:
+                last_data_date = arrow.get(f.readline().strip()).date()
         except IOError:
             # Fake a wind data date to get things rolling
             last_data_date = self.config.run_start_date.date()
         if self.config.data_date == last_data_date:
             raise NoNewWindData
         else:
-            with open('wind_data_date', 'wt') as file_obj:
-                file_obj.write('{0:%Y-%m-%d}\n'.format(self.config.data_date))
+            with open('wind_data_date', 'wt') as f:
+                f.write(
+                    '{}\n'.format(self.config.data_date.format('YYYY-MM-DD')))
         meteo = MeteoProcessor(self.config)
         meteo.make_forcing_data_files()
         rivers = RiversProcessor(self.config)
@@ -506,7 +506,7 @@ class Bloomcast(object):
                 PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
         if self.config.get_forcing_data or self.config.run_SOG:
             line = ('  {0}      {1}  {2:.4f}'
-                    .format(self.config.data_date,
+                    .format(self.config.data_date.format('YYYY-MM-DD'),
                             self.bloom_date['avg_forcing'],
                             self.bloom_biomass['avg_forcing']))
             for key in 'early_bloom_forcing late_bloom_forcing'.split():
@@ -618,7 +618,7 @@ class Bloomcast(object):
                               if not line.startswith('#')]
         context = {
             'run_start_date': self.config.run_start_date,
-            'data_date': self.config.data_date,
+            'data_date': self.config.data_date.format('YYYY-MM-DD'),
             'bloom_date': self.bloom_date,
             'bloom_date_log': bloom_date_log,
         }
@@ -786,7 +786,7 @@ def main():
         print('Expected config file path/name')
         sys.exit(1)
     try:
-        data_date = datetime.datetime.strptime(sys.argv[2], '%Y-%m-%d').date()
+        data_date = arrow.get(sys.argv[2])
     except ValueError:
         print('Expected %Y-%m-%d for data date, got: {0[2]}'.format(sys.argv))
         sys.exit(1)

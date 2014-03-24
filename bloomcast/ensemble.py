@@ -118,9 +118,8 @@ class Ensemble(cliff.command.Command):
             get_forcing_data(self.config, self.log)
         except ValueError:
             self.log.info(
-                'Wind data date {0.data_date:%Y-%m-%d} '
-                'is unchanged since last run'
-                .format(self.config))
+                'Wind data date {} is unchanged since last run'
+                .format(self.config.data_date.format('YYYY-MM-DD')))
             return
         self._create_infile_edits()
         self._create_batch_description()
@@ -296,7 +295,9 @@ class Ensemble(cliff.command.Command):
         self.log.debug(
             'Latest bloom date is based on forcing from {}/{}'
             .format(extremes['max'] - 1, extremes['max']))
-        line = '  {.data_date}'.format(self.config)
+        line = (
+            '  {data_date}'
+            .format(data_date=self.config.data_date.format('YYYY-MM-DD')))
         for member in 'median early late'.split():
             line += (
                 '      {bloom_date}  {forcing_year}'
@@ -448,8 +449,8 @@ def get_forcing_data(config, log):
         return
     wind_processor = wind.WindProcessor(config)
     config.data_date = wind_processor.make_forcing_data_file()
-    log.info('based on wind data forcing data date is {0:%Y-%m-%d}'
-             .format(config.data_date))
+    log.info('based on wind data forcing data date is {}'
+             .format(config.data_date.format('YYYY-MM-DD')))
     try:
         with open('wind_data_date', 'rt') as f:
             last_data_date = arrow.get(f.readline().strip()).date()
@@ -459,8 +460,8 @@ def get_forcing_data(config, log):
     if config.data_date == last_data_date:
         raise ValueError
     else:
-        with open('wind_data_date', 'wt') as file_obj:
-            file_obj.write('{0:%Y-%m-%d}\n'.format(config.data_date))
+        with open('wind_data_date', 'wt') as f:
+            f.write('{}\n'.format(config.data_date.format('YYYY-MM-DD')))
     meteo_processor = meteo.MeteoProcessor(config)
     meteo_processor.make_forcing_data_files()
     rivers_processor = rivers.RiversProcessor(config)
