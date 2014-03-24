@@ -135,7 +135,7 @@ def temperature_salinity_timeseries(
 def mixing_layer_depth_wind_timeseries(
     mixing_layer_depth, wind, colors, data_date, titles,
 ):
-    fig = matplotlib.figure.Figure(figsize=(15, 3.33), facecolor=colors['bg'])
+    fig = matplotlib.figure.Figure(figsize=(15, 4.75), facecolor=colors['bg'])
     ax_left = fig.add_subplot(1, 1, 1)
     ax_right = ax_left.twinx()
     # Set colours of background, spines, ticks, and labels
@@ -157,9 +157,9 @@ def mixing_layer_depth_wind_timeseries(
         return slice
     mld_slice = calc_slice(mixing_layer_depth)
     mld_dates = mixing_layer_depth.mpl_dates[mld_slice]
-    ax_left.plot(
-        mld_dates, mixing_layer_depth.dep_data[mld_slice],
-        color=colors['mld'],
+    ax_left.fill_between(
+        mld_dates, -mixing_layer_depth.dep_data[mld_slice],
+        color=colors['mld'], alpha=0.5,
     )
     wind_slice = calc_slice(wind)
     ax_right.fill_between(
@@ -185,16 +185,20 @@ def mixing_layer_depth_wind_timeseries(
                 second_year=end_date.year))
     ax_left.set_xlabel(label, color=colors['axes'])
     # Set y-axes ticks and labels
-    ax_left.invert_yaxis()
-    ax_left.set_ybound(40, 0)
+    ax_left.set_ybound(-30, 30)
+    ax_left.set_yticks(range(-30, 31, 5))
+    ax_left.set_yticklabels(
+        ('30', '25', '20', '15', '10', '5', '0', '', '', '', '', '', ''))
     ax_left.grid(color=colors['axes'])
-    ax_right.set_ybound(0, 24)
-    ax_right.set_yticks(range(0, 25, 3))
+    ax_right.set_ybound(-24, 24)
+    ax_right.set_yticks(range(-24, 25, 4))
+    ax_right.set_yticklabels(
+        ('', '', '', '', '', '', '0', '4', '8', '12', '16', '20', '24'))
     ax_left.set_ylabel(titles[0], color=colors['mld'])
     ax_right.set_ylabel(titles[1], color=colors['wind_speed'])
     # Add line to mark profile time
     profile_datetime = matplotlib.dates.date2num(
-        datetime.datetime.combine(data_date.date(), datetime.time(12)))
+        datetime.datetime.combine(data_date, datetime.time(12)))
     ax_left.axvline(profile_datetime, color=colors['axes'])
     ax_left.annotate(
         'Profile Time',
