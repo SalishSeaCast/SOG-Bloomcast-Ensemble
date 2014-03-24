@@ -43,8 +43,8 @@ __all__ = ['Ensemble']
 COLORS = {
     'axes': '#ebebeb',     # bootswatch superhero theme text
     'bg': '#2B3E50',       # bootswatch superhero theme background
-    'diatoms': '#7CC643',  # yellow-green that looks good on the background
-    'nitrate': '#82AFDC',  # blue-green that looks good on the background
+    'diatoms': '#7CC643',
+    'nitrate': '#82AFDC',
     'temperature': '#D83F83',
     'salinity': '#82DCDC',
     'temperature_lines': {
@@ -56,7 +56,10 @@ COLORS = {
         'early': '#0EB256',
         'median': '#82DCDC',
         'late': '#224EBD',
-    }}
+    },
+    'mld': '#df691a',
+    'wind_speed': '#ebebeb',
+}
 
 
 class Ensemble(cliff.command.Command):
@@ -370,14 +373,14 @@ class Ensemble(cliff.command.Command):
                 titles=('3 m Avg Temperature [deg C]',
                         '3 m Avg Salinity [-]'),
             ),
-            # 'mld_wind': visualization.mixing_layer_depth_wind_timeseries(
-            #     self.mixing_layer_depth,
-            #     self.wind,
-            #     colors,
-            #     self.config.data_date,
-            #     titles=('Mixing Layer Depth [m]',
-            #             'Wind Speed [m/s]'),
-            # ),
+            'mld_wind': visualization.mixing_layer_depth_wind_timeseries(
+                self.mixing_layer_depth,
+                self.wind,
+                colors,
+                self.config.data_date,
+                titles=('Mixing Layer Depth [m]',
+                        'Wind Speed [m/s]'),
+            ),
         }
         return timeseries_plots
 
