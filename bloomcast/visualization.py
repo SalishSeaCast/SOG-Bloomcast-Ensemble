@@ -114,9 +114,10 @@ def temperature_salinity_timeseries(
             color=colors['salinity_lines'][key])
         lines[i + 3] = line
         labels[i + 3] = key.title()
-    ax_left.legend(
+    leg = ax_left.legend(
         lines, labels, title='Forcing Data Source', ncol=2, loc='lower left',
-        fancybox=True, framealpha=0.5, fontsize='small')
+        fancybox=True, fontsize='small')
+    leg.get_frame().set_alpha(0.5)
     # Set x-axes limits, tick intervals, title, and grid visibility
     set_timeseries_x_limits_ticks_label(
         ax_left, temperature[prediction['median']], colors)
