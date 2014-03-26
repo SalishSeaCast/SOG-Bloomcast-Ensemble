@@ -18,11 +18,15 @@ the first spring diatom phytoplankon bloom in the Strait of Georgia.
 from collections import OrderedDict
 import copy
 import logging
+import shutil
+import subprocess
 import os
 
 import arrow
 import cliff.command
+import mako
 import numpy as np
+import pathlib
 import yaml
 
 import SOGcommand
@@ -129,7 +133,7 @@ class Ensemble(cliff.command.Command):
         self._load_physics_timeseries(prediction)
         timeseries_plots = self._create_timeseries_graphs(
             COLORS, prediction, bloom_dates)
-        render_results(timeseries_plots, self.log)
+        self.render_results(timeseries_plots)
 
     def _create_infile_edits(self):
         """Create YAML infile edit files for each ensemble member SOG run.
@@ -385,6 +389,43 @@ class Ensemble(cliff.command.Command):
         }
         return timeseries_plots
 
+    def render_results(self, timeseries_plots):
+        """Render bloomcast results and plots to files.
+        """
+        ts_plot_files = []
+        for key, fig in timeseries_plots.items():
+            filename = '{}_timeseries.svg'.format(key)
+            visualization.save_as_svg(fig, filename)
+            ts_plot_files.append(filename)
+            self.log.debug(
+                'saved {} time series figure as {}'.format(key, filename))
+        # Render results to RST file, build salishsea site, and push results
+        # files to web server
+        filename = (
+            self.config.results.www_path /
+            'templates' /
+            self.config.results.template_stem)
+        tmpl = mako.template.Template(
+            filename=str(filename.with_suffix('.mako')))
+        vars = {}
+        repo_path = hg_update(
+            self.config.results.site_repo_url,
+            self.config.results.www_path,
+            self.log,
+        )
+        rst_file = (
+            repo_path /
+            self.config.results.site_bloomcast_path /
+            self.config.results.template_stem).with_suffix('.rst')
+        with rst_file.open('wt') as f:
+            f.write(tmpl.render(**vars))
+        plots_path = repo_path/self.config.results.site_plots_path
+        for plot_file in ts_plot_files:
+            shutil.copy2(plot_file, str(plots_path))
+        sphinx_build(repo_path, self.log)
+        # scp site/_build/html/bloomcast/spring_diatoms.html to webserver
+        # rsync site/_build/html/_static/spring_diatoms/ to webserver
+
 
 def configure_logging(config, bloom_date_log):
     """Configure logging of debug & warning messages to console
@@ -520,13 +561,42 @@ def find_member(bloom_dates, ord_day):
     return max(matches)
 
 
-def render_results(timeseries_plots, log):
-    """Render bloomcast results and plots to files.
+def hg_update(repo_url, www_path, log):
+    """Pull changes from repo_url and update its clone in www_path.
+
+    If the clone does not yet exist, create it.
     """
-    for key, fig in timeseries_plots.items():
-        filename = '{}_timeseries.svg'.format(key)
-        visualization.save_as_svg(fig, filename)
-        log.debug('saved {} time series figure as {}'.format(key, filename))
+    repo_name = repo_url.parts[-1]
+    repo = www_path/repo_name
+    if repo.exists():
+        cmd = ['hg', 'pull', '--update', '--cwd', str(repo)]
+        log.debug('pulling updates from {}'.format(repo_url))
+    else:
+        cmd = ['hg', 'clone', repo_url, str(repo)]
+        log.debug('cloning{}'.format(repo_url))
+    subprocess.check_call(cmd)
+    log.debug('updated {}'.format(repo))
+    return repo
+
+
+def sphinx_build(repo_path, log):
+    """Do a clean build of the site by deleting the site/_build tree
+    and then running sphinx-build.
+    """
+    site_path = repo_path/'site'
+    build_path = site_path/'_build'
+    cmd = 'rm -rf {}'.format(build_path/'*')
+    subprocess.check_call(cmd, shell=True)
+    cmd = [
+        'sphinx-build',
+        '-b', 'html',
+        '-d', str(build_path/'doctrees'),
+        '-E',
+        str(site_path),
+        str(build_path/'html'),
+    ]
+    subprocess.check_call(cmd)
+    log.debug('finished sphinx-build of {}'.format(site_path))
 
 
 infile_edits_template = {   # pragma: no cover
