@@ -46,6 +46,8 @@ install_requires = [
     'numpy',
     'PyYAML',
     'requests',
+    'Sphinx',
+    'sphinx-bootstrap-theme',
     # Use `cd SOG; pip install -e .` to install SOG command processor
     # and its dependencies
 ]
