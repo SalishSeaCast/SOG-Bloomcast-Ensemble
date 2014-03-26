@@ -4,7 +4,6 @@ get_forcing_data: True
 run_SOG: True
 
 SOG_executable: ../../SOG-code-bloomcast/SOG
-html_results: ../bloomcast/html
 
 ensemble:
   max_concurrent_jobs: 32
@@ -57,4 +56,9 @@ logging:
   # capture email messages for testing
   use_test_smtpd: False
 
-results_dir: /home/sallen/public_html/SoG-bloomcast
+results:
+  site_repo_url: ssh://hg@bitbucket.org/salishsea/salishsea-site
+  site_bloomcast_path: site/bloomcast
+  site_plots_path: site/_static/bloomcast/spring_diatoms
+  www_path: www
+  template_stem: 'spring_diatoms'

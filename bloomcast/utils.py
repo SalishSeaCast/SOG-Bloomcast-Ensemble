@@ -20,10 +20,13 @@ import datetime
 import logging
 import io
 from xml.etree import cElementTree as ElementTree
+
 import matplotlib.dates
 import numpy as np
+import pathlib
 import requests
 import yaml
+
 import SOGcommand
 
 
@@ -47,10 +50,9 @@ class Config(object):
         self.get_forcing_data = config_dict['get_forcing_data']
         self.run_SOG = config_dict['run_SOG']
         self.SOG_executable = config_dict['SOG_executable']
-        self.html_results = config_dict['html_results']
-        self.results_dir = config_dict['results_dir']
         self.ensemble = _Container()
         self.ensemble.__dict__.update(config_dict['ensemble'])
+        self._load_results_config(config_dict['results'])
         infile_dict = self._read_SOG_infile(self.ensemble.base_infile)
         self.run_start_date = (
             infile_dict['run_start_date']
@@ -77,6 +79,13 @@ class Config(object):
         self.rivers = _Container()
         self.rivers.__dict__.update(config_dict['rivers'])
         self._load_rivers_config(config_dict, infile_dict)
+
+    def _load_results_config(self, config_dict):
+        """Load Config values for website results generation.
+        """
+        self.results = _Container()
+        self.results.__dict__.update(
+            {(key, pathlib.Path(value)) for key, value in config_dict.items()})
 
     def _load_meteo_config(self, config_dict, infile_dict):
         """Load Config values for meteorological forcing data.
