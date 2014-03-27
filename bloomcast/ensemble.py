@@ -392,35 +392,40 @@ class Ensemble(cliff.command.Command):
     def render_results(self, timeseries_plots):
         """Render bloomcast results and plots to files.
         """
-        ts_plot_files = []
+        ts_plot_files = {}
         for key, fig in timeseries_plots.items():
             filename = '{}_timeseries.svg'.format(key)
             visualization.save_as_svg(fig, filename)
-            ts_plot_files.append(filename)
+            ts_plot_files[key] = filename
             self.log.debug(
                 'saved {} time series figure as {}'.format(key, filename))
         # Render results to RST file, build salishsea site, and push results
         # files to web server
+        repo_path = hg_update(
+            self.config.results.site_repo_url,
+            self.config.results.www_path,
+            self.log,
+        )
         filename = (
             self.config.results.www_path /
             'templates' /
             self.config.results.template_stem)
         tmpl = mako.template.Template(
             filename=str(filename.with_suffix('.mako')))
-        vars = {}
-        repo_path = hg_update(
-            self.config.results.site_repo_url,
-            self.config.results.www_path,
-            self.log,
-        )
         rst_file = (
             repo_path /
             self.config.results.site_bloomcast_path /
             self.config.results.template_stem).with_suffix('.rst')
+        vars = {
+            'data_date': self.config.data_date.format('YYYY-MM-DD'),
+            'plots_path': pathlib.Path('..').joinpath(
+                *self.config.results.site_plots_path.parts[1:]),
+            'ts_plot_files': ts_plot_files,
+        }
         with rst_file.open('wt') as f:
             f.write(tmpl.render(**vars))
         plots_path = repo_path/self.config.results.site_plots_path
-        for plot_file in ts_plot_files:
+        for plot_file in ts_plot_files.values():
             shutil.copy2(plot_file, str(plots_path))
         sphinx_build(repo_path, self.log)
         # scp site/_build/html/bloomcast/spring_diatoms.html to webserver
