@@ -571,13 +571,13 @@ def hg_update(repo_url, www_path, log):
 
     If the clone does not yet exist, create it.
     """
-    repo_name = repo_url.parts[-1]
+    repo_name = repo_url.rsplit('/')[-1]
     repo = www_path/repo_name
     if repo.exists():
         cmd = ['hg', 'pull', '--update', '--cwd', str(repo)]
         log.debug('pulling updates from {}'.format(repo_url))
     else:
-        cmd = ['hg', 'clone', repo_url, str(repo)]
+        cmd = ['hg', 'clone', str(repo_url), str(repo)]
         log.debug('cloning{}'.format(repo_url))
     subprocess.check_call(cmd)
     log.debug('updated {}'.format(repo))
