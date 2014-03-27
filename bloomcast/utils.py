@@ -85,7 +85,9 @@ class Config(object):
         """
         self.results = _Container()
         self.results.__dict__.update(
-            {(key, pathlib.Path(value)) for key, value in config_dict.items()})
+            {(key, pathlib.Path(value)) for key, value in config_dict.items()
+                if key != 'site_repo_url'})
+        self.results.__dict__['site_repo_url'] = config_dict['site_repo_url']
 
     def _load_meteo_config(self, config_dict, infile_dict):
         """Load Config values for meteorological forcing data.
