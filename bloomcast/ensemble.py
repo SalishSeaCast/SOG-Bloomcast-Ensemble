@@ -406,12 +406,10 @@ class Ensemble(cliff.command.Command):
             self.config.results.www_path,
             self.log,
         )
-        filename = (
-            self.config.results.www_path /
-            'templates' /
-            self.config.results.template_stem)
-        tmpl = mako.template.Template(
-            filename=str(filename.with_suffix('.mako')))
+        mako_file = (
+            self.config.results.templates_path /
+            self.config.results.template_stem).with_suffix('.mako')
+        tmpl = mako.template.Template(filename=str(mako_file))
         rst_file = (
             repo_path /
             self.config.results.site_bloomcast_path /
@@ -427,9 +425,16 @@ class Ensemble(cliff.command.Command):
         plots_path = repo_path/self.config.results.site_plots_path
         for plot_file in ts_plot_files.values():
             shutil.copy2(plot_file, str(plots_path))
-        sphinx_build(repo_path, self.log)
-        # scp site/_build/html/bloomcast/spring_diatoms.html to webserver
-        # rsync site/_build/html/_static/spring_diatoms/ to webserver
+        html_path = sphinx_build(repo_path, self.log)
+        if self.config.results.push_to_web:
+            results_page = (
+                self.config.results.site_bloomcast_path.name /
+                self.config.results.template_stem).with_suffix('.html')
+            html_plots_path = pathlib.PurePath('').joinpath(
+                *self.config.results.site_plots_path.parts[1:])
+            push_to_web(
+                html_path, results_page, html_plots_path,
+                self.config.results.server_path, self.log)
 
 
 def configure_logging(config, bloom_date_log):
@@ -572,7 +577,7 @@ def hg_update(repo_url, www_path, log):
     If the clone does not yet exist, create it.
     """
     repo_name = repo_url.rsplit('/')[-1]
-    repo = www_path/repo_name
+    repo = pathlib.Path(www_path/repo_name)
     if repo.exists():
         cmd = ['hg', 'pull', '--update', '--cwd', str(repo)]
         log.debug('pulling updates from {}'.format(repo_url))
@@ -590,6 +595,7 @@ def sphinx_build(repo_path, log):
     """
     site_path = repo_path/'site'
     build_path = site_path/'_build'
+    html_path = build_path/'html'
     cmd = 'rm -rf {}'.format(build_path/'*')
     subprocess.check_call(cmd, shell=True)
     cmd = [
@@ -598,10 +604,30 @@ def sphinx_build(repo_path, log):
         '-d', str(build_path/'doctrees'),
         '-E',
         str(site_path),
-        str(build_path/'html'),
+        str(html_path),
     ]
     subprocess.check_call(cmd)
     log.debug('finished sphinx-build of {}'.format(site_path))
+    return html_path
+
+
+def push_to_web(html_path, results_page, plots_path, server_path, log):
+    """Push the results page and plot files to the web server.
+    """
+    cmd = [
+        'rsync', '-Rtvhz',
+        '{}/./{}'.format(html_path, results_page),
+        str(server_path),
+    ]
+    subprocess.check_call(cmd)
+    log.debug('pushed results page and plots to {}/'.format(server_path))
+    cmd = [
+        'rsync', '-Rtvhz',
+        '{}/./{}'.format(html_path, plots_path),
+        str(server_path),
+    ]
+    subprocess.check_call(cmd)
+    log.debug('pushed plots to {}/'.format(server_path))
 
 
 infile_edits_template = {   # pragma: no cover

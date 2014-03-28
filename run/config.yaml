@@ -61,4 +61,7 @@ results:
   site_bloomcast_path: site/bloomcast
   site_plots_path: site/_static/bloomcast/spring_diatoms
   www_path: www
+  templates_path: www/templates
   template_stem: 'spring_diatoms'
+  push_to_web: True
+  server_path: shelob:/www/salishsea/data
