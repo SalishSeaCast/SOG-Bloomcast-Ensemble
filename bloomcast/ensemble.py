@@ -414,11 +414,15 @@ class Ensemble(cliff.command.Command):
             repo_path /
             self.config.results.site_bloomcast_path /
             self.config.results.template_stem).with_suffix('.rst')
+        with open(self.config.logging.bloom_date_log_filename, 'rt') as f:
+            bloom_date_log = [line.split() for line in f
+                              if not line.startswith('#')]
         vars = {
             'data_date': self.config.data_date.format('YYYY-MM-DD'),
             'plots_path': pathlib.Path('..').joinpath(
                 *self.config.results.site_plots_path.parts[1:]),
             'ts_plot_files': ts_plot_files,
+            'bloom_date_log': bloom_date_log,
         }
         with rst_file.open('wt') as f:
             f.write(tmpl.render(**vars))
