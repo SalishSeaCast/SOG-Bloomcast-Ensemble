@@ -66,3 +66,37 @@ Profiles at ${data_date} 12:00
 
 Bloom Date Evolution
 ====================
+
+.. raw:: html
+
+    <table class="table-striped">
+      <thead>
+        <tr>
+          <th class="transition-date" rowspan="2">
+            Actual to Ensemble Forcing Transition Date</th>
+          <th class="centre-span2" colspan="2">Median</th>
+          <th class="centre-span2" colspan="2">5th Centile Early Bound</th>
+          <th class="centre-span2" colspan="2">95th Centile Late Bound</th>
+          <th class="centre-span2" colspan="2">Earliest Ensemble Result</th>
+          <th class="centre-span2" colspan="2">Latest Ensemble Result</th>
+        </tr>
+        <tr>
+          %for i in range(5):
+            <th class="bloom-date">Bloom Date</th>
+            <th class="ensemble-member">Ensemble Member</th>
+          %endfor
+        </tr>
+      </thead>
+      <tbody>
+        %for row in bloom_date_log:
+          <tr>
+            %for value in row:
+              <td>${value}</td>
+            %endfor
+            %for i in range(len(row) + 1, 12):
+              <td>N/A</td>
+            %endfor
+          </tr>
+        %endfor
+      </tbody>
+  </table>
