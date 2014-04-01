@@ -47,7 +47,6 @@ rivers:
     station_id: 08HB002  # Englishman River at Parksville
 
 logging:
-  debug: True
   bloomcast_log_filename: bloomcast.log
   bloom_date_log_filename: bloom_date_evolution.log
   toaddrs:
