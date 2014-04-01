@@ -56,7 +56,7 @@ logging:
   use_test_smtpd: False
 
 results:
-  site_repo_url: ssh://hg@bitbucket.org/salishsea/salishsea-site
+  site_repo_url: https://bitbucket.org/salishsea/salishsea-site
   site_bloomcast_path: site/bloomcast
   site_plots_path: site/_static/bloomcast/spring_diatoms
   www_path: www
