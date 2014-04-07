@@ -62,5 +62,5 @@ results:
   www_path: www
   templates_path: www/templates
   template_stem: 'spring_diatoms'
-  push_to_web: True
+  push_to_web: False
   server_path: shelob:/www/salishsea/data
