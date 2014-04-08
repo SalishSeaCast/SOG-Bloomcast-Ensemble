@@ -53,7 +53,7 @@ class WindProcessor(ClimateDataProcessor):
             log.debug('got wind data for {0:%Y-%m}'.format(data_month))
         self.process_data('wind')
         log.debug('latest wind {0}'.format(self.data['wind'][-1]))
-        data_date = arrow.get(self.data['wind'][-1][0])
+        data_date = arrow.get(self.data['wind'][-1][0]).replace(hour=0)
         output_file = self.config.climate.wind.output_files['wind']
         with open(output_file, 'wt') as file_obj:
             file_obj.writelines(self.format_data())
