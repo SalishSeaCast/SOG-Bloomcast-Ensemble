@@ -21,6 +21,7 @@ import logging
 import io
 from xml.etree import cElementTree as ElementTree
 
+import arrow
 import matplotlib.dates
 import numpy as np
 import pathlib
@@ -340,7 +341,7 @@ class ClimateDataProcessor(ForcingDataProcessor):
                            for month in range(1, 13)] + data_months
         return data_months
 
-    def process_data(self, qty, end_date=datetime.date.today()):
+    def process_data(self, qty, end_date=arrow.now().floor('day')):
         """Process data from XML data records to a list of hourly
         timestamps and data values.
         """
@@ -349,7 +350,7 @@ class ClimateDataProcessor(ForcingDataProcessor):
         self.data[qty] = []
         for record in self.raw_data:
             timestamp = self.read_timestamp(record)
-            if timestamp.date() > end_date:
+            if timestamp.date() > end_date.date():
                 break
             if qty != 'wind' and (timestamp.date() < YVR_STN_CHG_DATE):
                 self.data[qty].append((timestamp, 0))
