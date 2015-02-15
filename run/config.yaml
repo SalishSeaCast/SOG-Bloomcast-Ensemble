@@ -1,13 +1,13 @@
 # SoG bloomcast configuration file
 
 get_forcing_data: True
-run_SOG: True
+run_SOG: False
 
 SOG_executable: ../../SOG-code-bloomcast/SOG
 
 ensemble:
   max_concurrent_jobs: 32
-  base_infile: 2014_bloomcast_infile.yaml
+  base_infile: 2015_bloomcast_infile.yaml
   start_year: 1981   # 1st bloomcast year
   end_year: 2010     # last bloomcast year
   forcing_data_file_roots:
