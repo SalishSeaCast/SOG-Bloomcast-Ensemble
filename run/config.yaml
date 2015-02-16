@@ -1,7 +1,7 @@
 # SoG bloomcast configuration file
 
 get_forcing_data: True
-run_SOG: False
+run_SOG: True
 
 SOG_executable: ../../SOG-code-bloomcast/SOG
 
