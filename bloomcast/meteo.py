@@ -1,4 +1,4 @@
-# Copyright 2011-2014 Doug Latornell and The University of British Columbia
+# Copyright 2011-2015 Doug Latornell and The University of British Columbia
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,12 @@
 
 """Meteorolgical forcing data processing module for SoG-bloomcast project.
 """
-import datetime
 import logging
 import sys
 import contextlib
+
+import arrow
+
 from .utils import (
     ClimateDataProcessor,
     Config,
@@ -149,7 +151,7 @@ def run(config_file):
     logging.basicConfig(level=logging.DEBUG)
     config = Config()
     config.load_config(config_file)
-    config.data_date = datetime.date.today()
+    config.data_date = arrow.now().floor('day')
     meteo = MeteoProcessor(config)
     meteo.make_forcing_data_files()
 

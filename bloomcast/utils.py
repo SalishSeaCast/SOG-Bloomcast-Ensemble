@@ -1,4 +1,4 @@
-# Copyright 2011-2014 Doug Latornell and The University of British Columbia
+# Copyright 2011-2015 Doug Latornell and The University of British Columbia
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,10 +20,14 @@ import datetime
 import logging
 import io
 from xml.etree import cElementTree as ElementTree
+
+import arrow
 import matplotlib.dates
 import numpy as np
+import pathlib
 import requests
 import yaml
+
 import SOGcommand
 
 
@@ -42,28 +46,33 @@ class Config(object):
         attributes of the Config object.
         """
         config_dict = self._read_yaml_file(config_file)
-        self._load_logging_config(config_dict)
+        self.logging = _Container()
+        self.logging.__dict__.update(config_dict['logging'])
         self.get_forcing_data = config_dict['get_forcing_data']
         self.run_SOG = config_dict['run_SOG']
         self.SOG_executable = config_dict['SOG_executable']
-        self.html_results = config_dict['html_results']
-        self.infiles = config_dict['infiles']
-        self.results_dir = config_dict['results_dir']
-        self.std_bio_ts_outfiles = {}
-        self.std_phys_ts_outfiles = {}
-        self.Hoffmueller_profiles_outfiles = {}
-        for key in self.infiles['edits']:
-            infile_dict = self._read_SOG_infile(
-                self.infiles['base'], self.infiles['edits'][key])
-            if key == 'avg_forcing':
-                self.run_start_date = (
-                    infile_dict['run_start_date']
-                    .replace(hour=0, minute=0, second=0, microsecond=0))
-                self.SOG_timestep = int(infile_dict['SOG_timestep'])
-            self.std_bio_ts_outfiles[key] = infile_dict['std_bio_ts_outfile']
-            self.std_phys_ts_outfiles[key] = infile_dict['std_phys_ts_outfile']
-            self.Hoffmueller_profiles_outfiles[key] = infile_dict[
-                'Hoffmueller_profiles_outfile']
+        self.ensemble = _Container()
+        self.ensemble.__dict__.update(config_dict['ensemble'])
+        self._load_results_config(config_dict['results'])
+        infile_dict = self._read_SOG_infile(self.ensemble.base_infile)
+        self.run_start_date = (
+            infile_dict['run_start_date']
+            .replace(hour=0, minute=0, second=0, microsecond=0))
+        self.SOG_timestep = int(infile_dict['SOG_timestep'])
+        timeseries_keys = (
+            'std_phys_ts_outfile user_phys_ts_outfile '
+            'std_bio_ts_outfile user_bio_ts_outfile '
+            'std_chem_ts_outfile user_chem_ts_outfile'
+            .split())
+        for key in timeseries_keys:
+            setattr(self, key, infile_dict[key])
+        profiles_keys = (
+            'profiles_outfile_base user_profiles_outfile_base '
+            'halocline_outfile '
+            'Hoffmueller_profiles_outfile user_Hoffmueller_profiles_outfile'
+            .split())
+        for key in profiles_keys:
+            setattr(self, key, infile_dict[key])
         self.climate = _Container()
         self.climate.__dict__.update(config_dict['climate'])
         self._load_meteo_config(config_dict, infile_dict)
@@ -72,11 +81,15 @@ class Config(object):
         self.rivers.__dict__.update(config_dict['rivers'])
         self._load_rivers_config(config_dict, infile_dict)
 
-    def _load_logging_config(self, config_dict):
-        """Load Config values for logging.
+    def _load_results_config(self, config_dict):
+        """Load Config values for website results generation.
         """
-        self.logging = _Container()
-        self.logging.__dict__.update(config_dict['logging'])
+        self.results = _Container()
+        for key, value in config_dict.items():
+            if key in 'site_repo_url push_to_web'.split():
+                self.results.__dict__[key] = value
+            else:
+                self.results.__dict__[key] = pathlib.PurePath(value)
 
     def _load_meteo_config(self, config_dict, infile_dict):
         """Load Config values for meteorological forcing data.
@@ -121,19 +134,34 @@ class Config(object):
         the specified config file as YAML.
         """
         with open(config_file, 'rt') as file_obj:
-            return yaml.load(file_obj.read())
+            config = yaml.load(file_obj.read())
+        log.debug(
+            'data structure read from {}'.format(config_file))
+        return config
 
-    def _read_SOG_infile(self, yaml_file, edit_files):
+    def _read_SOG_infile(self, yaml_file):
         """Return a dict of selected values read from the SOG infile.
         """
         # Mappings between SOG YAML infile keys and Config object attributes
         infile_values = {
             'initial_conditions.init_datetime': 'run_start_date',
             'numerics.dt': 'SOG_timestep',
-            'timeseries_results.std_biology': 'std_bio_ts_outfile',
             'timeseries_results.std_physics': 'std_phys_ts_outfile',
+            'timeseries_results.user_physics': 'user_phys_ts_outfile',
+            'timeseries_results.std_biology': 'std_bio_ts_outfile',
+            'timeseries_results.user_biology': 'user_bio_ts_outfile',
+            'timeseries_results.std_chemistry': 'std_chem_ts_outfile',
+            'timeseries_results.user_chemistry': 'user_chem_ts_outfile',
+            'profiles_results.profile_file_base': (
+                'profiles_outfile_base'),
+            'profiles_results.user_profile_file_base': (
+                'user_profiles_outfile_base'),
+            'profiles_results.halocline_file': (
+                'halocline_outfile'),
             'profiles_results.hoffmueller_file': (
                 'Hoffmueller_profiles_outfile'),
+            'profiles_results.user_hoffmueller_file': (
+                'user_Hoffmueller_profiles_outfile'),
         }
         forcing_data_files = {
             'forcing_data.wind_forcing_file': 'wind',
@@ -145,15 +173,17 @@ class Config(object):
         }
         infile_dict = {'forcing_data_files': {}}
         for infile_key in infile_values:
-            value = SOGcommand.api.read_infile(
-                yaml_file, edit_files, infile_key)
+            value = SOGcommand.api.read_infile(yaml_file, [], infile_key)
             result_key = infile_values[infile_key]
             infile_dict[result_key] = value
+        log.debug(
+            'run start date, time step, and output file names read from {}'
+            .format(yaml_file))
         for infile_key in forcing_data_files:
-            value = SOGcommand.api.read_infile(
-                yaml_file, edit_files, infile_key)
+            value = SOGcommand.api.read_infile(yaml_file, [], infile_key)
             result_key = forcing_data_files[infile_key]
             infile_dict['forcing_data_files'][result_key] = value
+        log.debug('forcing data file names read from {}'.format(yaml_file))
         return infile_dict
 
 
@@ -311,7 +341,7 @@ class ClimateDataProcessor(ForcingDataProcessor):
                            for month in range(1, 13)] + data_months
         return data_months
 
-    def process_data(self, qty, end_date=datetime.date.today()):
+    def process_data(self, qty, end_date=arrow.now().floor('day')):
         """Process data from XML data records to a list of hourly
         timestamps and data values.
         """
@@ -320,7 +350,7 @@ class ClimateDataProcessor(ForcingDataProcessor):
         self.data[qty] = []
         for record in self.raw_data:
             timestamp = self.read_timestamp(record)
-            if timestamp.date() > end_date:
+            if timestamp.date() > end_date.date():
                 break
             if qty != 'wind' and (timestamp.date() < YVR_STN_CHG_DATE):
                 self.data[qty].append((timestamp, 0))

@@ -51,6 +51,8 @@ Contents:
    :maxdepth: 2
 
    DesignNotes
+   Development
+   Deployment
 
 Indices and tables
 ==================

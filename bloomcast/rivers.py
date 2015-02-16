@@ -1,4 +1,4 @@
-# Copyright 2011-2014 Doug Latornell and The University of British Columbia
+# Copyright 2011-2015 Doug Latornell and The University of British Columbia
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,8 +18,11 @@ import datetime
 import logging
 import sys
 import time
+
+import arrow
 import requests
 import bs4
+
 from .utils import (
     Config,
     ForcingDataProcessor,
@@ -59,20 +62,22 @@ class RiversProcessor(ForcingDataProcessor):
         """
         params = self.config.rivers.params
         params['stn'] = getattr(self.config.rivers, river).station_id
-        today = datetime.date.today()
+        today = arrow.now().date()
         start_year = (self.config.run_start_date.year
                       if self.config.run_start_date.year != today.year
                       else today.year)
         params.update(self._date_params(start_year))
-        with requests.session() as s:
-            s.post(self.config.rivers.disclaimer_url,
-                   data=self.config.rivers.accept_disclaimer)
-            time.sleep(5)
-            response = s.get(self.config.rivers.data_url, params=params)
-            log.debug('got {0} river data for {1}-01-01 to {2:%Y-%m-%d}'
-                      .format(river, start_year, self.config.data_date))
+        response = requests.get(
+            self.config.rivers.data_url,
+            params=params,
+            cookies=self.config.rivers.disclaimer_cookie)
+        log.debug(
+            'got {0} river data for {1}-01-01 to {2}'
+            .format(
+                river, start_year,
+                self.config.data_date.format('YYYY-MM-DD')))
         soup = bs4.BeautifulSoup(response.content)
-        self.raw_data = soup.find('table', id='dataTable')
+        self.raw_data = soup.find('table')
 
     def _date_params(self, start_year):
         """Return a dict of the components of start and end dates for
@@ -83,18 +88,14 @@ class RiversProcessor(ForcingDataProcessor):
 
         The values are date components as integers.
         """
-        end_date = self.config.data_date + datetime.timedelta(days=1)
+        end_date = self.config.data_date.replace(days=+1)
         params = {
-            'syr': start_year,
-            'smo': 1,
-            'sday': 1,
-            'eyr': end_date.year,
-            'emo': end_date.month,
-            'eday': end_date.day,
+            'startDate': arrow.get(start_year, 1, 1).format('YYYY-MM-DD'),
+            'endDate': end_date.format('YYYY-MM-DD')
         }
         return params
 
-    def process_data(self, qty, end_date=datetime.date.today()):
+    def process_data(self, qty, end_date=arrow.now().floor('day')):
         """Process data from BeautifulSoup parser object to a list of
         hourly timestamps and data values.
         """
@@ -106,7 +107,7 @@ class RiversProcessor(ForcingDataProcessor):
         self.data[qty] = []
         for timestamp, flow in zip(timestamps, flows):
             datestamp = self.read_datestamp(timestamp)
-            if datestamp > end_date:
+            if datestamp > end_date.date():
                 break
             if datestamp == data_day:
                 flow_sum += self._convert_flow(flow)
@@ -194,7 +195,7 @@ def run(config_file):
     logging.basicConfig(level=logging.DEBUG)
     config = Config()
     config.load_config(config_file)
-    config.data_date = datetime.date.today()
+    config.data_date = arrow.now().floor('day')
     rivers = RiversProcessor(config)
     rivers.make_forcing_data_files()
 
