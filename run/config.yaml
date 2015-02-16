@@ -34,13 +34,13 @@ climate:
     station_id: 6831    # Sandheads
 
 rivers:
-  disclaimer_url: http://www.wateroffice.ec.gc.ca/include/disclaimer.php
-  accept_disclaimer:
-    disclaimer_action: I Agree
-  data_url: http://www.wateroffice.ec.gc.ca/graph/graph_e.html
+  data_url: http://wateroffice.ec.gc.ca/report/report_e.html
+  disclaimer_cookie:
+    disclaimer: agree
   params:
-    mode: text
-    prm1: 6              # discharge
+    mode: Table
+    prm1: 47              # discharge
+    type: realTime
   major:
     station_id: 08MF005  # Fraser River at Hope
   minor:

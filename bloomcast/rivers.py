@@ -67,16 +67,15 @@ class RiversProcessor(ForcingDataProcessor):
                       if self.config.run_start_date.year != today.year
                       else today.year)
         params.update(self._date_params(start_year))
-        with requests.session() as s:
-            s.post(self.config.rivers.disclaimer_url,
-                   data=self.config.rivers.accept_disclaimer)
-            time.sleep(5)
-            response = s.get(self.config.rivers.data_url, params=params)
-            log.debug(
-                'got {0} river data for {1}-01-01 to {2}'
-                .format(
-                    river, start_year,
-                    self.config.data_date.format('YYYY-MM-DD')))
+        response = requests.get(
+            self.config.rivers.data_url,
+            params=params,
+            cookies=self.config.rivers.disclaimer_cookie)
+        log.debug(
+            'got {0} river data for {1}-01-01 to {2}'
+            .format(
+                river, start_year,
+                self.config.data_date.format('YYYY-MM-DD')))
         soup = bs4.BeautifulSoup(response.content)
         self.raw_data = soup.find('table', id='dataTable')
 
@@ -91,12 +90,8 @@ class RiversProcessor(ForcingDataProcessor):
         """
         end_date = self.config.data_date.replace(days=+1)
         params = {
-            'syr': start_year,
-            'smo': 1,
-            'sday': 1,
-            'eyr': end_date.year,
-            'emo': end_date.month,
-            'eday': end_date.day,
+            'startDate': arrow.get(start_year, 1, 1).format('YYYY-MM-DD'),
+            'endDate': end_date.format('YYYY-MM-DD')
         }
         return params
 
