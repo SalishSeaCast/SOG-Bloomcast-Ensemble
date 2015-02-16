@@ -77,7 +77,7 @@ class RiversProcessor(ForcingDataProcessor):
                 river, start_year,
                 self.config.data_date.format('YYYY-MM-DD')))
         soup = bs4.BeautifulSoup(response.content)
-        self.raw_data = soup.find('table', id='dataTable')
+        self.raw_data = soup.find('table')
 
     def _date_params(self, start_year):
         """Return a dict of the components of start and end dates for
