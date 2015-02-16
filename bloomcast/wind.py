@@ -1,4 +1,4 @@
-# Copyright 2011-2014 Doug Latornell and The University of British Columbia
+# Copyright 2011-2015 Doug Latornell and The University of British Columbia
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +14,18 @@
 
 """Wind forcing data processing module for SoG-bloomcast project.
 """
+import datetime
 import logging
 import math
 import sys
+
+import arrow
+import numpy as np
+
 from .utils import (
     ClimateDataProcessor,
     Config,
+    SOG_Timeseries,
 )
 
 
@@ -47,7 +53,7 @@ class WindProcessor(ClimateDataProcessor):
             log.debug('got wind data for {0:%Y-%m}'.format(data_month))
         self.process_data('wind')
         log.debug('latest wind {0}'.format(self.data['wind'][-1]))
-        data_date = self.data['wind'][-1][0].date()
+        data_date = arrow.get(self.data['wind'][-1][0]).replace(hour=0)
         output_file = self.config.climate.wind.output_files['wind']
         with open(output_file, 'wt') as file_obj:
             file_obj.writelines(self.format_data())
@@ -142,6 +148,37 @@ class WindProcessor(ClimateDataProcessor):
             line = '{0:%d %m %Y} {1:.1f} {2:f} {3:f}\n'.format(
                 timestamp, timestamp.hour, wind[0], wind[1])
             yield line
+
+
+class WindTimeseries(SOG_Timeseries):
+    """Wind speed data expressed as a SOG timerseries object.
+    """
+    def read_data(
+        self,
+        run_start_date,
+        indep_field='timestamp',
+        dep_field='wind speed',
+    ):
+        def interesting(data):
+            for row in data:
+                day, month, year, hour, cross_wind, along_wind = row.split()
+                day, month, year = map(int, (day, month, year))
+                hour = float(hour)
+                timestamp = datetime.datetime(year, month, day, int(hour))
+                if timestamp < run_start_date:
+                    continue
+                timestamp = (timestamp - run_start_date).total_seconds() / 3600
+                cross_wind, along_wind = map(float, (cross_wind, along_wind))
+                wind_speed = math.sqrt(cross_wind**2 + along_wind**2)
+                yield timestamp, wind_speed
+
+        self.indep_data, self.dep_data = [], []
+        with open(self.datafile, 'rt') as data:
+            for timestamp, wind_speed in interesting(data):
+                self.indep_data.append(timestamp)
+                self.dep_data.append(wind_speed)
+        self.indep_data = np.array(self.indep_data)
+        self.dep_data = np.array(self.dep_data)
 
 
 def run(config_file):

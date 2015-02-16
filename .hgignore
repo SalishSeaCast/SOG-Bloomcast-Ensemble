@@ -16,3 +16,8 @@ salinity_check
 timeseries/
 total_check
 wind_data_date
+bloomcast_ensemble_jobs.yaml
+run/*.svg
+
+syntax: regexp
+\d{4}_bloomcast_infile_\d{4}\.yaml*
