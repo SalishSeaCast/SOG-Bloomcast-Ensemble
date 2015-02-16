@@ -95,7 +95,7 @@ class RiversProcessor(ForcingDataProcessor):
         }
         return params
 
-    def process_data(self, qty, end_date=arrow.now().date()):
+    def process_data(self, qty, end_date=arrow.now().floor('day')):
         """Process data from BeautifulSoup parser object to a list of
         hourly timestamps and data values.
         """
@@ -107,7 +107,7 @@ class RiversProcessor(ForcingDataProcessor):
         self.data[qty] = []
         for timestamp, flow in zip(timestamps, flows):
             datestamp = self.read_datestamp(timestamp)
-            if datestamp > end_date:
+            if datestamp > end_date.date():
                 break
             if datestamp == data_day:
                 flow_sum += self._convert_flow(flow)
