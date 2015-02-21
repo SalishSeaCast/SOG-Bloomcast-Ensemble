@@ -395,7 +395,8 @@ class Ensemble(cliff.command.Command):
         ts_plot_files = {}
         for key, fig in timeseries_plots.items():
             filename = '{}_timeseries.svg'.format(key)
-            visualization.save_image(fig, filename)
+            visualization.save_image(
+                fig, filename, facecolor=fig.get_facecolor())
             ts_plot_files[key] = filename
             self.log.debug(
                 'saved {} time series figure as {}'.format(key, filename))
