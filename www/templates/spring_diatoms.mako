@@ -48,13 +48,13 @@ Time Series
 
 .. raw:: html
 
-    <object class="timeseries-graph" type="image/svg+xml"
+    <object class="img-responsive" type="image/svg+xml"
             data="${plots_path}/${ts_plot_files['nitrate_diatoms']}">
     </object>
-    <object class="timeseries-graph" type="image/svg+xml"
+    <object class="img-responsive" type="image/svg+xml"
             data="${plots_path}/${ts_plot_files['temperature_salinity']}">
     </object>
-    <object class="timeseries-graph" type="image/svg+xml"
+    <object class="img-responsive" type="image/svg+xml"
             data="${plots_path}/${ts_plot_files['mld_wind']}">
     </object>
 
