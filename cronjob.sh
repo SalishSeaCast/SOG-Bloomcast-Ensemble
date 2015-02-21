@@ -3,6 +3,6 @@
 # make sure that this file has mode 744
 # and that MAILTO is set in crontab
 
-VENV=/data/dlatorne/.virtualenvs/bloomcast-ensemble
+CONDA_ENV=/home/dlatorne/anaconda/envs/bloomcast
 RUN_DIR=/data/dlatorne/SOG-projects/SoG-bloomcast-ensemble/run
-. $VENV/bin/activate && cd $RUN_DIR && $VENV/bin/bloomcast ensemble -v config.yaml
+source $CONDA_ENV/bin/activate bloomcast && cd $RUN_DIR && $CONDA_ENV/bin/bloomcast ensemble -v config.yaml
