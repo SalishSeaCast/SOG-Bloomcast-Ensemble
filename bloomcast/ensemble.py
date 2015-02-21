@@ -96,7 +96,7 @@ class Ensemble(cliff.command.Command):
         configure_logging(self.config, self.bloom_date_log)
         # Wind data date for development and debugging; overwritten if
         # wind forcing data is collected and processed
-        self.config.data_date = parsed_args.data_date
+        self.config.data_date = parsed_args.data_date.date()
         if not self.config.get_forcing_data and self.config.data_date is None:
             self.log.debug(
                 'This will not end well: '
