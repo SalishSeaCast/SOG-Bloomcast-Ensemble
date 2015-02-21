@@ -238,7 +238,7 @@ def hide_ticklabels(axes, axis='both'):
             t.set_visible(False)
 
 
-def save_as_svg(fig, filename):
+def save_image(fig, filename):
     canvas = matplotlib.backends.backend_agg.FigureCanvasAgg(fig)
     canvas.print_figure(filename)
 
