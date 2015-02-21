@@ -240,7 +240,7 @@ def hide_ticklabels(axes, axis='both'):
 
 def save_as_svg(fig, filename):
     canvas = matplotlib.backends.backend_agg.FigureCanvasAgg(fig)
-    canvas.print_svg(filename)
+    canvas.print_figure(filename)
 
 
 def set_spine_and_tick_colors(axes, colors, yticks):
