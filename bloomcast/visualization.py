@@ -88,7 +88,7 @@ def temperature_salinity_timeseries(
     """Create a time series plot figure object showing temperature
     on the left axis and salinity on the right.
     """
-    fig = matplotlib.figure.Figure(figsize=(15, 3.33), facecolor=colors['bg'])
+    fig = matplotlib.figure.Figure(figsize=(15, 4), facecolor=colors['bg'])
     ax_left = fig.add_subplot(1, 1, 1)
     ax_right = ax_left.twinx()
     # Set colours of background, spines, ticks, and labels
