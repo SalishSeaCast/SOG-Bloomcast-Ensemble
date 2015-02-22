@@ -10,7 +10,7 @@ Summary blurb
 Data Sources
 ============
 
-The forcing data used to drive the SOG model is obatined from several sources:
+The forcing data used to drive the SOG model is obtained from several sources:
 
 * Hourly wind velocities at `Sand Heads Lightstation` from the bulk data web service at `climate.weatheroffice.gc.ca/climateData/`_
 
