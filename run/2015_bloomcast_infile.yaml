@@ -293,7 +293,7 @@ profiles_results:
   # TODO: Replace Hoffmueller results start and end year, day & second
   # with date/times
   hoffmueller_start_year:
-    value: 2013
+    value: 2014
     variable_name: Hoff_startyr
     description: year to start Hoffmueller results output
   hoffmueller_start_day:
