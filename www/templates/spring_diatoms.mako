@@ -25,13 +25,13 @@ The forcing data used to drive the SOG model is obtained from several sources:
 * Average daily river discharge rates for the `Fraser River`_,
   and the `Englishman River`_
   (as a proxy for the fresh water sources other than the Fraser)
-  from `www.wateroffice.ec.gc.ca/`_
+  from `wateroffice.ec.gc.ca`_
 
 .. _Sand Heads Lightstation: http://www.lighthousefriends.com/light.asp?ID=1178
 .. _climate.weatheroffice.gc.ca/climateData/: http://climate.weatheroffice.gc.ca/climateData/
 .. _Fraser River: http://www.aquatic.uoguelph.ca/rivers/fraser.htm
 .. _Englishman River: http://en.wikipedia.org/wiki/Englishman_River
-.. _www.wateroffice.ec.gc.ca/: http://www.wateroffice.ec.gc.ca/
+.. _wateroffice.ec.gc.ca: http://wateroffice.ec.gc.ca/
 
 
 Disclaimer
