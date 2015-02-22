@@ -89,7 +89,7 @@ def temperature_salinity_timeseries(
     """Create a time series plot figure object showing temperature
     on the left axis and salinity on the right.
     """
-    fig = matplotlib.figure.Figure(figsize=(15, 4), facecolor=colors['bg'])
+    fig = matplotlib.figure.Figure(figsize=(15, 4.25), facecolor=colors['bg'])
     ax_left = fig.add_subplot(1, 1, 1)
     ax_right = ax_left.twinx()
     # Set colours of background, spines, ticks, and labels
@@ -122,6 +122,7 @@ def temperature_salinity_timeseries(
     # Set x-axes limits, tick intervals, title, and grid visibility
     set_timeseries_x_limits_ticks_label(
         ax_left, temperature[prediction['median']], colors)
+    fig.subplots_adjust(bottom=0.17)
     # Set y-axes ticks and labels
     ax_left.set_ybound(4, 18)
     ax_left.grid(color=colors['axes'])
@@ -156,6 +157,7 @@ def mixing_layer_depth_wind_timeseries(
             data.mpl_dates <= matplotlib.dates.date2num(
                 data_date.replace(days=+1)))
         return slice
+
     mld_slice = calc_slice(mixing_layer_depth)
     mld_dates = mixing_layer_depth.mpl_dates[mld_slice]
     ax_left.fill_between(
@@ -185,6 +187,7 @@ def mixing_layer_depth_wind_timeseries(
                 first_year=start_date.year,
                 second_year=end_date.year))
     ax_left.set_xlabel(label, color=colors['axes'])
+    fig.subplots_adjust(bottom=0.15)
     # Set y-axes ticks and labels
     ax_left.set_ybound(-30, 30)
     ax_left.set_yticks(range(-30, 31, 5))
