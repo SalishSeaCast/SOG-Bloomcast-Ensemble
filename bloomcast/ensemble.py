@@ -288,10 +288,10 @@ class Ensemble(cliff.command.Command):
             'Median bloom date is based on forcing from {}/{}'
             .format(prediction['median'] - 1, prediction['median']))
         self.log.info(
-            'Predicted late bloom date is {}'
+            'Predicted late bound bloom date is {}'
             .format(bloom_dates[prediction['late']]))
         self.log.debug(
-            'Late bloom date is based on forcing from {}/{}'
+            'Late bound bloom date is based on forcing from {}/{}'
             .format(prediction['late'] - 1, prediction['late']))
         self.log.debug(
             'Predicted latest bloom date is {}'
