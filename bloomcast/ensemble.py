@@ -367,8 +367,8 @@ class Ensemble(cliff.command.Command):
                 self.config.data_date,
                 prediction,
                 bloom_dates,
-                titles=('3 m Avg Nitrate Concentration [uM N]',
-                        '3 m Avg Diatom Biomass [uM N]'),
+                titles=('3 m Avg Nitrate Concentration [µM N]',
+                        '3 m Avg Diatom Biomass [µM N]'),
             ),
             'temperature_salinity': visualization.temperature_salinity_timeseries(
                 self.temperature,
@@ -377,7 +377,7 @@ class Ensemble(cliff.command.Command):
                 self.config.data_date,
                 prediction,
                 bloom_dates,
-                titles=('3 m Avg Temperature [deg C]',
+                titles=('3 m Avg Temperature [°C]',
                         '3 m Avg Salinity [-]'),
             ),
             'mld_wind': visualization.mixing_layer_depth_wind_timeseries(
