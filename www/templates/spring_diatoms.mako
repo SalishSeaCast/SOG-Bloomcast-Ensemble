@@ -59,9 +59,14 @@ Time Series
     </object>
 
 
-
 Profiles at ${data_date} 12:00
 ==============================
+
+.. raw:: html
+
+    <object class="img-responsive" type="image/svg+xml"
+            data="${plots_path}/${profiles_plot_file}">
+    </object>
 
 
 Bloom Date Evolution
