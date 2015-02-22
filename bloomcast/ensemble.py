@@ -269,34 +269,34 @@ class Ensemble(cliff.command.Command):
             ('min', find_member(bloom_dates, np.trunc(min_bound))),
             ('max', find_member(bloom_dates, np.ceil(max_bound))),
         ])
-        self.log.debug(
+        self.log.info(
             'Predicted earliest bloom date is {}'
             .format(bloom_dates[extremes['min']]))
-        self.log.debug(
+        self.log.info(
             'Earliest bloom date is based on forcing from {}/{}'
             .format(extremes['min'] - 1, extremes['min']))
         self.log.info(
             'Predicted early bound bloom date is {}'
             .format(bloom_dates[prediction['early']]))
-        self.log.debug(
+        self.log.info(
             'Early bound bloom date is based on forcing from {}/{}'
             .format(prediction['early'] - 1, prediction['early']))
         self.log.info(
             'Predicted median bloom date is {}'
             .format(bloom_dates[prediction['median']]))
-        self.log.debug(
+        self.log.info(
             'Median bloom date is based on forcing from {}/{}'
             .format(prediction['median'] - 1, prediction['median']))
         self.log.info(
             'Predicted late bound bloom date is {}'
             .format(bloom_dates[prediction['late']]))
-        self.log.debug(
+        self.log.info(
             'Late bound bloom date is based on forcing from {}/{}'
             .format(prediction['late'] - 1, prediction['late']))
-        self.log.debug(
+        self.log.info(
             'Predicted latest bloom date is {}'
             .format(bloom_dates[extremes['max']]))
-        self.log.debug(
+        self.log.info(
             'Latest bloom date is based on forcing from {}/{}'
             .format(extremes['max'] - 1, extremes['max']))
         line = (
