@@ -133,7 +133,9 @@ class Ensemble(cliff.command.Command):
         self._load_physics_timeseries(prediction)
         timeseries_plots = self._create_timeseries_graphs(
             COLORS, prediction, bloom_dates)
-        self.render_results(timeseries_plots)
+        self._load_profiles(prediction)
+        profile_plots = self._create_profile_graphs(COLORS)
+        self.render_results(timeseries_plots, profile_plots)
 
     def _create_infile_edits(self):
         """Create YAML infile edit files for each ensemble member SOG run.
@@ -389,7 +391,65 @@ class Ensemble(cliff.command.Command):
         }
         return timeseries_plots
 
-    def render_results(self, timeseries_plots):
+    def _load_profiles(self, prediction):
+        """Load temperature, salinity, diatom biomass, and nitrate
+        concentration profile results from SOG ensemble members that
+        show median bloom date.
+
+        :arg prediction: Ensemble member identifiers for predicted bloom
+                         dates.
+        :type prediction: dict
+        """
+        self.temperature_profile, self.salinity_profile = {}, {}
+        self.diatoms_profile, self.nitrate_profile = {}, {}
+        member = prediction['median']
+        suffix = two_yr_suffix(member)
+        filename = ''.join(
+            (self.config.Hoffmueller_profiles_outfile, suffix))
+        profile_number = (
+            self.config.data_date.date()
+            - self.config.run_start_date.date()).days
+        self.log.debug('use profile number {}'.format(profile_number))
+        self.temperature_profile = utils.SOG_HoffmuellerProfile(filename)
+        self.temperature_profile.read_data(
+            'depth', 'temperature', profile_number)
+        self.log.debug('read temperature profile from {}'.format(filename))
+        self.salinity_profile = utils.SOG_HoffmuellerProfile(filename)
+        self.salinity_profile.read_data(
+            'depth', 'salinity', profile_number)
+        self.log.debug('read salinity profile from {}'.format(filename))
+        self.diatoms_profile = utils.SOG_HoffmuellerProfile(filename)
+        self.diatoms_profile.read_data(
+            'depth', 'micro phytoplankton', profile_number)
+        self.log.debug('read diatom biomass profile from {}'.format(filename))
+        self.nitrate_profile = utils.SOG_HoffmuellerProfile(filename)
+        self.nitrate_profile.read_data(
+            'depth', 'nitrate', profile_number)
+        self.log.debug(
+            'read nitrate concentration profile from {}'.format(filename))
+
+    def _create_profile_graphs(self, colors):
+        """Create profile plot figure objects.
+        """
+        profile_plots = visualization.profiles(
+            profiles=(
+                self.temperature_profile, self.salinity_profile,
+                self.diatoms_profile, self.nitrate_profile,
+            ),
+            titles=(
+                'Temperature [°C]', 'Salinity [-]',
+                'Diatom Biomass [µM N]', 'Nitrate Concentration [µM N]',
+            ),
+            limits=((4, 10), (16, 32), None, (22, 32)),
+            mixing_layer_depth=self.mixing_layer_depth.dep_data[0],
+            label_colors=(
+                'temperature', 'salinity', 'diatoms', 'nitrate', 'mld',
+            ),
+            colors=colors,
+        )
+        return profile_plots
+
+    def render_results(self, timeseries_plots, profile_plots):
         """Render bloomcast results and plots to files.
         """
         ts_plot_files = {}
@@ -400,6 +460,9 @@ class Ensemble(cliff.command.Command):
             ts_plot_files[key] = filename
             self.log.debug(
                 'saved {} time series figure as {}'.format(key, filename))
+        visualization.save_image(
+            profile_plots, 'profiles.svg', facecolor=fig.get_facecolor())
+        self.log.debug('saved profiles figure as profiles.svg')
         # Render results to RST file, build salishsea site, and push results
         # files to web server
         repo_path = hg_update(
@@ -423,6 +486,7 @@ class Ensemble(cliff.command.Command):
             'plots_path': pathlib.Path('..').joinpath(
                 *self.config.results.site_plots_path.parts[1:]),
             'ts_plot_files': ts_plot_files,
+            'profiles_plot_file': 'profiles.svg',
             'bloom_date_log': bloom_date_log,
         }
         with rst_file.open('wt') as f:
@@ -430,6 +494,7 @@ class Ensemble(cliff.command.Command):
         plots_path = repo_path/self.config.results.site_plots_path
         for plot_file in ts_plot_files.values():
             shutil.copy2(plot_file, str(plots_path))
+        shutil.copy2('profiles.svg', str(plots_path))
         html_path = sphinx_build(repo_path, self.log)
         if self.config.results.push_to_web:
             results_page = (

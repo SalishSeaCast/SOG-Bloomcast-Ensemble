@@ -19,6 +19,7 @@ import datetime
 import matplotlib.backends.backend_agg
 import matplotlib.dates
 import matplotlib.figure
+import matplotlib.transforms
 import numpy as np
 
 
@@ -236,17 +237,12 @@ def hide_ticklabels(axes, axis='both'):
             t.set_visible(False)
 
 
-def save_image(fig, filename, **kwargs):
-    canvas = matplotlib.backends.backend_agg.FigureCanvasAgg(fig)
-    canvas.print_figure(filename, **kwargs)
-
-
-def set_spine_and_tick_colors(axes, colors, yticks):
+def set_spine_and_tick_colors(axes, colors, xticks='axes', yticks='axes'):
     for side in 'top bottom left right'.split():
         axes.spines[side].set_color(colors['axes'])
     axes.tick_params(color=colors['axes'])
     for label in axes.get_xticklabels():
-        label.set_color(colors['axes'])
+        label.set_color(colors[xticks])
     for label in axes.get_yticklabels():
         label.set_color(colors[yticks])
 
@@ -267,3 +263,57 @@ def set_timeseries_x_limits_ticks_label(axes, timeseries, colors):
                 first_year=start_date.year,
                 second_year=end_date.year))
     axes.set_xlabel(label, color=colors['axes'])
+
+
+def profiles(
+    profiles, titles, limits, mixing_layer_depth, label_colors, colors,
+):
+    fig = matplotlib.figure.Figure(figsize=(15, 10), facecolor=colors['bg'])
+    axs = []
+    axs.append(fig.add_subplot(1, 4, 1))
+    for i in range(1, 4):
+        axs.append(fig.add_subplot(1, 4, i + 1, sharey=axs[0]))
+    # Plot profiles with colour coordinated tick labels on the top axis
+    for i, ax in enumerate(axs):
+        ax.plot(
+            profiles[i].dep_data, profiles[i].indep_data,
+            color=colors[label_colors[i]]
+        )
+        if limits[i] is not None:
+            ax.set_xlim(limits[i])
+        ax.xaxis.set_ticks_position('both')
+        ax.xaxis.set_label_position('top')
+        ax.tick_params(labelbottom='off', labeltop='on')
+        set_spine_and_tick_colors(ax, colors, xticks=label_colors[i])
+        ax.set_xlabel(titles[i], color=colors[label_colors[i]])
+        ax.set_axis_bgcolor(colors['bg'])
+        ax.grid(color=colors['axes'])
+    # Add line to mark mixing layer depth with its value on left axes
+    for ax in axs:
+        ax.axhline(mixing_layer_depth, color=colors[label_colors[-1]])
+    trans = matplotlib.transforms.blended_transform_factory(
+        axs[0].transAxes, axs[0].transData)
+    axs[0].text(
+        x=-0.025, y=mixing_layer_depth, transform=trans,
+        s='{:.2f} m'.format(mixing_layer_depth),
+        verticalalignment='center', horizontalalignment='right',
+        color=colors['mld'],
+    )
+    axs[0].text(
+        x=0.975, y=mixing_layer_depth - 0.3, transform=trans,
+        s='Mixing Layer Depth',
+        horizontalalignment='right',
+        color=colors['mld'],
+    )
+    # Set left y-axis limits & label and hide y-axis labels on other axes
+    axs[0].set_ylim((profiles[0].indep_data[0], profiles[0].indep_data[-1]))
+    axs[0].invert_yaxis()
+    axs[0].set_ylabel('Depth [m]', color=colors['axes'])
+    for ax in axs[1:]:
+        hide_ticklabels(ax, 'y')
+    return fig
+
+
+def save_image(fig, filename, **kwargs):
+    canvas = matplotlib.backends.backend_agg.FigureCanvasAgg(fig)
+    canvas.print_figure(filename, **kwargs)
