@@ -218,13 +218,22 @@ class ForcingDataProcessor(object):
                 del self.data[qty][-24:]
         else:
             raise ValueError('Forcing data list is empty')
-        while self.data[qty]:
-            if self._valuegetter(self.data[qty][-1][1]) is None:
-                del self.data[qty][-24:]
+        if qty != 'cloud_fraction':
+            # This is a hack to work around NavCanada not reporting
+            # a YVR weather description (from which we get cloud
+            # fraction) at 23:00 when there is no precipitation
+            # happening. So, we don't apply the "no data at 23:00" means
+            # a partial day of data for cloud fraction. Instead, we let
+            # interpolation take its course and deal with the consequences
+            # when MeteoProcessor.format_date() tries to handle a cloud
+            # fraction value of None as the final value in the dataset.
+            while self.data[qty]:
+                if self._valuegetter(self.data[qty][-1][1]) is None:
+                    del self.data[qty][-24:]
+                else:
+                    break
             else:
-                break
-        else:
-            raise ValueError('Forcing data list is empty')
+                raise ValueError('Forcing data list is empty')
 
     def patch_data(self, qty):
         """Patch missing data values by interpolation.

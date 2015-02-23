@@ -139,7 +139,19 @@ class MeteoProcessor(ClimateDataProcessor):
             line = '{0} {1:%Y %m %d} 42'.format(
                 self.config.climate.meteo.station_id, timestamp)
             for hour in data:
-                line += ' {0:.2f}'.format(hour[1])
+                try:
+                    line += ' {0:.2f}'.format(hour[1])
+                except TypeError:
+                    # This is a hack to work around NavCanada not reporting
+                    # a YVR weather description (from which we get cloud
+                    # fraction) at 23:00 when there is no precipitation
+                    # happening. The upshot is that the final 23:00 value
+                    # in the dataset can be None, so we persist the 22:00
+                    # value for that very special case.
+                    if qty == 'cloud_fraction' and hour == data[-1]:
+                        line += ' {0:.2f}'.format(data[-2][1])
+                    else:
+                        raise
             line += '\n'
             yield line
 
