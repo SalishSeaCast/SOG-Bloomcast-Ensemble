@@ -431,6 +431,11 @@ class Ensemble(cliff.command.Command):
     def _create_profile_graphs(self, colors):
         """Create profile plot figure objects.
         """
+        profile_datetime = self.config.data_date.replace(hour=12)
+        profile_dt = profile_datetime.naive - self.config.run_start_date
+        profile_hour = profile_dt.days * 24 + profile_dt.seconds / 3600
+        self.mixing_layer_depth.boolean_slice(
+            self.mixing_layer_depth.indep_data >= profile_hour)
         profile_plots = visualization.profiles(
             profiles=(
                 self.temperature_profile, self.salinity_profile,
