@@ -1,10 +1,33 @@
-*****************************************
-${data_date} Spring Diatom Bloom Forecast
-*****************************************
+**************************************************************
+${data_date.format('YYYY-MM-DD')} Spring Diatom Bloom Forecast
+**************************************************************
 
-Summary blurb
+The current best estimate of the first spring diatom bloom in the Strait of Georgia is ${'{:%Y-%m-%d}'.format(bloom_dates[prediction['median']])}.
+That estimate is based on a run of the `SOG biophysical model for deep estuaries`_ [#]_ with the following parameters:
 
-[1] Allen, S. E. and M. A. Wolfe, Hindcast of the Timing of the Spring Phytoplankton Bloom in the Strait of Georgia, 1968-2010. Progress in Oceanography, vol 115, pp 6-13 (2013). http://dx.doi.org/10.1016/j.pocean.2013.05.026
+* Run start date/time: ${'{:%Y-%m-%d}'.format(run_start_date)}
+* Actual wind,
+  meteorological,
+  and river flow forcing data to ${data_date.format('YYYY-MM-DD')},
+  and historical data from ${prediction['median']} thereafter
+
+${prediction['median']} has the median bloom date in an ensemble of SOG runs that use historical wind,
+meteorological,
+and river flow data from 1980 through 2010 as future forcing data after ${data_date.format('YYYY-MM-DD')}.
+
+Best estimate bounds on the bloom date are:
+
+* No earlier than ${'{:%Y-%m-%d}'.format(bloom_dates[prediction['early']])} based on using actual forcing data to ${data_date.format('YYYY-MM-DD')},
+  and data from ${prediction['early'] - 1}/${prediction['early']} thereafter.
+  ${prediction['early']} has the 5th centile bloom date in the ensemble of SOG runs.
+
+* No later than ${'{:%Y-%m-%d}'.format(bloom_dates[prediction['late']])} based on using actual forcing data to ${data_date.format('YYYY-MM-DD')},
+  and data from ${prediction['late'] - 1}/${prediction['late']} thereafter.
+  ${prediction['late']} has the 95th centile bloom date in the ensemble of SOG runs.
+
+.. [#] Allen, S. E. and M. A. Wolfe, Hindcast of the Timing of the Spring Phytoplankton Bloom in the Strait of Georgia, 1968-2010. Progress in Oceanography, vol 115, pp 6-13 (2013). http://dx.doi.org/10.1016/j.pocean.2013.05.026
+
+.. _SOG biophysical model for deep estuaries: http://www.eos.ubc.ca/~sallen/SOG-docs/
 
 
 Data Sources
@@ -56,8 +79,8 @@ Time Series
    :class: img-responsive
 
 
-Profiles at ${data_date} 12:00 from Median Prediction
-=====================================================
+Profiles at ${data_date.format('YYYY-MM-DD')} 12:00 from Median Prediction
+==========================================================================
 
 .. image:: ${plots_path}/${profiles_plot_file}
    :class: img-responsive
