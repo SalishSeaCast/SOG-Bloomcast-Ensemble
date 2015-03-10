@@ -59,8 +59,8 @@ Time Series
     </object>
 
 
-Profiles at ${data_date} 12:00
-==============================
+Profiles at ${data_date} 12:00 from Median Prediction
+=====================================================
 
 .. raw:: html
 
