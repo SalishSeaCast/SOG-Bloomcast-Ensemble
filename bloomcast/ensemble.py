@@ -135,7 +135,8 @@ class Ensemble(cliff.command.Command):
             COLORS, prediction, bloom_dates)
         self._load_profiles(prediction)
         profile_plots = self._create_profile_graphs(COLORS)
-        self.render_results(timeseries_plots, profile_plots)
+        self.render_results(
+            prediction, bloom_dates, timeseries_plots, profile_plots)
 
     def _create_infile_edits(self):
         """Create YAML infile edit files for each ensemble member SOG run.
@@ -454,7 +455,9 @@ class Ensemble(cliff.command.Command):
         )
         return profile_plots
 
-    def render_results(self, timeseries_plots, profile_plots):
+    def render_results(
+        self, prediction, bloom_dates, timeseries_plots, profile_plots,
+    ):
         """Render bloomcast results and plots to files.
         """
         ts_plot_files = {}
@@ -487,7 +490,10 @@ class Ensemble(cliff.command.Command):
             bloom_date_log = [line.split() for line in f
                               if not line.startswith('#')]
         vars = {
-            'data_date': self.config.data_date.format('YYYY-MM-DD'),
+            'run_start_date': self.config.run_start_date,
+            'data_date': self.config.data_date,
+            'prediction': prediction,
+            'bloom_dates': bloom_dates,
             'plots_path': pathlib.Path('..').joinpath(
                 *self.config.results.site_plots_path.parts[1:]),
             'ts_plot_files': ts_plot_files,
