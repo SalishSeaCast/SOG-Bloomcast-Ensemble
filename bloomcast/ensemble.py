@@ -445,7 +445,7 @@ class Ensemble(cliff.command.Command):
                 'Temperature [°C]', 'Salinity [-]',
                 'Diatom Biomass [µM N]', 'Nitrate Concentration [µM N]',
             ),
-            limits=((4, 10), (16, 32), None, (22, 32)),
+            limits=((4, 10), (16, 32), None, (0, 32)),
             mixing_layer_depth=self.mixing_layer_depth.dep_data[0],
             label_colors=(
                 'temperature', 'salinity', 'diatoms', 'nitrate', 'mld',
