@@ -302,8 +302,9 @@ def profiles(
         verticalalignment='center', horizontalalignment='right',
         color=colors['mld'],
     )
+    y_offset = -0.3 if mixing_layer_depth > 1 else 0.8
     axs[0].text(
-        x=0.975, y=mixing_layer_depth - 0.3, transform=trans,
+        x=0.975, y=mixing_layer_depth + y_offset, transform=trans,
         s='Mixing Layer Depth',
         horizontalalignment='right',
         color=colors['mld'],
