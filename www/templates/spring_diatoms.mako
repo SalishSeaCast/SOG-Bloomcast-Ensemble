@@ -69,21 +69,27 @@ we believe such a prediction is not possible before mid-February using any model
 Time Series
 ===========
 
-.. image:: ${plots_path}/${ts_plot_files['nitrate_diatoms']}
-   :class: img-responsive
+.. raw:: html
 
-.. image:: ${plots_path}/${ts_plot_files['temperature_salinity']}
-   :class: img-responsive
-
-.. image:: ${plots_path}/${ts_plot_files['mld_wind']}
-   :class: img-responsive
+    <object class="img-responsive" type="image/svg+xml"
+            data="${plots_path}/${ts_plot_files['nitrate_diatoms']}">
+    </object>
+    <object class="img-responsive" type="image/svg+xml"
+            data="${plots_path}/${ts_plot_files['temperature_salinity']}">
+    </object>
+    <object class="img-responsive" type="image/svg+xml"
+            data="${plots_path}/${ts_plot_files['mld_wind']}">
+    </object>
 
 
 Profiles at ${data_date.format('YYYY-MM-DD')} 12:00 from Median Prediction
 ==========================================================================
 
-.. image:: ${plots_path}/${profiles_plot_file}
-   :class: img-responsive
+.. raw:: html
+
+    <object class="img-responsive" type="image/svg+xml"
+            data="${plots_path}/${profiles_plot_file}">
+    </object>
 
 
 Bloom Date Evolution
