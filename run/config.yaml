@@ -38,9 +38,10 @@ rivers:
   disclaimer_cookie:
     disclaimer: agree
   params:
+    type: realTime
     mode: Table
     prm1: 47              # discharge
-    type: realTime
+    prm2: -1
   major:
     station_id: 08MF005  # Fraser River at Hope
   minor:
