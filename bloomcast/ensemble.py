@@ -129,6 +129,7 @@ class Ensemble(cliff.command.Command):
         self._create_batch_description()
         self._run_SOG_batch()
         self._load_biology_timeseries()
+        self._load_chemistry_timeseries()
         prediction, bloom_dates = self._calc_bloom_dates()
         self._load_physics_timeseries(prediction)
         timeseries_plots = self._create_timeseries_graphs(
@@ -242,6 +243,25 @@ class Ensemble(cliff.command.Command):
                 'read nitrate & diatoms timeseries from {}'.format(filename))
         self.nitrate = copy.deepcopy(self.nitrate_ts)
         self.diatoms = copy.deepcopy(self.diatoms_ts)
+
+    def _load_chemistry_timeseries(self):
+        """Load carbon chemistry timeseries results from all ensemble SOG runs.
+        """
+        self.DIC_ts, self.alkalinity_ts = {}, {}
+        for member, edit_file, suffix in self.edit_files:
+            filename = ''.join((self.config.std_chem_ts_outfile, suffix))
+            self.DIC_ts[member] = utils.SOG_Timeseries(filename)
+            self.DIC_ts[member].read_data(
+                'time', '3 m avg DIC concentration')
+            self.DIC_ts[member].calc_mpl_dates(self.config.run_start_date)
+            self.alkalinity_ts[member] = utils.SOG_Timeseries(filename)
+            self.alkalinity_ts[member].read_data(
+                'time', '3 m avg alkalinity')
+            self.alkalinity_ts[member].calc_mpl_dates(self.config.run_start_date)
+            self.log.debug(
+                'read DIC & alkalinity timeseries from {}'.format(filename))
+        self.DIC = copy.deepcopy(self.DIC_ts)
+        self.alkalinity = copy.deepcopy(self.alkalinity_ts)
 
     def _calc_bloom_dates(self):
         """Calculate the predicted spring bloom date.
