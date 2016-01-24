@@ -25,6 +25,8 @@ and set the values of the following items to appropriate values:
 
 * :kbd:`initial_conditions[init_datetime]`
 * :kbd:`end_datetime`
+* :kbd:`timeseries_results[*]`
+* :kbd:`profile_results[*_file]`
 * :kbd:`profile_results[hoffmueller_start_year]`
 * :kbd:`profile_results[hoffmueller_end_year]`
 
@@ -44,6 +46,57 @@ and set the values of the following items to appropriate values:
       value: 2015-05-01 00:49:00
       variable_name: endDatetime
       description: end of run date/time
+
+    ...
+
+    timeseries_results:
+      std_physics:
+        value: timeseries/std_phys_2015_bloomcast.out
+        variable_name: std_phys_ts_out
+        description: path/filename for standard physics time series output
+      user_physics:
+        value: timeseries/user_phys_2015_bloomcast.out
+        variable_name: user_phys_ts_out
+        description: path/filename for user physics time series output
+      std_biology:
+        value: timeseries/std_bio_2015_bloomcast.out
+        variable_name: std_bio_ts_out
+        description: path/filename for standard biology time series output
+      user_biology:
+        value: timeseries/user_bio_2015_bloomcast.out
+        variable_name: user_bio_ts_out
+        description: path/filename for user biology time series output
+      std_chemistry:
+        value: timeseries/std_chem_2015_bloomcast.out
+        variable_name: std_chem_ts_out
+        description: path/filename for standard chemistry time series output
+      user_chemistry:
+        value: timeseries/user_chem_2015_bloomcast.out
+        variable_name: user_chem_ts_out
+        description: path/filename for user chemistry time series output
+
+    ...
+
+    profile_file_base:
+      value: profiles/2015_bloomcast
+      variable_name: profilesBase_fn
+      description: path/filename base for profiles (datetime will be appended)
+    user_profile_file_base:
+      value: profiles/user_2015_bloomcast
+      variable_name: userprofilesBase_fn
+      description: path/filename base for user profiles (datetime appended)
+    halocline_file:
+      value: profiles/halo_2015_bloomcast.out
+      variable_name: haloclines_fn
+      description: path/filename for halocline results
+    hoffmueller_file:
+      value: profiles/hoff_2015_bloomcast.out
+      variable_name: Hoffmueller_fn
+      description: path/filename for Hoffmueller results
+    user_hoffmueller_file:
+      value: profiles/user_hoff_2015_bloomcast.out
+      variable_name: userHoffmueller_fn
+      description: path/filename for user Hoffmueller results
 
     ...
 
