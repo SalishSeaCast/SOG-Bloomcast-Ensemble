@@ -41,7 +41,7 @@ Install the packages that bloomcast depends on:
     (bloomcast)$ conda install matplotlib pyyaml requests sphinx
     (bloomcast)$ pip install arrow beautifulsoup4 cliff mako sphinx-bootstrap-theme
 
-Install the :ref:`SOG_CommandProcessor-section` and bloomcast as editable packages so that changes in files within those packages are immediately reflected in the installation environment.
+Install the `SOG Command Processor`_ and bloomcast as editable packages so that changes in files within those packages are immediately reflected in the installation environment.
 Assuming that the :kbd:`SOG` and :kbd:`SoG-bloomcast` repos have been cloned into a :file:`SOG-projects/` directory in your workspace,
 the installation commands are:
 
@@ -51,6 +51,8 @@ the installation commands are:
     (bloomcast)$ cd SOG/
     (bloomcast)$ pip install --editable SOG
     (bloomcast)$ pip install --editable SoG-bloomcast
+
+.. _SOG Command Processor: https://www.eoas.ubc.ca/~sallen/SOG-docs/SOGcommand.html
 
 For a development environment also install some testing and debugging tools:
 
