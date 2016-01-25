@@ -362,7 +362,16 @@ class ClimateDataProcessor(ForcingDataProcessor):
             if timestamp.date() > end_date.date():
                 break
             if qty != 'wind' and (timestamp.date() < YVR_STN_CHG_DATE):
+                # Handle YVR station nummber change
                 self.data[qty].append((timestamp, 0))
+            elif all((
+                qty == 'cloud_fraction',
+                self.raw_data.index(record) == 0,
+                reader(record) is None
+            )):
+                # Handle no cloud fraction value observed at beginning
+                # of time series; avoid interpolation failure
+                self.data[qty].append((timestamp, 5))
             else:
                 self.data[qty].append((timestamp, reader(record)))
         self._trim_data(qty)
