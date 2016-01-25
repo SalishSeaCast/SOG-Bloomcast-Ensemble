@@ -429,7 +429,7 @@ class Ensemble(cliff.command.Command):
             (self.config.Hoffmueller_profiles_outfile, suffix))
         profile_number = (
             self.config.data_date.date()
-            - self.config.run_start_date.date()).days
+            - self.config.run_start_date.date()).days - 1
         self.log.debug('use profile number {}'.format(profile_number))
         self.temperature_profile = utils.SOG_HoffmuellerProfile(filename)
         self.temperature_profile.read_data(
