@@ -7,8 +7,8 @@ Sandheads_wind
 YVR_air_temperature
 YVR_cloud_fraction
 YVR_relative_humidity
-bloom_date_evolution.log
-bloomcast.log
+*bloom_date_evolution.log
+*bloomcast.log
 bloomcast/html/*.html
 bloomcast/html/*.svg
 profiles/
