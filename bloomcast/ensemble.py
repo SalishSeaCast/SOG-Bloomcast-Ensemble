@@ -258,7 +258,8 @@ class Ensemble(cliff.command.Command):
             self.alkalinity_ts[member] = utils.SOG_Timeseries(filename)
             self.alkalinity_ts[member].read_data(
                 'time', '3 m avg alkalinity')
-            self.alkalinity_ts[member].calc_mpl_dates(self.config.run_start_date)
+            self.alkalinity_ts[member].calc_mpl_dates(
+                self.config.run_start_date)
             self.log.debug(
                 'read DIC & alkalinity timeseries from {}'.format(filename))
         self.DIC = copy.deepcopy(self.DIC_ts)
@@ -391,16 +392,17 @@ class Ensemble(cliff.command.Command):
                 titles=('3 m Avg Nitrate Concentration [µM N]',
                         '3 m Avg Diatom Biomass [µM N]'),
             ),
-            'temperature_salinity': visualization.temperature_salinity_timeseries(
-                self.temperature,
-                self.salinity,
-                colors,
-                self.config.data_date,
-                prediction,
-                bloom_dates,
-                titles=('3 m Avg Temperature [°C]',
-                        '3 m Avg Salinity [-]'),
-            ),
+            'temperature_salinity':
+                visualization.temperature_salinity_timeseries(
+                    self.temperature,
+                    self.salinity,
+                    colors,
+                    self.config.data_date,
+                    prediction,
+                    bloom_dates,
+                    titles=('3 m Avg Temperature [°C]',
+                            '3 m Avg Salinity [-]'),
+                ),
             'mld_wind': visualization.mixing_layer_depth_wind_timeseries(
                 self.mixing_layer_depth,
                 self.wind,
