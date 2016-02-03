@@ -153,9 +153,9 @@ def mixing_layer_depth_wind_timeseries(
     def calc_slice(data):
         slice = np.logical_and(
             data.mpl_dates > matplotlib.dates.date2num(
-                data_date.replace(days=-6)),
+                data_date.replace(days=-6).datetime),
             data.mpl_dates <= matplotlib.dates.date2num(
-                data_date.replace(days=+1)))
+                data_date.replace(days=+1).datetime))
         return slice
 
     mld_slice = calc_slice(mixing_layer_depth)
@@ -201,7 +201,8 @@ def mixing_layer_depth_wind_timeseries(
     ax_left.set_ylabel(titles[0], color=colors['mld'])
     ax_right.set_ylabel(titles[1], color=colors['wind_speed'])
     # Add line to mark profile time
-    profile_datetime = matplotlib.dates.date2num(data_date.replace(hours=12))
+    profile_datetime = matplotlib.dates.date2num(
+        data_date.replace(hours=12).datetime)
     ax_left.axvline(profile_datetime, color=colors['axes'])
     ax_left.annotate(
         'Profile Time',
@@ -223,10 +224,10 @@ def add_bloom_date_line(axes, bloom_date, colors):
 
 def add_transition_date_line(axes, data_date, colors):
     axes.axvline(
-        matplotlib.dates.date2num(data_date), color=colors['axes'])
+        matplotlib.dates.date2num(data_date.datetime), color=colors['axes'])
     axes.annotate(
         'Actual to Ensemble\nForcing Transition',
-        xy=(matplotlib.dates.date2num(data_date), axes.get_ylim()[1]),
+        xy=(matplotlib.dates.date2num(data_date.datetime), axes.get_ylim()[1]),
         xytext=(-70, 5), xycoords='data', textcoords='offset points',
         size='small', color=colors['axes'])
 
