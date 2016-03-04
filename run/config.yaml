@@ -64,4 +64,4 @@ results:
   templates_path: www/templates
   template_stem: 'spring_diatoms'
   push_to_web: True
-  server_path: shelob-bloomcast:/www/salishsea/data
+  server_path: skookum-bloomcast:/var/www/html
