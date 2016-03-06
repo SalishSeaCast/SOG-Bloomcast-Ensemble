@@ -718,14 +718,14 @@ def push_to_web(html_path, results_page, plots_path, server_path, log):
     """Push the results page and plot files to the web server.
     """
     cmd = [
-        'rsync', '-Rtvh',
+        'rsync', '-Rvh',
         '{}/./{}'.format(html_path, results_page),
         str(server_path),
     ]
     subprocess.check_call(cmd)
     log.debug('pushed results page and plots to {}/'.format(server_path))
     cmd = [
-        'rsync', '-rRtvh',
+        'rsync', '-rRvh',
         '{}/./{}/'.format(html_path, plots_path),
         str(server_path),
     ]
