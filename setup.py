@@ -44,7 +44,6 @@ install_requires = [
     'mako',
     'matplotlib',
     'numpy',
-    'pathlib',
     'PyYAML',
     'requests',
     'Sphinx',
