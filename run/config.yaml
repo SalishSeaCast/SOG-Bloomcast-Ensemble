@@ -19,7 +19,7 @@ ensemble:
     minor_river: ../../SOG-forcing/rivers/2yr_chunks/Englishman_total_21Aug2012.dat
 
 climate:
-  url: http://climate.weather.gc.ca/climateData/bulkdata_e.html
+  url: http://climate.weather.gc.ca/climate_data/bulk_data_e.html
   params:
     timeframe: 1        # Daily
     format: xml
