@@ -26,9 +26,9 @@ and set the values of the following items to appropriate values:
 * :kbd:`initial_conditions[init_datetime]`
 * :kbd:`end_datetime`
 * :kbd:`timeseries_results[*]`
-* :kbd:`profile_results[*_file]`
-* :kbd:`profile_results[hoffmueller_start_year]`
-* :kbd:`profile_results[hoffmueller_end_year]`
+* :kbd:`profiles_results[*_file]`
+* :kbd:`profiles_results[hoffmueller_start_year]`
+* :kbd:`profiles_results[hoffmueller_end_year]`
 
 .. code-block:: yaml
 
