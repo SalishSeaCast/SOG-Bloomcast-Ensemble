@@ -307,7 +307,7 @@ class ClimateDataProcessor(ForcingDataProcessor):
             self.config.climate, data_type).station_id
         params.update(self._date_params(data_month))
         response = requests.get(self.config.climate.url, params=params)
-        tree = ElementTree.parse(io.StringIO(response.text))
+        tree = ElementTree.parse(io.StringIO(response.text[3:]))
         root = tree.getroot()
         self.raw_data.extend(root.findall('stationdata'))
 
