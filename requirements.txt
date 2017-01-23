@@ -32,7 +32,6 @@ nbconvert==4.2.0
 nbformat==4.2.0
 notebook==4.3.1
 numpy==1.11.3
-pathlib==1.0.1
 pbr==1.8.1
 pexpect==4.0.1
 pickleshare==0.7.4
