@@ -34,7 +34,7 @@ climate:
     station_id: 6831    # Sandheads
 
 rivers:
-  data_url: http://wateroffice.ec.gc.ca/report/report_e.html
+  data_url: http://wateroffice.ec.gc.ca/report/real_time_e.html
   disclaimer_cookie:
     disclaimer: agree
   params:
