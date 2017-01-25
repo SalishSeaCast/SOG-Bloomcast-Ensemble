@@ -19,14 +19,11 @@ from collections import OrderedDict
 import copy
 import logging
 import shutil
-import subprocess
 import os
 
 import arrow
 import cliff.command
-import mako
 import numpy as np
-import pathlib
 import yaml
 
 import SOGcommand
@@ -493,51 +490,35 @@ class Ensemble(cliff.command.Command):
         visualization.save_image(
             profile_plots, 'profiles.svg', facecolor=fig.get_facecolor())
         self.log.debug('saved profiles figure as profiles.svg')
-        # Render results to RST file, build salishsea site, and push results
-        # files to web server
-        repo_path = hg_update(
-            self.config.results.site_repo_url,
-            self.config.results.www_path,
-            self.log,
-        )
-        mako_file = (
-            self.config.results.templates_path /
-            self.config.results.template_stem).with_suffix('.mako')
-        tmpl = mako.template.Template(filename=str(mako_file))
-        rst_file = (
-            repo_path /
-            self.config.results.site_bloomcast_path /
-            self.config.results.template_stem).with_suffix('.rst')
-        with open(self.config.logging.bloom_date_log_filename, 'rt') as f:
-            bloom_date_log = [line.split() for line in f
-                              if not line.startswith('#')]
-        vars = {
-            'run_start_date': self.config.run_start_date,
-            'data_date': self.config.data_date,
-            'prediction': prediction,
-            'bloom_dates': bloom_dates,
-            'plots_path': pathlib.Path('..').joinpath(
-                *self.config.results.site_plots_path.parts[1:]),
-            'ts_plot_files': ts_plot_files,
-            'profiles_plot_file': 'profiles.svg',
-            'bloom_date_log': bloom_date_log,
-        }
-        with rst_file.open('wt') as f:
-            f.write(tmpl.render(**vars))
-        plots_path = repo_path/self.config.results.site_plots_path
-        for plot_file in ts_plot_files.values():
-            shutil.copy2(plot_file, str(plots_path))
-        shutil.copy2('profiles.svg', str(plots_path))
-        html_path = sphinx_build(repo_path, self.log)
         if self.config.results.push_to_web:
-            results_page = (
-                self.config.results.site_bloomcast_path.name /
-                self.config.results.template_stem).with_suffix('.html')
-            html_plots_path = pathlib.PurePath('').joinpath(
-                *self.config.results.site_plots_path.parts[1:])
-            push_to_web(
-                html_path, results_page, html_plots_path,
-                self.config.results.server_path, self.log)
+            results_path = self.config.results.path
+            latest_bloomcast = {
+                'run_start_date': self.config.run_start_date.strftime(
+                    '%Y-%m-%d'),
+                'data_date': self.config.data_date.format('YYYY-MM-DD'),
+                'prediction': dict(prediction),
+                'bloom_dates': {
+                    data_year: date.strftime('%Y-%m-%d')
+                    for data_year, date in bloom_dates.items()},
+                'ts_plot_files': ts_plot_files,
+                'profiles_plot_file': 'profiles.svg',
+            }
+            with (results_path/'latest_bloomcast.yaml').open('wt') as f:
+                yaml.safe_dump(latest_bloomcast, f)
+            self.log.debug('saved most bloomcast results to {}'.format(
+                results_path / 'latest_bloomcast.yaml'))
+            for plot_file in ts_plot_files.values():
+                shutil.copy2(plot_file, str(results_path))
+                self.log.debug('copied {} to {}'.format(
+                    plot_file, results_path/plot_file))
+            shutil.copy2('profiles.svg', str(results_path))
+            self.log.debug('copied profiles.svg to {}'.format(
+                results_path/'profiles.svg'))
+            shutil.copy2(
+                self.config.logging.bloom_date_log_filename, str(results_path))
+            self.log.debug('copied {} to {}'.format(
+                self.config.logging.bloom_date_log_filename,
+                results_path/self.config.logging.bloom_date_log_filename))
 
 
 def configure_logging(config, bloom_date_log):
@@ -672,65 +653,6 @@ def find_member(bloom_dates, ord_day):
             if matches:
                 break
     return max(matches)
-
-
-def hg_update(repo_url, www_path, log):
-    """Pull changes from repo_url and update its clone in www_path.
-
-    If the clone does not yet exist, create it.
-    """
-    repo_name = repo_url.rsplit('/')[-1]
-    repo = pathlib.Path(www_path/repo_name)
-    if repo.exists():
-        cmd = ['hg', 'pull', '--update', '--cwd', str(repo)]
-        log.debug('pulling updates from {}'.format(repo_url))
-    else:
-        cmd = ['hg', 'clone', str(repo_url), str(repo)]
-        log.debug('cloning{}'.format(repo_url))
-    subprocess.check_call(cmd)
-    log.debug('updated {}'.format(repo))
-    return repo
-
-
-def sphinx_build(repo_path, log):
-    """Do a clean build of the site by deleting the site/_build tree
-    and then running sphinx-build.
-    """
-    site_path = repo_path/'site'
-    build_path = site_path/'_build'
-    html_path = build_path/'html'
-    cmd = 'rm -rf {}'.format(build_path/'*')
-    subprocess.check_call(cmd, shell=True)
-    cmd = [
-        'sphinx-build',
-        '-b', 'html',
-        '-d', str(build_path/'doctrees'),
-        '-E',
-        str(site_path),
-        str(html_path),
-    ]
-    subprocess.check_call(cmd)
-    log.debug('finished sphinx-build of {}'.format(site_path))
-    return html_path
-
-
-def push_to_web(html_path, results_page, plots_path, server_path, log):
-    """Push the results page and plot files to the web server.
-    """
-    cmd = [
-        'rsync', '-Rvh',
-        '{}/./{}'.format(html_path, results_page),
-        str(server_path),
-    ]
-    subprocess.check_call(cmd)
-    log.debug('pushed results page and plots to {}/'.format(server_path))
-    cmd = [
-        'rsync', '-rRvh',
-        '{}/./{}/'.format(html_path, plots_path),
-        str(server_path),
-    ]
-    subprocess.check_call(cmd)
-    log.debug('pushed plots to {}/'.format(server_path))
 
 
 infile_edits_template = {   # pragma: no cover

@@ -41,13 +41,10 @@ install_requires = [
     'arrow',
     'BeautifulSoup4',
     'cliff',
-    'mako',
     'matplotlib',
     'numpy',
     'PyYAML',
     'requests',
-    'Sphinx',
-    'sphinx-bootstrap-theme',
     # Use `cd SOG; pip install -e .` to install SOG command processor
     # and its dependencies
 ]

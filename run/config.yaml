@@ -57,11 +57,5 @@ logging:
   use_test_smtpd: False
 
 results:
-  site_repo_url: https://bitbucket.org/salishsea/salishsea-site
-  site_bloomcast_path: site/bloomcast
-  site_plots_path: site/_static/bloomcast/spring_diatoms
-  www_path: www
-  templates_path: www/templates
-  template_stem: 'spring_diatoms'
+  path: /results/nowcast-sys/figures/bloomcast
   push_to_web: True
-  server_path: skookum-bloomcast:/var/www/html

@@ -86,10 +86,10 @@ class Config(object):
         """
         self.results = _Container()
         for key, value in config_dict.items():
-            if key in 'site_repo_url push_to_web'.split():
+            if key == 'push_to_web':
                 self.results.__dict__[key] = value
             else:
-                self.results.__dict__[key] = pathlib.PurePath(value)
+                self.results.__dict__[key] = pathlib.Path(value)
 
     def _load_meteo_config(self, config_dict, infile_dict):
         """Load Config values for meteorological forcing data.
