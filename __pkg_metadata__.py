@@ -23,5 +23,5 @@ __all__ = [
 
 PROJECT = 'SoG-bloomcast'
 DESCRIPTION = 'Strait of Georgia spring diatom bloom predictor'
-VERSION = '3.1dev'
+VERSION = '3.1'
 DEV_STATUS = '5 - Production'
