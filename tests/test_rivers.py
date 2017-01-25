@@ -40,12 +40,8 @@ class TestRiverProcessor():
         """
         processor.config.data_date = arrow.get(2011, 11, 30)
         expected = {
-            'syr': 2011,
-            'smo': 1,
-            'sday': 1,
-            'eyr': 2011,
-            'emo': 12,
-            'eday': 1,
+            'startDate': '2011-01-01',
+            'endDate': '2011-12-01',
         }
         assert processor._date_params(2011) == expected
 

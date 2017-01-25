@@ -116,7 +116,8 @@ class TestEnsembleTakeAction():
         )
 
     @patch('bloomcast.ensemble.utils.Config')
-    def test_no_new_wind_data(self, m_config, ensemble):
+    @patch('bloomcast.ensemble.arrow.now', return_value=arrow.get(2014, 3, 12))
+    def test_no_new_wind_data(self, m_now, m_config, ensemble):
         parsed_args = Mock(
             config_file='config.yaml',
             data_date=None,

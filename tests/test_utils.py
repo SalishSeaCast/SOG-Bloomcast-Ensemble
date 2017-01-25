@@ -74,7 +74,7 @@ def config_dict():
             'toaddrs': [],
             'use_test_smtpd': None,
         },
-        'results_dir': None,
+        'results': {},
     }
     return config_dict
 
