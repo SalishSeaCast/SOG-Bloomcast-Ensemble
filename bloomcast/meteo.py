@@ -138,18 +138,23 @@ class MeteoProcessor(ClimateDataProcessor):
             timestamp = data[0][0]
             line = '{0} {1:%Y %m %d} 42'.format(
                 self.config.climate.meteo.station_id, timestamp)
-            for hour in data:
+            for j, hour in enumerate(data):
                 try:
                     line += ' {0:.2f}'.format(hour[1])
+                    if qty == 'cloud_fraction':
+                        last_cf = hour[1] or data[j-1][1]
                 except TypeError:
                     # This is a hack to work around NavCanada not reporting
                     # a YVR weather description (from which we get cloud
                     # fraction) at 23:00 when there is no precipitation
-                    # happening. The upshot is that the final 23:00 value
-                    # in the dataset can be None, so we persist the 22:00
-                    # value for that very special case.
-                    if qty == 'cloud_fraction' and hour == data[-1]:
-                        line += ' {0:.2f}'.format(data[-2][1])
+                    # happening. The upshot is that the final few values
+                    # in the dataset can be None, so we persist the last valid
+                    # value for that very special case, and log a warning.
+                    if qty == 'cloud_fraction':
+                        line += ' {0:.2f}'.format(last_cf)
+                        log.warning(
+                            f'missing cloud fraction value {hour} '
+                            f'filled with {last_cf}')
                     else:
                         raise
             line += '\n'
