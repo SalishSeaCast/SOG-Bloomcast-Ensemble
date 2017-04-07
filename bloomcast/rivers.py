@@ -127,10 +127,10 @@ class RiversProcessor(ForcingDataProcessor):
         the end of the string.
         """
         try:
-            return float(flow_string)
+            return float(flow_string.replace(',', ''))
         except ValueError:
             # Ignore training `*`
-            return float(flow_string[:-1])
+            return float(flow_string[:-1].replace(',', ''))
 
     def read_datestamp(self, string):
         """Read datestamp from BeautifulSoup parser object and return
