@@ -73,7 +73,7 @@ class Ensemble(cliff.command.Command):
         parser = super().get_parser(prog_name)
         parser.description = '''
             Run an ensemble forecast to predict  the first spring diatom
-            phytoplanton bloom in the Strait of Georgia.
+            phytoplankton bloom in the Strait of Georgia.
         '''
         parser.add_argument(
             'config_file',
