@@ -1,0 +1,1542 @@
+# SOG code infile for 2018 bloomcast runs
+
+grid:
+  model_depth:
+    value: 40
+    units: m
+    variable_name: grid%D
+    description: depth of modelled domain
+  grid_size:
+    value: 80
+    variable_name: grid%M
+    description: number of grid points
+  lambda_factor:
+    value: 0
+    variable_name: lambda
+    description: grid spacing parameter
+
+location:
+  latitude:
+    value: 49.1253
+    units: deg
+    variable_name: latitude
+    description: latitude of modelled estuary
+  minor_axis:
+    value: 30e3
+    units: m
+    variable_name: Lx
+    description: length of minor axis (cross-estuary) of model domain
+  major_axis:
+    value: 120e3
+    units: m
+    variable_name: Ly
+    description: length of major axis (along-estuary) of model domain
+  open_ended_estuary:
+    value: False
+    variable_name: openEnd
+    description: open basin system (True) or closed system (False)
+
+initial_conditions:
+  init_datetime:
+    value: 2017-09-19 18:49:00
+    variable_name: initDatetime
+    description: initial CTD profile date/time
+  CTD_file:
+    value: ../../SOG-initial/ctd/SG-39-2001-09-19.sog
+    variable_name: ctd_in
+    description: path/filename for initialization CTD file
+  # Give a path/filename for either STRATOGEM nutrients file
+  # or IOS bottle file; set the other to N/A
+  nutrients_file:
+    value: ../../SOG-initial/stratogem_nuts/Nuts-39-2001-09-19.sog
+    variable_name: nuts_in
+    description: path/filename for STRATOGEM nutrients data file
+  bottle_file:
+    value: N/A
+    variable_name: botl_in
+    description: path/filename for IOS nutrients bottle data file
+  chemistry_file:
+    value: ../../SOG-initial/chem/Chem-SOG42-2010-73.sog
+    variable_name: chem_in
+    description: path/filename for IOS chemistry bottle data file
+  init_chl_ratios:
+    value: [1, 0, 0]
+    variable_name: Psplit
+    description: initial micro/nano/pico phytoplankton ratios from chlorophyl
+  nitrate_chl_conversion:
+    value: 1.5
+    units: mg/m^3 . uM N
+    variable_name: N2chl
+    description: phytoplankton nitrate to chlorophyl conversion factor
+  pCO2_atm:
+    value: 3.8e-4
+    units: atm
+    variable_name: pCO2_atm
+    description: partial pressure of atmospheric CO2
+
+end_datetime:
+  value: 2018-05-01 00:49:00
+  variable_name: endDatetime
+  description: end of run date/time
+
+numerics:
+  dt:
+    value: 900
+    units: s
+    variable_name: dt
+    description: time step
+  chem_dt:
+    value: 900
+    units: s
+    variable_name: chem_dt
+    description: internal chemistry time step
+  max_iter:
+    value: 30
+    variable_name: max_iter
+    description: max number of implicit solver iterations per time step
+
+vary:
+  wind:
+    value: False
+    variable_name: vary%wind%enabled
+    description: use variation of wind initial conditions or forcing
+  # The following wind_* parameters are only used when wind == True
+  wind_fixed:
+    value: True
+    variable_name: vary%wind%fixed
+    description: use fixed value for wind initial conditions or forcing
+  # The wind_value parameter is only used when wind == True and
+  # wind_fixed == True
+  wind_value:
+    value: 0
+    units: m/s
+    variable_name: vary%wind%value
+    description: fixed value for wind initial conditions or forcing
+  # The wind_shift, wind_fraction and wind_addition parameters are
+  # only used when wind == True wind_fixed == False
+  wind_shift:
+    value: 0
+    units: yr
+    variable_name: vary%wind%value
+    description: fixed value for wind initial conditions or forcing
+  wind_fraction:
+    value: 1
+    variable_name: vary%wind%value
+    description: fixed value for wind initial conditions or forcing
+  wind_addition:
+    value: 0
+    units: m/s
+    variable_name: vary%wind%value
+    description: fixed value for wind initial conditions or forcing
+  cloud_fraction:
+    value: False
+    variable_name: vary%cf%enabled
+    description: use variation of cloud fraction initial conditions or forcing
+  # The following cloud_fraction_* parameters are only used when
+  # cloud_fraction == True
+  cloud_fraction_fixed:
+    value: True
+    variable_name: vary%cf%fixed
+    description: use fixed value for cloud fraction initial conditions or forcing
+  # The cloud_fraction_value parameter is only used when
+  # cloud_fraction == True and cloud_fraction_fixed == True
+  cloud_fraction_value:
+    value: 0
+    units: m/s
+    variable_name: vary%cf%value
+    description: fixed value for cloud fraction initial conditions or forcing
+  # The cloud_fraction_shift, cloud_fraction_fraction and
+  # cloud_fraction_addition parameters are only used when
+  # cloud_fraction == True cloud_fraction_fixed == False
+  cloud_fraction_shift:
+    value: 0
+    units: yr
+    variable_name: vary%cf%value
+    description: fixed value for cloud fraction initial conditions or forcing
+  cloud_fraction_fraction:
+    value: 1
+    variable_name: vary%cf%value
+    description: fixed value for cloud fraction initial conditions or forcing
+  cloud_fraction_addition:
+    value: 0
+    units: m/s
+    variable_name: vary%cf%value
+    description: fixed value for cloud fraction initial conditions or forcing
+  river_flows:
+    value: False
+    variable_name: vary%rivers%enabled
+    description: use variation of river flows initial conditions or forcing
+  # The following river_flows_* parameters are only used when river_flows == True
+  river_flows_fixed:
+    value: True
+    variable_name: vary%rivers%fixed
+    description: use fixed value for river flows initial conditions or forcing
+  # The river_flows_value parameter is only used when river_flows == True and
+  # river_flows_fixed == True
+  river_flows_value:
+    value: 0
+    units: m/s
+    variable_name: vary%rivers%value
+    description: fixed value for river flows initial conditions or forcing
+  # The river_flows_shift, river_flows_fraction and
+  # river_flows_addition parameters are only used when river_flows ==
+  # True river_flows_fixed == False
+  river_flows_shift:
+    value: 0
+    units: yr
+    variable_name: vary%rivers%value
+    description: fixed value for river flows initial conditions or forcing
+  river_flows_fraction:
+    value: 1
+    variable_name: vary%rivers%value
+    description: fixed value for river flows initial conditions or forcing
+  river_flows_addition:
+    value: 0
+    units: m/s
+    variable_name: vary%rivers%value
+    description: fixed value for river flows initial conditions or forcing
+  temperature:
+    value: False
+    variable_name: vary%temperature%enabled
+    description: use variation of air temperature initial conditions or forcing
+  # The following temperature_* parameters are only used when temperature == True
+  temperature_fixed:
+    value: True
+    variable_name: vary%temperature%fixed
+    description: use fixed value for temperature initial conditions or forcing
+  # The temperature_value parameter is only used when temperature == True and
+  # temperature_fixed == True
+  temperature_value:
+    value: 0
+    units: m/s
+    variable_name: vary%temperature%value
+    description: fixed value for temperature initial conditions or forcing
+  # The temperature_shift, temperature_fraction and
+  # temperature_addition parameters are only used when
+  # temperature == True temperature_fixed == False
+  temperature_shift:
+    value: 0
+    units: yr
+    variable_name: vary%temperature%value
+    description: fixed value for temperature initial conditions or forcing
+  temperature_fraction:
+    value: 1
+    variable_name: vary%temperature%value
+    description: fixed value for temperature initial conditions or forcing
+  temperature_addition:
+    value: 0
+    units: m/s
+    variable_name: vary%temperature%value
+    description: fixed value for temperature initial conditions or forcing
+
+timeseries_results:
+  std_physics:
+    value: timeseries/std_phys_2018_bloomcast.out
+    variable_name: std_phys_ts_out
+    description: path/filename for standard physics time series output
+  user_physics:
+    value: timeseries/user_phys_2018_bloomcast.out
+    variable_name: user_phys_ts_out
+    description: path/filename for user physics time series output
+  std_biology:
+    value: timeseries/std_bio_2018_bloomcast.out
+    variable_name: std_bio_ts_out
+    description: path/filename for standard biology time series output
+  user_biology:
+    value: timeseries/user_bio_2018_bloomcast.out
+    variable_name: user_bio_ts_out
+    description: path/filename for user biology time series output
+  std_chemistry:
+    value: timeseries/std_chem_2018_bloomcast.out
+    variable_name: std_chem_ts_out
+    description: path/filename for standard chemistry time series output
+  user_chemistry:
+    value: timeseries/user_chem_2018_bloomcast.out
+    variable_name: user_chem_ts_out
+    description: path/filename for user chemistry time series output
+
+profiles_results:
+  num_profiles:
+    value: 1
+    variable_name: noprof
+    description: number of profiles to output
+  # TODO: Replace year-day and day-second lists with a list of
+  # date/times for profile outputs
+  profile_days:
+    value: [60]
+    variable_name: profday
+    description: list of year-days to output profiles for
+  profile_times:
+    value: [43200]
+    variable_name: proftime
+    description: list of day-seconds to output profiles for
+  profile_file_base:
+    value: profiles/2018_bloomcast
+    variable_name: profilesBase_fn
+    description: path/filename base for profiles (datetime will be appended)
+  user_profile_file_base:
+    value: profiles/user_2018_bloomcast
+    variable_name: userprofilesBase_fn
+    description: path/filename base for user profiles (datetime appended)
+  halocline_file:
+    value: profiles/halo_2018_bloomcast.out
+    variable_name: haloclines_fn
+    description: path/filename for halocline results
+  hoffmueller_file:
+    value: profiles/hoff_2018_bloomcast.out
+    variable_name: Hoffmueller_fn
+    description: path/filename for Hoffmueller results
+  user_hoffmueller_file:
+    value: profiles/user_hoff_2018_bloomcast.out
+    variable_name: userHoffmueller_fn
+    description: path/filename for user Hoffmueller results
+  # TODO: Replace Hoffmueller results start and end year, day & second
+  # with date/times
+  hoffmueller_start_year:
+    value: 2017
+    variable_name: Hoff_startyr
+    description: year to start Hoffmueller results output
+  hoffmueller_start_day:
+    value: 263
+    variable_name: Hoff_startday
+    description: day to start Hoffmueller results output
+  hoffmueller_start_sec:
+    value: 43200
+    variable_name: Hoff_startsec
+    description: second to start Hoffmueller results output
+  hoffmueller_end_year:
+    value: 2018
+    variable_name: Hoff_endyr
+    description: year to end Hoffmueller results output
+  hoffmueller_end_day:
+    value: 121
+    variable_name: Hoff_endday
+    description: day to end Hoffmueller results output
+  hoffmueller_end_sec:
+    value: 43200
+    variable_name: Hoff_endsec
+    description: second to end Hoffmueller results output
+  hoffmueller_interval:
+    value: 1
+    variable_name: Hoff_interval
+    description: days between Hoffmueller results outputs
+
+physics:
+  bottom_boundary_conditions:
+    constant_temperature:
+      value: False
+      variable_name: temp_constant
+      description: is bottom temperature constant over time?
+    temperature_fit_coefficients:
+      value: [9.07, -0.088, -0.906, 0, -0.030, -0.088, 0]
+      variable_name: c(:,2)
+      description: temperature (constant, seasonal and biseasonal components)
+    salinity_fit_coefficients:
+      value: [29.62605865, 0.10374454, -0.03562458, 0, -0.14156091,
+              -0.06348989, 0]
+      variable_name: c(:,1)
+      description: salinity (constant, seasonal and biseasonal components)
+    phyto_fluor_fit_coefficients:
+      value: [0.58316137, -0.11206845, 0.26241523, 0, 0, 0, 0]
+      variable_name: c(:,3)
+      description: phytoplankton from fluorescence (constant & seasonal)
+    nitrate_fit_coefficients:
+      value: [30.5, 0, 0, 0, 0, 0, 0]
+      variable_name: c(:,4)
+      description: nitrate bottom boundary condition (constant)
+    silicon_fit_coefficients:
+      value: [54, 0, 0, 0, 0, 0, 0]
+      variable_name: c(:,5)
+      description: silicon bottom boundary condition (constant)
+    DIC_fit_coefficients:
+      value: [2065.98993, 9.18035435, -3.15241908, 0, -12.52672493,
+              -5.618220366, 0]
+      variable_name: c(:,6)
+      description: DIC (constant, seasonal & biseasonal from salinity fit)
+    dissolved_oxygen_fit_coefficients:
+      value: [198.9274, 28.6893, -46.9640, -3.7259, 6.4774, -2.7972, 0]
+      variable_name: c(:,7)
+      description: dissolved oxygen bottom boundary condition (constant)
+    alkalinity_fit_coefficients:
+      value: [2097.300118, 6.25890810, -2.14923091, 0, -8.540367,
+              -3.83034506, 0]
+      variable_name: c(:,8)
+      description: alkalinity (constant, seasonal & biseasonal from salinity)
+    ammonium_fit_coefficients:
+      value: [1, 0, 0, 0, 0, 0, 0]
+      variable_name: c(:,9)
+      description: ammonium bottom boundary condition (constant)
+    phyto_ratio_fit_coefficients:
+      value: [1.25948868, 0, 0, 0, 0.97697686, 0.46289294, 0]
+      variable_name: c(:,10)
+      description: ratio of pico/micro phytoplankton (constant & biseasonal)
+
+  turbulence:
+    momentum_wave_break_diffusivity:
+      value: 1e-4
+      units: m^2/s
+      variable_name: nu%m%int_wave
+      description: internal wave breaking diffusivity for momentum qtys
+    scalar_wave_break_diffusivity:
+      value: 1e-5
+      units: m^2/s
+      variable_name: nu%T%int_wave, nu%S%int_wave
+      description: internal wave breaking diffusivity for scalar qtys
+    shear_diffusivity_smoothing:
+      value: [0.375, 0.5]
+      variable_name: shear_diff_smooth
+      description: shear diffusivity smoothing parameters
+
+  fresh_water:
+    flux:
+      mean_total_flow:
+        value: 3624
+        units: m^3/s
+        variable_name: Qbar
+        description: mean total fresh water flow
+      common_exponent:
+        value: 0.2
+        variable_name: F_SOG
+        description: exponential for SoG/RI common component of flux
+      SoG_exponent:
+        value: 1
+        variable_name: F_RI
+        description: exponent for extra SoG term component of flux
+      scale_factor:
+        value: 11.67e-10
+        variable_name: Fw_scale
+        description: fresh water scale factor for rivers flows
+      add_freshwater_on_surface:
+        value: False
+        variable_name: Fw_surface
+        description: add all of the fresh water on the surface?
+      distribution_depth:
+        value: 3
+        units: m
+        variable_name: Fw_depth
+        description: depth to distribute fresh water flux over
+      include_fresh_water_nutrients:
+        value: False
+        variable_name: use_Fw_nutrients
+        description: include influence of fresh water nutrients in biology
+      northern_return_flow:
+        value: False
+        variable_name: Northern_return
+        description: include fresh water return flow from the north?
+      # The next 7 "northern" parameters are only used when
+      # northern_return_flow == True
+      northern_influence_strength:
+        value: 0.8863  # 1 / 43
+        units: m
+        variable_name: strength
+        description: strength of northern influence
+      northern_influence_integration_time_scale:
+        value: 2
+        units: d
+        variable_name: tauN
+        description: integration time scale for northern influence
+      northern_water_depth_peak:
+        value: 23
+        units: m
+        variable_name: central_depth
+        description: depth peak of incoming northerrn water
+      northern_water_upper_extension:
+        value: 12
+        units: m
+        variable_name: upper_width
+        description: upward extension of incoming northern water
+      northern_water_lower_extension:
+        value: 10
+        units: m
+        variable_name: lower_width
+        description: downward extension of incoming northern water
+      northern_water_power_riverflow_influence:
+        value: 0.
+        variable_name: power
+        description: power on the river flow influence on northern water
+      northern_water_normalization_riverflow_influence:
+        value: 2500
+        units: m^3/s
+        variable_name: Fo
+        description: normalization on the river flow influence on north water
+    salinity_fit:
+      bottom_salinity:
+        value: 30
+        variable_name: cbottom
+        description: salinity at bottom of modelled domain
+      alpha:
+        value: 2440
+        variable_name: calpha
+        description: alpha coefficient of fresh water salinity fit
+      alpha2:
+        value: 1
+        variable_name: calpha2
+        description: alpha2 coefficient of fresh water salinity fit
+        # For the Strait of Georgia the fresh water salinity fit
+        # doesn't actually have an alpha2 coefficient but we set it to
+        # 1 to avoid dividing by zero. The beta=0 value below causes
+        # the terms containing alpha2 to be eliminated from the
+        # calculation.
+      gamma:
+        value: 0.0633
+        variable_name: cgamma
+        description: gamma coefficient of fresh water salinity fit
+      beta:
+        value: 0
+        variable_name: cbeta
+        description: beta coefficient of fresh water salinity fit
+
+    river_alkalinity_fit:
+      river_alkalinity_zero:
+        value: 888.8
+        variable_name: river_Alk_0
+        description: river alkalinity at zero discharge
+      river_alkalinity_decay:
+        value: -1.5e-4
+        variable_name: river_Alk_decay
+        description: river alkalinity decay with discharge
+      river_pH:
+        value: 7.7
+        variable_name: pH_riv
+        description: pH of river water
+
+    upwelling:
+      max_upwelling_velocity:
+        value: 2.5e-5
+        units: m/s
+        variable_name: upwell_const
+        description: maximum upwelling velocity
+      variation_depth_param:
+        value: 11.7
+        units: m
+        variable_name: d
+        description: upwelling variation depth parameter
+
+  K_PAR_fit:
+    # Coefficients for Photosynthetic Available Radiation (PAR)
+    # elimination (K) from Collins, et al (2008)
+    ialpha:
+      value: 0.091
+      variable_name: ialpha
+      description: alpha coefficient of K-PAR fit
+    ibeta:
+      value: 0.0433
+      variable_name: ibeta
+      description: beta coefficient of K-PAR fit
+    igamma:
+      value: 2.62e-22
+      variable_name: igamma
+      description: gamma coefficient of K-PAR fit
+    isigma:
+      value: 5.5
+      variable_name: isigma
+      description: sigma coefficient of K-PAR fit
+    itheta:
+      value: 0.445
+      variable_name: itheta
+      description: theta coefficient of K-PAR fit
+    idl:
+      value: 2.56
+      variable_name: idl
+      description: dl coefficient of K-PAR fit
+
+biology:
+  include_phytoplankton:
+    value: True
+    variable_name: biology
+    description: include phytoplankton in model? (init to zero if False)
+  include_flagellates:
+    value: False
+    variable_name: flagellates
+    description: include flagellates in model?
+  include_remineralization:
+    value: False
+    variable_name: remineralization
+    description: include remineralization in model?
+  include_microzooplankton:
+    value: False
+    variable_name: microzooplankton
+    description: include microzooplankton in model?
+  single_species_light:
+    value: True
+    variable_name: strong_limitation
+    description: high light limitation for single species case
+
+  mesozooplankton:
+    mesozoo_winter_conc:
+      value: 0.073
+      units: uM N
+      variable_name: rate_mesozoo%winterconc
+      description: mesozooplankton background concentration
+    mesozoo_summer_conc:
+      value: 1
+      units: uM N
+      variable_name: rate_mesozoo%summerconc
+      description: mesozooplankton relative summer concentration
+    mesozoo_summer_peak_magnitudes:
+      value: [0.525, 0.152, 0.0318]
+      units: uM N
+      variable_name: rate_mesozoo%sumpeakval
+      description: magnitude of mesozooplankton summer concentration peaks
+    mesozoo_summer_peak_days:
+      value: [112, 229, 316]
+      units: year-day
+      variable_name: rate_mesozoo%sumpeakpos
+      description: times of mesozooplankton summer concentration peaks
+    mesozoo_summer_peak_widths:
+      value: [53.8, 51.6, 14.6]
+      units: year-days
+      variable_name: rate_mesozoo%sumpeakwid
+      description: widths of mesozooplankton summer concentration peaks
+    mesozoo_max_ingestion:
+      value: 1.39e-5
+      units: uM N / s
+      variable_name: rate_mesozoo%R
+      description: mesozooplankton maximum ingestion rate @ 20 deg C
+    mesozoo_assimilation_efficiency:
+      value: 0.5
+      variable_name: rate_mesozoo%eff
+      description: mesozooplankton grazed mass assimilation efficiency
+    mesozoo_natural_mortality:
+      value: 2.3e-6
+      units: uM N / s
+      variable_name: rate_mesozoo%Rm
+      description: mesozooplankton natural mortality rate @ 20 deg C
+    mesozoo_excretion:
+      value: 1.39e-6
+      units: uM N / s
+      variable_name: rate_mesozoo%excr
+      description: mesozooplankton excretion rate @ 20 deg C
+    mesozoo_grazing_limit:
+      value: 0
+      units: uM N
+      variable_name: rate_mesozoo%PredSlope
+      description: mesozooplankton total grazing limit
+    mesozoo_grazing_half_saturation:
+      value: 1
+      units: uM N
+      variable_name: rate_mesozoo%HalfSat
+      description: mesozooplankton total grazing half saturation constant
+    mesozoo_diatom_preference:
+      value: 1
+      variable_name: rate_mesozoo%MicroPref
+      description: mesozooplankton preference for diatoms
+    mesozoo_diatom_grazing_limit:
+      value: 0
+      units: uM N
+      variable_name: rate_mesozoo%MicroPredSlope
+      description: mesozooplankton diatom grazing limit
+    mesozoo_diatom_grazing_half_saturation:
+      value: 1
+      units: uM N
+      variable_name: rate_mesozoo%MicroHalfSat
+      description: mesozooplankton diatom grazing half saturation constant
+    mesozoo_nano_preference:
+      value: 0
+      variable_name: rate_mesozoo%NanoPref
+      description: mesozooplankton preference for nano-phytoplankton
+    mesozoo_nano_grazing_limit:
+      value: 0.4
+      units: uM N
+      variable_name: rate_mesozoo%NanoPredSlope
+      description: mesozooplankton nano-phyto grazing limit
+    mesozoo_nano_grazing_half_saturation:
+      value: 0.4
+      units: uM N
+      variable_name: rate_mesozoo%NanoHalfSat
+      description: mesozooplankton nano-phyto grazing half saturation const
+    mesozoo_pico_preference:
+      value: 0
+      variable_name: rate_mesozoo%PicoPref
+      description: mesozooplankton preference for pico-phytoplankton
+    mesozoo_pico_grazing_limit:
+      value: 0
+      units: uM N
+      variable_name: rate_mesozoo%PicoPredSlope
+      description: mesozooplankton pico-phyto grazing limit
+    mesozoo_pico_grazing_half_saturation:
+      value: 0.4
+      units: uM N
+      variable_name: rate_mesozoo%PicoHalfSat
+      description: mesozooplankton pico-phyto grazing half saturation const
+    mesozoo_PON_preference:
+      value: 0
+      variable_name: rate_mesozoo%PON_Pref
+      description: mesozooplankton preference for PON
+    mesozoo_PON_grazing_limit:
+      value: 0.2
+      units: uM N
+      variable_name: rate_mesozoo%PON_PredSlope
+      description: mesozooplankton PON feeding limit
+    mesozoo_PON_grazing_half_saturation:
+      value: 0.2
+      units: uM N
+      variable_name: rate_mesozoo%PON_HalfSat
+      description: mesozooplankton PON feeding half saturation const
+    mesozoo_microzoo_preference:
+      value: 0
+      variable_name: rate_mesozoo%Z_Pref
+      description: mesozooplankton preference for microzooplankton
+    mesozoo_microzoo_grazing_limit:
+      value: 0.2
+      units: uM N
+      variable_name: rate_mesozoo%Z_PredSlope
+      description: mesozooplankton microzooplankton grazing limit
+    mesozoo_microzoo_grazing_half_saturation:
+      value: 0.2
+      units: uM N
+      variable_name: rate_mesozoo%Z_HalfSat
+      description: mesozooplankton microzoo grazing half saturation const
+
+  mesodinium_rubrum:
+    mesorub_max_ingestion:
+      value: 4.63e-6
+      units: uM N / s
+      variable_name: rate_mesorub%R
+      description: mesodinium rubrum maximum ingestion rate @ 20 deg C
+    mesorub_assimilation_efficiency:
+      value: 0.6
+      variable_name: rate_mesorub%eff
+      description: mesodinium rubrum grazed mass assimilation efficiency
+    mesorub_grazing_limit:
+      value: 0.2
+      units: uM N
+      variable_name: rate_mesozoo%PicoPredSlope
+      description: mesodinium rubrum grazing limit
+    mesorub_grazing_half_saturation:
+      value: 0.5
+      units: uM N
+      variable_name: rate_mesozoo%PicoHalfSat
+      description: mesodinium rubrum grazing half saturation constant
+
+  microzooplankton:
+    microzoo_max_ingestion:
+      value: 2.32e-5
+      units: uM N / s
+      variable_name: rate_uzoo%R
+      description: microzooplankton maximum ingestion rate @ 20 deg C
+    microzoo_assimilation_efficiency:
+      value: 0.6
+      variable_name: rate_uzoo%eff
+      description: microzooplankton grazed mass assimilation efficiency
+    microzoo_natural_mortality:
+      value: 2.3e-6
+      units: uM N / s
+      variable_name: rate_uzoo%Rm
+      description: microzooplankton natural mortality rate @ 20 deg C
+    microzoo_excretion:
+      value: 1.39e-6
+      units: uM N / s
+      variable_name: rate_uzoo%excr
+      description: microzooplankton excretion rate @ 20 deg C
+    microzoo_grazing_limit:
+      value: 0.4
+      units: uM N
+      variable_name: rate_uzoo%PredSlope
+      description: microzooplankton total grazing limit
+    microzoo_grazing_half_saturation:
+      value: 0.4
+      units: uM N
+      variable_name: rate_uzoo%HalfSat
+      description: microzooplankton total grazing half saturation constant
+    microzoo_pico_preference:
+      value: 1
+      variable_name: rate_uzoo%PicoPref
+      description: microzooplankton preference for pico-phytoplankton
+    microzoo_pico_grazing_limit:
+      value: 0.2
+      units: uM N
+      variable_name: rate_uzoo%PicoPredSlope
+      description: microzooplankton pico-phyto grazing limit
+    microzoo_pico_grazing_half_saturation:
+      value: 0.4
+      units: uM N
+      variable_name: rate_uzoo%PicoHalfSat
+      description: microzooplankton pico-phyto grazing half saturation const
+    microzoo_micro_preference:
+      value: 0.34
+      variable_name: rate_uzoo%MicroPref
+      description: microzooplankton preference for micro-phytoplankton
+    microzoo_micro_grazing_limit:
+      value: 1
+      units: uM N
+      variable_name: rate_uzoo%MicroPredSlope
+      description: microzooplankton micro-phyto grazing limit
+    microzoo_micro_grazing_half_saturation:
+      value: 2
+      units: uM N
+      variable_name: rate_uzoo%MicroHalfSat
+      description: microzooplankton micro-phyto grazing half saturation const
+    microzoo_nano_preference:
+      value: 0.16
+      variable_name: rate_uzoo%NanoPref
+      description: microzooplankton preference for nano-phytoplankton
+    microzoo_nano_grazing_limit:
+      value: 1
+      units: uM N
+      variable_name: rate_uzoo%NanoPredSlope
+      description: microzooplankton nano-phyto grazing limit
+    microzoo_nano_grazing_half_saturation:
+      value: 2
+      units: uM N
+      variable_name: rate_uzoo%NanoHalfSat
+      description: microzooplankton nano-phyto grazing half saturation const
+    microzoo_PON_preference:
+      value: 0.33
+      variable_name: rate_uzoo%PON_Pref
+      description: microzooplankton preference for PON
+    microzoo_PON_grazing_limit:
+      value: 0.4
+      units: uM N
+      variable_name: rate_uzoo%PON_PredSlope
+      description: microzooplankton PON grazing limit
+    microzoo_PON_grazing_half_saturation:
+      value: 0.4
+      units: uM N
+      variable_name: rate_uzoo%PON_HalfSat
+      description: microzooplankton PON grazing half saturation const
+    microzoo_microzoo_preference:
+      value: 0.16
+      variable_name: rate_uzoo%PON_Pref
+      description: microzooplankton preference for microzoo cannibalism
+    microzoo_microzoo_grazing_limit:
+      value: 1
+      units: uM N
+      variable_name: rate_uzoo%PON_PredSlope
+      description: microzooplankton microzoo grazing limit
+    microzoo_microzoo_grazing_half_saturation:
+      value: 2
+      units: uM N
+      variable_name: rate_uzoo%PON_HalfSat
+      description: microzooplankton microzoo grazing half saturation const
+
+  phytoplankton_growth:
+    micro_max_growth:
+      value: 5.165e-5
+      units: 1/s
+      variable_name: rate_micro%R
+      description: micro-phyto maximum growth rate
+      # Hitchcock 1980, 1.4 d-1 for T. nordenskelii at 10degrees
+    nano_max_growth:
+      value: 1.2e-5
+      units: 1/s
+      variable_name: rate_nano%R
+      description: nano-phyto maximum growth rate
+      # Yih 2004, 0.5 d-1 for Mesodinium rubrum (at 15 degrees) and
+      # Q10**2 tuned up and at Q10**1
+    pico_max_growth:
+      value: 1.74e-5
+      units: 1/s
+      variable_name: rate_pico%R
+      description: pico-phyto maximum growth rate
+    micro_optimal_light:
+      value: 38.4
+      units: W/m^2
+      variable_name: rate_micro%Iopt
+      description: micro-phyto growth optimal light level
+      #  Durbin, 1974 3.3 lg/s for T. nordenskelii at 10 degrees
+    nano_optimal_light:
+      value: 38.4
+      units: W/m^2
+      variable_name: rate_nano%Iopt
+      description: nano-phyto growth optimal light level
+      # Yih plus Cloern 1977 Half-sat very similar
+    pico_optimal_light:
+      value: 10
+      units: W/m^2
+      variable_name: rate_pico%Iopt
+      description: pico-phyto growth optimal light level
+    micro_max_temperature:
+      value: 18
+      units: deg C
+      variable_name: rate_micro%maxtemp
+      description: micro-phyto growth high temperature limit
+      # Durbin, 1974 T. nordenskelli cannot grow at 18 degrees
+      # general diatoms increase this
+    nano_max_temperature:
+      value: 28
+      units: deg C
+      variable_name: rate_nano%maxtemp
+      description: nano-phyto growth high temperature limit
+      # Mesodinium, Cloern 1977
+    pico_max_temperature:
+      value: 35
+      units: deg C
+      variable_name: rate_pico%maxtemp
+      description: pico-phyto growth high temperature limit
+    micro_temperature_range:
+      value: 8
+      units: deg C
+      variable_name: rate_micro%temprange
+      description: micro-phyto growth limit range below max temperature
+      # equal growth at 10 and 15 so range down 8
+      # (which Q10 should be about const)
+    nano_temperature_range:
+      value: 12
+      units: deg C
+      variable_name: rate_nano%temprange
+      description: nano-phyto growth limit range below max temperature
+      # starts turning over earlier
+    pico_temperature_range:
+      value: 1
+      units: deg C
+      variable_name: rate_pico%temprange
+      description: pico-phyto growth limit range below max temperature
+    micro_Q10_exponent:
+      value: 1
+      variable_name: rate_micro%Q10exp
+      description: micro-phyto growth Q10 temperature effect exponent
+      # 1 for T. n.  but 2 is better for S.c.
+    nano_Q10_exponent:
+      value: 1
+      variable_name: rate_nano%Q10exp
+      description: nano-phyto growth Q10 temperature effect exponent
+      # Cloern 1977 data 2.0 not working try 1.0
+    pico_Q10_exponent:
+      value: 1
+      variable_name: rate_pico%Q10exp
+      description: pico-phyto growth Q10 temperature effect exponent
+    micro_gamma_loss:
+      value: 0
+      variable_name: rate_micro%gamma
+      description: micro-phyto growth light limitation loss parameter
+    nano_gamma_loss:
+      value: 0
+      variable_name: rate_nano%gamma
+      description: nano-phyto growth light limitation loss parameter
+    pico_gamma_loss:
+      value: 0
+      variable_name: rate_pico%gamma
+      description: pico-phyto growth light limitation loss parameter
+    micro_NO3_half_saturation:
+      value: 0.5
+      variable_name: rate_micro%k
+      description: micro-phyto growth NO3 half-saturation constant
+    nano_NO3_half_saturation:
+      value: 0.3
+      variable_name: rate_nano%k
+      description: nano-phyto growth NO3 half-saturation constant
+    pico_NO3_half_saturation:
+      value: 0.3
+      variable_name: rate_pico%k
+      description: pico-phyto growth NO3 half-saturation constant
+    micro_NO3_vs_NH_preference:
+      value: 1
+      variable_name: rate_micro%kapa
+      description: micro-phyto growth preference for NO3 over NH factor
+    nano_NO3_vs_NH_preference:
+      value: 0.6
+      variable_name: rate_nano%kapa
+      description: nano-phyto growth preference for NO3 over NH factor
+    pico_NO3_vs_NH_preference:
+      value: 0.6
+      variable_name: rate_pico%kapa
+      description: pico-phyto growth preference for NO3 over NH factor
+    micro_NH_inhibition_exponent:
+      value: 0
+      variable_name: rate_micro%gamma_o
+      description: micro-phyto growth exponential NH inhibition of NO3 uptake
+    nano_NH_inhibition_exponent:
+      value: 0
+      variable_name: rate_nano%gamma_o
+      description: nano-phyto growth exponential NH inhibition of NO3 uptake
+    pico_NH_inhibition_exponent:
+      value: 0
+      variable_name: rate_pico%gamma_o
+      description: pico-phyto growth exponential NH inhibition of NO3 uptake
+    micro_half_saturation:
+      value: 0
+      variable_name: rate_micro%N_o
+      description: micro-phyto growth overal half-saturation constant
+    nano_half_saturation:
+      value: 0
+      variable_name: rate_nano%N_o
+      description: nano-phyto growth overal half-saturation constant
+    pico_half_saturation:
+      value: 0
+      variable_name: rate_pico%N_o
+      description: pico-phyto growth overal half-saturation constant
+    micro_N_inhibition_exponent:
+      value: 0
+      variable_name: rate_micro%N_x
+      description: micro-phyto growth N inhibition exponent
+    nano_N_inhibition_exponent:
+      value: 0
+      variable_name: rate_nano%N_x
+      description: nano-phyto growth N inhibition exponent
+    pico_N_inhibition_exponent:
+      value: 0
+      variable_name: rate_pico%N_x
+      description: pico-phyto growth N inhibition exponent
+    micro_Si_N_ratio:
+      value: 0
+      variable_name: rate_micro%Si_ratio
+      description: micro-phyto silicon/nitrogen ratio
+    nano_Si_N_ratio:
+      value: 0
+      variable_name: rate_nano%Si_ratio
+      description: nano-phyto silicon/nitrogen ratio
+    pico_Si_N_ratio:
+      value: 0
+      variable_name: rate_pico%Si_ratio
+      description: pico-phyto silicon/nitrogen ratio
+    micro_Si_half_saturation:
+      value: 0
+      variable_name: rate_micro%K_Si
+      description: micro-phyto growth Si half saturation constant
+    nano_Si_half_saturation:
+      value: 0
+      variable_name: rate_nano%K_Si
+      description: nano-phyto growth Si half saturation constant
+    pico_Si_half_saturation:
+      value: 0
+      variable_name: rate_pico%K_Si
+      description: pico-phyto growth Si half saturation constant
+    micro_natural_mortality:
+      value: 2.3e-6
+      units: 1/s
+      variable_name: rate_micro%Rm
+      description: micro-phyto natural mortality
+    nano_natural_mortality:
+      value: 2.3e-6
+      units: 1/s
+      variable_name: rate_nano%Rm
+      description: nano-phyto natural mortality
+    pico_natural_mortality:
+      value: 2.3e-6
+      units: 1/s
+      variable_name: rate_pico%Rm
+      description: pico-phyto natural mortality
+
+  remineralization_rates:
+    NH_remin_rate:
+      value: 4e-7
+      units: 1/s
+      variable_name: remin%NH
+      description: ammonium remineralization rate
+      # 2 months at 10 degrees (Alain 0.1 d-1 at 10degrees)
+      # Denman 0.01d-1 at 10 degrees (2e-7)
+    DON_remin_rate:
+      value: 2.3e-6
+      units: 1/s
+      variable_name: remin%D_DON
+      description: DON detritus remineralization rate
+      # Alain and Jeffery 0.2d-1
+      # Debby: should be longer than PON but she did not include very
+      # labile portion
+    PON_remin_rate:
+      value: 2.3e-6
+      units: 1/s
+      variable_name: remin%D_PON
+      description: PON detritus remineralization rate
+      # Jeffery 0.035 day-1 at 10 degrees (1 month agrees with 370 notes
+      # but this is for deeply sinking and thus refractory stuff?)
+      # Debby and Alain 0.2d-1
+      # Denman 0.1d-1 at 10 degrees
+    bSi_remin_rate:
+      value: 3.24e-6
+      units: 1/s
+      variable_name: remin%D_bSi
+      description: ammonium remineralization rate
+      # from Alain 0.07 d-1 @ 0 degrees give 3.24e-6 @ 20 degrees
+      # of same order as a number of papers including Brzezinski et al,;
+      # Bidle and Azam 1998 without bacteria
+
+  phytoplankton_mortality_waste:
+    micro_mort_NH:
+      value: 0
+      variable_name: frac_waste_DNM%NH
+      description: waste fraction from micro-phyto natural mortality to NH
+    micro_mort_DON:
+      value: 0.475
+      variable_name: frac_waste_DNM%DON
+      description: waste fraction from micro-phyto natural mortality to DON
+      # Denman and Pena: about 1/2 to dissolved
+    micro_mort_PON:
+      value: 0.475
+      variable_name: frac_waste_DNM%PON
+      description: waste fraction from micro-phyto natural mortality to PON
+    micro_mort_refr:
+      value: 0.05
+      variable_name: frac_waste_DNM%Ref
+      description: waste fraction from micro-phyto natural mort to refractory
+    micro_mort_bSi:
+      value: 1
+      variable_name: frac_waste_DNM%Bsi
+      description: waste fraction from micro-phyto natural mortality to bSi
+    nano_mort_NH:
+      value: 0
+      variable_name: frac_waste_NNM%NH
+      description: waste fraction from nano-phyto natural mortality to NH
+    nano_mort_DON:
+      value: 0.475
+      variable_name: frac_waste_NNM%DON
+      description: waste fraction from nano-phyto natural mortality to DON
+      # Denman and Pena: about 1/2 to dissolved
+    nano_mort_PON:
+      value: 0.475
+      variable_name: frac_waste_NNM%PON
+      description: waste fraction from nano-phyto natural mortality to PON
+    nano_mort_refr:
+      value: 0.05
+      variable_name: frac_waste_NNM%Ref
+      description: waste fraction from nano-phyto natural mort to refractory
+    nano_mort_bSi:
+      value: 1
+      variable_name: frac_waste_NNM%Bsi
+      description: waste fraction from nano-phyto natural mortality to bSi
+    pico_mort_NH:
+      value: 0
+      variable_name: frac_waste_FNM%NH
+      description: waste fraction from pico-phyto natural mortality to NH
+    pico_mort_DON:
+      value: 0.475
+      variable_name: frac_waste_FNM%DON
+      description: waste fraction from pico-phyto natural mortality to DON
+      # Denman and Pena: about 1/2 to dissolved
+    pico_mort_PON:
+      value: 0.475
+      variable_name: frac_waste_FNM%PON
+      description: waste fraction from pico-phyto natural mortality to PON
+    pico_mort_refr:
+      value: 0.05
+      variable_name: frac_waste_FNM%Ref
+      description: waste fraction from pico-phyto natural mort to refractory
+    pico_mort_bSi:
+      value: 1
+      variable_name: frac_waste_FNM%Bsi
+      description: waste fraction from pico-phyto natural mortality to bSi
+
+  mesozooplankton_waste:
+    mesozoo_mort_NH:
+      value: 0
+      variable_name: frac_waste_MNM%NH
+      description: waste fraction from meso-zoo natural mortality to NH
+    mesozoo_mort_DON:
+      value: 0.475
+      variable_name: frac_waste_MNM%DON
+      description: waste fraction from meso-zoo natural mortality to DON
+    mesozoo_mort_PON:
+      value: 0.475
+      variable_name: frac_waste_MNM%PON
+      description: waste fraction from meso-zoo natural mortality to PON
+    mesozoo_mort_refr:
+      value: 0.05
+      variable_name: frac_waste_MNM%Ref
+      description: waste fraction from meso-zoo natural mortality to refractory
+    mesozoo_mort_bSi:
+      value: 0
+      variable_name: frac_waste_MNM%Bsi
+      description: waste fraction from meso-zoo natural mortality to bSi
+    mesozoo_excrete_NH:
+      value: 1
+      variable_name: frac_waste_MEX%NH
+      description: waste fraction from meso-zoo excretion to NH
+    mesozoo_excrete_DON:
+      value: 0
+      variable_name: frac_waste_MEX%DON
+      description: waste fraction from meso-zoo excretion to DON
+    mesozoo_excrete_PON:
+      value: 0
+      variable_name: frac_waste_MEX%PON
+      description: waste fraction from meso-zoo excretion to PON
+    mesozoo_excrete_refr:
+      value: 0
+      variable_name: frac_waste_MEX%Ref
+      description: waste fraction from meso-zoo excretion to refractory
+    mesozoo_excrete_bSi:
+      value: 0
+      variable_name: frac_waste_MEX%Bsi
+      description: waste fraction from meso-zoo excretion to bSi
+
+  microzooplankton_waste:
+    microzoo_mort_NH:
+      value: 0
+      variable_name: frac_waste_ZNM%NH
+      description: waste fraction from micro-zoo natural mortality to NH
+    microzoo_mort_DON:
+      value: 0.475
+      variable_name: frac_waste_ZNM%DON
+      description: waste fraction from micro-zoo natural mortality to DON
+    microzoo_mort_PON:
+      value: 0.475
+      variable_name: frac_waste_ZNM%PON
+      description: waste fraction from micro-zoo natural mortality to PON
+    microzoo_mort_refr:
+      value: 0.05
+      variable_name: frac_waste_ZNM%Ref
+      description: waste fraction from micro-zoo natural mortality to refractory
+    microzoo_mort_bSi:
+      value: 0
+      variable_name: frac_waste_ZNM%Bsi
+      description: waste fraction from micro-zoo natural mortality to bSi
+    microzoo_excrete_NH:
+      value: 1
+      variable_name: frac_waste_ZEX%NH
+      description: waste fraction from micro-zoo excretion to NH
+    microzoo_excrete_DON:
+      value: 0
+      variable_name: frac_waste_ZEX%DON
+      description: waste fraction from micro-zoo excretion to DON
+    microzoo_excrete_PON:
+      value: 0
+      variable_name: frac_waste_ZEX%PON
+      description: waste fraction from micro-zoo excretion to PON
+    microzoo_excrete_refr:
+      value: 0
+      variable_name: frac_waste_ZEX%Ref
+      description: waste fraction from micro-zoo excretion to refractory
+    microzoo_excrete_bSi:
+      value: 0
+      variable_name: frac_waste_ZEX%Bsi
+      description: waste fraction from micro-zoo excretion to bSi
+
+  sloppy_eating:
+    mesozoo_microphyto_grazing_NH:
+      value: 0.03
+      variable_name: frac_waste_DEM%NH
+      description: waste fraction from mesozoo grazing microphyto to NH
+      #  Alain, excretion rate to growth rate
+    mesozoo_microphyto_grazing_DON:
+      value: 0.2
+      variable_name: frac_waste_DEM%DON
+      description: waste fraction from mesozoo grazing microphyto to DON
+      # Denman and Pena about 1/2 to dissolved
+    mesozoo_microphyto_grazing_PON:
+      value: 0.2
+      variable_name: frac_waste_DEM%PON
+      description: waste fraction from mesozoo grazing microphyto to PON
+    mesozoo_microphyto_grazing_refr:
+      value: 0.57
+      variable_name: frac_waste_DEM%Ref
+      description: waste fraction from mesozoo grazing microphyto to Ref
+      # assimiliation minus excretion
+    mesozoo_microphyto_grazing_bSi:
+      value: 1
+      variable_name: frac_waste_DEM%Bsi
+      description: waste fraction from mesozoo grazing microphyto to Bsi
+    mesozoo_nanophyto_grazing_NH:
+      value: 0.03
+      variable_name: frac_waste_NEM%NH
+      description: waste fraction from mesozoo grazing nanophyto to NH
+    mesozoo_nanophyto_grazing_DON:
+      value: 0.2
+      variable_name: frac_waste_NEM%DON
+      description: waste fraction from mesozoo grazing nanophyto to DON
+    mesozoo_nanophyto_grazing_PON:
+      value: 0.2
+      variable_name: frac_waste_NEM%PON
+      description: waste fraction from mesozoo grazing nanophyto to PON
+    mesozoo_nanophyto_grazing_refr:
+      value: 0.57
+      variable_name: frac_waste_NEM%Ref
+      description: waste fraction from mesozoo grazing nanophyto to Ref
+    mesozoo_nanophyto_grazing_bSi:
+      value: 0
+      variable_name: frac_waste_NEM%Bsi
+      description: waste fraction from mesozoo grazing nanophyto to Bsi
+    mesozoo_picophyto_grazing_NH:
+      value: 0.03
+      variable_name: frac_waste_FEM%NH
+      description: waste fraction from mesozoo grazing picophyto to NH
+    mesozoo_picophyto_grazing_DON:
+      value: 0.2
+      variable_name: frac_waste_FEM%DON
+      description: waste fraction from mesozoo grazing picophyto to DON
+    mesozoo_picophyto_grazing_PON:
+      value: 0.2
+      variable_name: frac_waste_FEM%PON
+      description: waste fraction from mesozoo grazing picophyto to PON
+    mesozoo_picophyto_grazing_refr:
+      value: 0.57
+      variable_name: frac_waste_FEM%Ref
+      description: waste fraction from mesozoo grazing picophyto to Ref
+    mesozoo_picophyto_grazing_bSi:
+      value: 0
+      variable_name: frac_waste_FEM%Bsi
+      description: waste fraction from mesozoo grazing picophyto to Bsi
+    mesozoo_PON_grazing_NH:
+      value: 0.03
+      variable_name: frac_waste_PEM%NH
+      description: waste fraction from mesozoo grazing PON to NH
+    mesozoo_PON_grazing_DON:
+      value: 0.2
+      variable_name: frac_waste_PEM%DON
+      description: waste fraction from mesozoo grazing PON to DON
+    mesozoo_PON_grazing_PON:
+      value: 0.2
+      variable_name: frac_waste_PEM%PON
+      description: waste fraction from mesozoo grazing PON to PON
+    mesozoo_PON_grazing_refr:
+      value: 0.57
+      variable_name: frac_waste_PEM%Ref
+      description: waste fraction from mesozoo grazing PON to Ref
+    mesozoo_PON_grazing_bSi:
+      value: 0
+      variable_name: frac_waste_PEM%Bsi
+      description: waste fraction from mesozoo grazing PON to Bsi
+    mesozoo_microzoo_grazing_NH:
+      value: 0.03
+      variable_name: frac_waste_ZEM%NH
+      description: waste fraction from mesozoo grazing microzoo to NH
+    mesozoo_microzoo_grazing_DON:
+      value: 0.2
+      variable_name: frac_waste_ZEM%DON
+      description: waste fraction from mesozoo grazing microzoo to DON
+    mesozoo_microzoo_grazing_PON:
+      value: 0.2
+      variable_name: frac_waste_ZEM%PON
+      description: waste fraction from mesozoo grazing microzoo to PON
+    mesozoo_microzoo_grazing_refr:
+      value: 0.57
+      variable_name: frac_waste_ZEM%Ref
+      description: waste fraction from mesozoo grazing microzoo to Ref
+    mesozoo_microzoo_grazing_bSi:
+      value: 0
+      variable_name: frac_waste_ZEM%Bsi
+      description: waste fraction from mesozoo grazing microzoo to Bsi
+    microzoo_microphyto_grazing_NH:
+      value: 0
+      variable_name: frac_waste_DEZ%NH
+      description: waste fraction from microzoo grazing microphyto to NH
+    microzoo_microphyto_grazing_DON:
+      value: 0.5
+      variable_name: frac_waste_DEZ%DON
+      description: waste fraction from microzoo grazing microphyto to DON
+    microzoo_microphyto_grazing_PON:
+      value: 0.5
+      variable_name: frac_waste_DEZ%PON
+      description: waste fraction from microzoo grazing microphyto to PON
+    microzoo_microphyto_grazing_refr:
+      value: 0
+      variable_name: frac_waste_DEZ%Ref
+      description: waste fraction from microzoo grazing microphyto to Ref
+    microzoo_microphyto_grazing_bSi:
+      value: 1
+      variable_name: frac_waste_DEZ%Bsi
+      description: waste fraction from microzoo grazing microphyto to Bsi
+    microzoo_nanophyto_grazing_NH:
+      value: 0
+      variable_name: frac_waste_NEZ%NH
+      description: waste fraction from microzoo grazing nanophyto to NH
+    microzoo_nanophyto_grazing_DON:
+      value: 0.5
+      variable_name: frac_waste_NEZ%DON
+      description: waste fraction from microzoo grazing nanophyto to DON
+    microzoo_nanophyto_grazing_PON:
+      value: 0.5
+      variable_name: frac_waste_NEZ%PON
+      description: waste fraction from microzoo grazing nanophyto to PON
+    microzoo_nanophyto_grazing_refr:
+      value: 0
+      variable_name: frac_waste_NEZ%Ref
+      description: waste fraction from microzoo grazing nanophyto to Ref
+    microzoo_nanophyto_grazing_bSi:
+      value: 1
+      variable_name: frac_waste_NEZ%Bsi
+      description: waste fraction from microzoo grazing nanophyto to Bsi
+    microzoo_picophyto_grazing_NH:
+      value: 0
+      variable_name: frac_waste_FEZ%NH
+      description: waste fraction from microzoo grazing picophyto to NH
+    microzoo_picophyto_grazing_DON:
+      value: 0.5
+      variable_name: frac_waste_FEZ%DON
+      description: waste fraction from microzoo grazing picophyto to DON
+    microzoo_picophyto_grazing_PON:
+      value: 0.5
+      variable_name: frac_waste_FEZ%PON
+      description: waste fraction from microzoo grazing picophyto to PON
+    microzoo_picophyto_grazing_refr:
+      value: 0
+      variable_name: frac_waste_FEZ%Ref
+      description: waste fraction from microzoo grazing picophyto to Ref
+    microzoo_picophyto_grazing_bSi:
+      value: 1
+      variable_name: frac_waste_FEZ%Bsi
+      description: waste fraction from microzoo grazing picophyto to Bsi
+    microzoo_PON_grazing_NH:
+      value: 0
+      variable_name: frac_waste_PEZ%NH
+      description: waste fraction from microzoo grazing PON to NH
+    microzoo_PON_grazing_DON:
+      value: 0
+      variable_name: frac_waste_PEZ%DON
+      description: waste fraction from microzoo grazing PON to DON
+    microzoo_PON_grazing_PON:
+      value: 1
+      variable_name: frac_waste_PEZ%PON
+      description: waste fraction from microzoo grazing PON to PON
+    microzoo_PON_grazing_refr:
+      value: 0
+      variable_name: frac_waste_PEZ%Ref
+      description: waste fraction from microzoo grazing PON to Ref
+    microzoo_PON_grazing_bSi:
+      value: 0
+      variable_name: frac_waste_PEZ%Bsi
+      description: waste fraction from microzoo grazing PON to Bsi
+    microzoo_microzoo_grazing_NH:
+      value: 0
+      variable_name: frac_waste_ZEZ%NH
+      description: waste fraction from microzoo grazing microzoo to NH
+    microzoo_microzoo_grazing_DON:
+      value: 0.5
+      variable_name: frac_waste_ZEZ%DON
+      description: waste fraction from microzoo grazing microzoo to DON
+    microzoo_microzoo_grazing_PON:
+      value: 0.5
+      variable_name: frac_waste_ZEZ%PON
+      description: waste fraction from microzoo grazing microzoo to PON
+    microzoo_microzoo_grazing_refr:
+      value: 0
+      variable_name: frac_waste_ZEZ%Ref
+      description: waste fraction from microzoo grazing microzoo to Ref
+    microzoo_microzoo_grazing_bSi:
+      value: 0
+      variable_name: frac_waste_ZEZ%Bsi
+      description: waste fraction from microzoo grazing microzoo to Bsi
+    mesorub_picophyto_grazing_NH:
+      value: 0
+      variable_name: frac_waste_FEN%NH
+      description: waste fraction from mesorub grazing picophyto to NH
+    mesorub_picophyto_grazing_DON:
+      value: 0.5
+      variable_name: frac_waste_FEN%DON
+      description: waste fraction from mesorub grazing picophyto to DON
+    mesorub_picophyto_grazing_PON:
+      value: 0.5
+      variable_name: frac_waste_FEN%PON
+      description: waste fraction from mesorub grazing picophyto to PON
+    mesorub_picophyto_grazing_refr:
+      value: 0
+      variable_name: frac_waste_FEN%Ref
+      description: waste fraction from mesorub grazing picophyto to Ref
+    mesorub_picophyto_grazing_bSi:
+      value: 1
+      variable_name: frac_waste_FEN%Bsi
+      description: waste fraction from mesorub grazing picophyto to Bsi
+
+  sinking_rates:
+    microphyto_min_sink_rate:
+      value: 0.5
+      units: m/d
+      variable_name: w_sink%Pmicro_min
+      description: microphyto minimum sinking rate
+      # Alain
+    microphyto_max_sink_rate:
+      value: 1.2
+      units: m/d
+      variable_name: w_sink%Pmicro_max
+      description: microphyto maximum sinking rate
+      # Alain
+    PON_sink_rate:
+      value: 8e-5
+      units: m/s
+      variable_name: w_sink%D_PON
+      description: PON detritus sinking rate
+      # Jeffery quoting Dune and Bacon
+    refr_sink_rate:
+      value: 0
+      units: m/s
+      variable_name: w_sink%D_refr
+      description: refractory nitrogen detritus sinking rate
+    bSi_sink_rate:
+      value: 8e-5
+      units: m/s
+      variable_name: w_sink%D_bSi
+      description: biogenic silicon detritus sinking rate
+      # match NO3 particles
+
+forcing_data:
+  years_of_forcing_data:
+    value: 2
+    variable_name: NY
+    description: number of years of forcing data to read
+  use_average_forcing_data:
+    value: "fill"
+    # NOTE: value must be quoted because yes/no == True/False in YAML
+    variable_name: use_average_forcing_data
+    description: yes=avg only; no=fail if data runs out; fill=historic then avg
+
+  wind_forcing_file:
+    value: Sandheads_wind
+    variable_name: n/a
+    description: wind forcing data path/filename
+  # The avg_historical_wind_file parameter is only used when
+  # use_average_forcing_data == yes or fill or histfill
+  avg_historical_wind_file:
+    value: ../../SOG-forcing/wind/SHavg
+    variable_name: n/a
+    description: average/historical wind forcing data path/filename
+
+  air_temperature_forcing_file:
+    value: YVR_air_temperature
+    variable_name: n/a
+    description: air temperature forcing data path/filename
+  # The avg_historical_air_temperature_file parameter is only used when
+  # use_average_forcing_data == yes or fill or histfill
+  avg_historical_air_temperature_file:
+    value: ../../SOG-forcing/met/YVRavgAT
+    variable_name: n/a
+    description: average/historical air temperature forcing data path/filename
+
+  cloud_fraction_forcing_file:
+    value: YVR_cloud_fraction
+    variable_name: n/a
+    description: cloud fraction forcing data path/filename
+  # The avg_historical_cloud_file parameter is only used when
+  # use_average_forcing_data == yes or fill or histfill
+  avg_historical_cloud_file:
+    value: ../../SOG-forcing/met/YVRavgCF
+    variable_name: n/a
+    description: average/historical cloud fraction forcing data path/filename
+
+  humidity_forcing_file:
+    value: YVR_relative_humidity
+    variable_name: n/a
+    description: relative humidity forcing data path/filename
+  # The avg_historical_humidity_file parameter is only used when
+  # use_average_forcing_data == yes or fill or histfill
+  avg_historical_humidity_file:
+    value: ../../SOG-forcing/met/YVRavgHum
+    variable_name: n/a
+    description: average/historical humidity forcing data path/filename
+
+  major_river_forcing_file:
+    value: Fraser_flow
+    variable_name: n/a
+    description: major river flow forcing data path/filename
+  # The avg_historical_major_river_file parameter is only used when
+  # use_average_forcing_data == yes or fill or histfill
+  avg_historical_major_river_file:
+    value: ../../SOG-forcing/rivers/fraser_average
+    variable_name: n/a
+    description: average/historical major river forcing data path/filename
+  use_river_temperature:
+    value: True
+    variable_name: UseRiverTemp
+    description: include cooling/heating effect of major river water
+  river_nutrients_file:
+    value: ../../SOG-forcing/rivers/fraser_nuts.dat
+    variable_name: n/a
+    description: file containing monthly climatology values of NO3 and Si
+
+  minor_river_forcing_file:
+    value: Englishman_flow
+    variable_name: Eriver
+    description: minor river flow forcing data path/filename
+  # The avg_historical_minor_river_file parameter is only used when
+  # use_average_forcing_data == yes or fill or histfill
+  avg_historical_minor_river_file:
+    value: ../../SOG-forcing/rivers/englishman_average
+    variable_name: n/a
+    description: average/historical minor river forcing data path/filename
+  alt_minor_river_forcing_file:
+    value: ../../SOG-forcing/rivers/NanimoNorm_historic.dat
+    variable_name: n/a
+    description: alternative minor river flow forcing data path/filename
+  minor_river_integration_days:
+    value: 20
+    units: d
+    variable_name: integ_days
+    description: number of days to integrate minor river flow over
