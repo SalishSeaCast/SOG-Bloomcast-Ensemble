@@ -25,7 +25,6 @@ import sys
 import time
 import arrow
 import numpy as np
-import mako.template
 from matplotlib.dates import (
     date2num,
     DateFormatter,
@@ -171,8 +170,6 @@ class Bloomcast(object):
         self._get_results_profiles()
         self._create_profile_graphs()
         self._calc_bloom_date()
-        self._render_results()
-        self._push_results_to_web()
 
     def _configure_logging(self):
         """Configure logging of debug & warning messages to console
@@ -605,67 +602,6 @@ class Bloomcast(object):
         log.debug(
             'Phytoplankton biomass on {0} bloom date is {1} uM N'
             .format(key_string, self.bloom_biomass[key]))
-
-    def _render_results(self):
-        """Render bloomcast results page and graphs to files.
-        """
-        tmpl_path = os.path.abspath(
-            os.path.join(self.config.html_results, 'results.mako'))
-        tmpl = mako.template.Template(filename=tmpl_path)
-        filename = self.config.logging.bloom_date_log_filename
-        with open(filename, 'rt') as file_obj:
-            bloom_date_log = [line.split() for line in file_obj
-                              if not line.startswith('#')]
-        context = {
-            'run_start_date': self.config.run_start_date,
-            'data_date': self.config.data_date.format('YYYY-MM-DD'),
-            'bloom_date': self.bloom_date,
-            'bloom_date_log': bloom_date_log,
-        }
-        results_path = os.path.join(self.config.html_results, 'results.html')
-        with open(results_path, 'wt') as file_obj:
-            file_obj.write(tmpl.render(**context))
-        graphs = [
-            (self.fig_nitrate_diatoms_profile, 'nitrate_diatoms_profiles.svg'),
-            (self.fig_temperature_salinity_profile,
-             'temperature_salinity_profiles.svg'),
-            (self.fig_nitrate_diatoms_ts, 'nitrate_diatoms_timeseries.svg'),
-            (self.fig_temperature_salinity_ts,
-             'temperature_salinity_timeseries.svg'),
-            (self.fig_mixing_layer_depth_ts,
-             'mixing_layer_depth_timeseries.svg'),
-        ]
-        for fig, filename in graphs:
-            try:
-                for key in 'early_bloom_forcing late_bloom_forcing'.split():
-                    fig.ax_left.axvline(
-                        date2num(datetime.datetime.combine(
-                            self.bloom_date[key], datetime.time(12))),
-                        color=self.diatoms_colours['bounds'])
-                bloom_date_line = fig.ax_left.axvline(
-                    date2num(datetime.datetime.combine(
-                        self.bloom_date['avg_forcing'], datetime.time(12))),
-                    color=self.diatoms_colours['avg'])
-                fig.legend(
-                    [fig.data_date_line, bloom_date_line],
-                    ['Actual to Avg', 'Diatom Bloom'],
-                    loc='upper right', prop={'size': 'xx-small'})
-                for label in fig.ax_left.get_xticklabels():
-                    label.set_size('x-small')
-            except AttributeError:
-                pass
-            canvas = FigureCanvasAgg(fig)
-            canvas.print_svg(os.path.join(self.config.html_results, filename))
-
-    def _push_results_to_web(self):
-        """Push results page, graphs, styles, etc. to web server directory
-        via rsync.
-        """
-        if os.access(self.config.results_dir, os.F_OK):
-            subprocess.check_call(
-                'rsync -rq --exclude=results.mako {0}/ {1}'
-                .format(os.path.abspath(self.config.html_results),
-                        self.config.results_dir).split())
 
 
 def clip_results_to_jan1(nitrate, diatoms, run_start_date):
