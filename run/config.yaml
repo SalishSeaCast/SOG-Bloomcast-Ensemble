@@ -7,7 +7,7 @@ SOG_executable: ../../SOG-code-bloomcast/SOG
 
 ensemble:
   max_concurrent_jobs: 32
-  base_infile: 2017_bloomcast_infile.yaml
+  base_infile: 2018_bloomcast_infile.yaml
   start_year: 1981   # 1st bloomcast year
   end_year: 2010     # last bloomcast year
   forcing_data_file_roots:
@@ -51,7 +51,7 @@ logging:
   bloomcast_log_filename: bloomcast.log
   bloom_date_log_filename: bloom_date_evolution.log
   toaddrs:
-    - sallen@eos.ubc.ca
+    - sallen@eoas.ubc.ca
   # Run "python -m smtpd -n -c DebuggingServer localhost:1025" to
   # capture email messages for testing
   use_test_smtpd: False
