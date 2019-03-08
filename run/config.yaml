@@ -7,7 +7,7 @@ SOG_executable: ../../SOG-code-bloomcast/SOG
 
 ensemble:
   max_concurrent_jobs: 32
-  base_infile: 2018_bloomcast_infile.yaml
+  base_infile: 2019_bloomcast_infile.yaml
   start_year: 1981   # 1st bloomcast year
   end_year: 2010     # last bloomcast year
   forcing_data_file_roots:
@@ -34,7 +34,7 @@ climate:
     station_id: 6831    # Sandheads
 
 rivers:
-  data_url: http://wateroffice.ec.gc.ca/report/real_time_e.html
+  data_url: https://wateroffice.ec.gc.ca/report/real_time_e.html
   disclaimer_cookie:
     disclaimer: agree
   params:
