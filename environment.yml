@@ -1,19 +1,17 @@
 name: bloomcast
 dependencies:
+- arrow
 - beautifulsoup4
+- cliff
 - colander
-- matplotlib
+- matplotlib=1.5.3
 - notebook
 - numpy
 - pip
 - pytest
-- python=3
+- python>=3.6
 - pyyaml
 - requests
 - six
 - sphinx
 - sphinx_rtd_theme
-- pip:
-  - arrow
-  - cliff
-
