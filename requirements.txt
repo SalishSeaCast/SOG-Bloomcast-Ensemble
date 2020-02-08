@@ -10,7 +10,7 @@ Babel==2.3.4
 beautifulsoup4==4.5.3
 cliff==2.4.0
 cmd2==0.6.9
-colander==1.2
+colander==1.7.0
 cycler==0.10.0
 decorator==4.0.11
 docutils==0.13.1
