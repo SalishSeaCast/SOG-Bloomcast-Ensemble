@@ -5,7 +5,7 @@
 
 CONDA_BASE_ENV=/home/dlatorne/miniconda3/
 CONDA_BLOOMCAST_ENV=/data/dlatorne/SOG-projects/blomcast-env-mpl-1.5.3
-RUN_DIR=/data/dlatorne/SOG-projects/SoG-bloomcast-ensemble/run
+RUN_DIR=/data/dlatorne/SOG-projects/SOG-Bloomcast-Ensemble/run
 source $CONDA_BASE_ENV/bin/activate $CONDA_BLOOMCAST_ENV && \
     cd $RUN_DIR && \
     $CONDA_BLOOMCAST_ENV/bin/bloomcast ensemble -v config.yaml
