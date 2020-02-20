@@ -7,7 +7,7 @@ SOG_executable: ../../SOG-code-bloomcast/SOG
 
 ensemble:
   max_concurrent_jobs: 32
-  base_infile: 2019_bloomcast_infile.yaml
+  base_infile: 2020_bloomcast_infile.yaml
   start_year: 1981   # 1st bloomcast year
   end_year: 2010     # last bloomcast year
   forcing_data_file_roots:
