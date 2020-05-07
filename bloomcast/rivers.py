@@ -88,7 +88,7 @@ class RiversProcessor(ForcingDataProcessor):
 
         The values are date components as integers.
         """
-        end_date = self.config.data_date.replace(days=+1)
+        end_date = self.config.data_date.shift(days=+1)
         params = {
             'startDate': arrow.get(start_year, 1, 1).format('YYYY-MM-DD'),
             'endDate': end_date.format('YYYY-MM-DD')

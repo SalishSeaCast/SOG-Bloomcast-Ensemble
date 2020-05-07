@@ -107,7 +107,7 @@ class Ensemble(cliff.command.Command):
         # River flow data are only available in a rolling 18-month window.
         run_start_yr_jan1 = (
             arrow.get(self.config.run_start_date).replace(month=1, day=1))
-        river_date_limit = arrow.now().replace(months=-18)
+        river_date_limit = arrow.now().shift(months=-18)
         if run_start_yr_jan1 < river_date_limit:
             self.log.error(
                 'A bloomcast run starting {0.run_start_date:%Y-%m-%d} cannot '
