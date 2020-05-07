@@ -134,7 +134,7 @@ class Config(object):
         the specified config file as YAML.
         """
         with open(config_file, 'rt') as file_obj:
-            config = yaml.load(file_obj.read())
+            config = yaml.safe_load(file_obj.read())
         log.debug(
             'data structure read from {}'.format(config_file))
         return config

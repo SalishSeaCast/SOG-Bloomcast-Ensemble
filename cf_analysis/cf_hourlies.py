@@ -57,7 +57,7 @@ log.propagate = False
 
 
 with open(MAPPING_FILE, 'rt') as f:
-    mapping = yaml.load(f.read())
+    mapping = yaml.safe_load(f.read())
 
 
 def run():
