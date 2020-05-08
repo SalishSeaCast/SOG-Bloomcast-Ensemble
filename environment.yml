@@ -1,17 +1,26 @@
 name: bloomcast
+
+channels:
+  - conda-forge
+  - defaults
+
 dependencies:
-- arrow
-- beautifulsoup4
-- cliff
-- colander
-- matplotlib=1.5.3
-- notebook
-- numpy
-- pip
-- pytest
-- python>=3.6
-- pyyaml
-- requests
-- six
-- sphinx
-- sphinx_rtd_theme
+  - arrow
+  - beautifulsoup4
+  - jupyterlab
+  - cliff
+  - colander=1.5.1
+  - matplotlib
+  - numpy
+  - pip
+  - python>=3.6
+  - pyyaml
+  - requests
+  - six
+
+  # For unit tests
+  - pytest
+
+  # For documentation
+  - sphinx
+  - sphinx_rtd_theme
