@@ -145,9 +145,9 @@ class TestEnsembleTakeAction():
     @patch('bloomcast.ensemble.yaml')
     @patch('bloomcast.ensemble.utils.Config')
     def test_create_infile_edits_forcing_data(
-        self, m_config, m_yaml, ensemble,
+        self, m_config, m_yaml, ensemble, ensemble_config,
     ):
-        ensemble.config = ensemble_config()
+        ensemble.config = ensemble_config
         ensemble.log = Mock()
         with patch('bloomcast.ensemble.open', mock_open(), create=True):
             ensemble._create_infile_edits()
@@ -167,9 +167,9 @@ class TestEnsembleTakeAction():
     @patch('bloomcast.ensemble.yaml')
     @patch('bloomcast.ensemble.utils.Config')
     def test_create_infile_edits_timeseries_results(
-        self, m_config, m_yaml, ensemble,
+        self, m_config, m_yaml, ensemble, ensemble_config
     ):
-        ensemble.config = ensemble_config()
+        ensemble.config = ensemble_config
         ensemble.log = Mock()
         with patch('bloomcast.ensemble.open', mock_open(), create=True):
             ensemble._create_infile_edits()
@@ -189,9 +189,9 @@ class TestEnsembleTakeAction():
     @patch('bloomcast.ensemble.yaml')
     @patch('bloomcast.ensemble.utils.Config')
     def test_create_infile_edits_profiles_results(
-        self, m_config, m_yaml, ensemble,
+        self, m_config, m_yaml, ensemble, ensemble_config
     ):
-        ensemble.config = ensemble_config()
+        ensemble.config = ensemble_config
         ensemble.log = Mock()
         with patch('bloomcast.ensemble.open', mock_open(), create=True):
             ensemble._create_infile_edits()
@@ -212,9 +212,9 @@ class TestEnsembleTakeAction():
     @patch('bloomcast.ensemble.yaml')
     @patch('bloomcast.ensemble.utils.Config')
     def test_create_infile_edits_sets_edit_files_list_attr(
-        self, m_config, m_yaml, ensemble,
+        self, m_config, m_yaml, ensemble, ensemble_config
     ):
-        ensemble.config = ensemble_config()
+        ensemble.config = ensemble_config
         ensemble.config.ensemble.end_year = 1982
         ensemble.log = Mock()
         with patch('bloomcast.ensemble.open', mock_open(), create=True):
@@ -225,8 +225,8 @@ class TestEnsembleTakeAction():
         ]
 
     @patch('bloomcast.ensemble.yaml')
-    def test_create_batch_description(self, m_yaml, ensemble):
-        ensemble.config = ensemble_config()
+    def test_create_batch_description(self, m_yaml, ensemble, ensemble_config):
+        ensemble.config = ensemble_config
         ensemble.config.ensemble.end_year = 1982
         ensemble.log = Mock()
         ensemble.edit_files = [
@@ -252,8 +252,8 @@ class TestEnsembleTakeAction():
         )
 
     @patch('bloomcast.ensemble.SOGcommand')
-    def test_run_SOG_batch_skip(self, m_SOGcommand, ensemble):
-        ensemble.config = ensemble_config()
+    def test_run_SOG_batch_skip(self, m_SOGcommand, ensemble, ensemble_config):
+        ensemble.config = ensemble_config
         ensemble.config.run_SOG = False
         ensemble.log = Mock()
         ensemble._run_SOG_batch()
@@ -261,8 +261,8 @@ class TestEnsembleTakeAction():
         assert not m_SOGcommand.api.batch.called
 
     @patch('bloomcast.ensemble.SOGcommand')
-    def test_run_SOG_batch(self, m_SOGcommand, ensemble):
-        ensemble.config = ensemble_config()
+    def test_run_SOG_batch(self, m_SOGcommand, ensemble, ensemble_config):
+        ensemble.config = ensemble_config
         ensemble.config.run_SOG = True
         ensemble.log = Mock()
         m_SOGcommand.api.batch.return_value = 0
@@ -273,8 +273,8 @@ class TestEnsembleTakeAction():
             'ensemble batch SOG runs completed with return code 0')
 
     @patch('bloomcast.utils.SOG_Timeseries')
-    def test_load_biology_timeseries_instances(self, m_SOG_ts, ensemble):
-        ensemble.config = ensemble_config()
+    def test_load_biology_timeseries_instances(self, m_SOG_ts, ensemble, ensemble_config):
+        ensemble.config = ensemble_config
         ensemble.edit_files = [(1981, 'foo_8081.yaml', '_8081')]
         ensemble._load_biology_timeseries()
         expected = [
@@ -284,24 +284,24 @@ class TestEnsembleTakeAction():
         assert m_SOG_ts.call_args_list == expected
 
     @patch('bloomcast.utils.SOG_Timeseries')
-    def test_load_biology_timeseries_read_nitrate(self, m_SOG_ts, ensemble):
-        ensemble.config = ensemble_config()
+    def test_load_biology_timeseries_read_nitrate(self, m_SOG_ts, ensemble, ensemble_config):
+        ensemble.config = ensemble_config
         ensemble.edit_files = [(1981, 'foo_8081.yaml', '_8081')]
         ensemble._load_biology_timeseries()
         call = ensemble.nitrate_ts[1981].read_data.call_args_list[0]
         assert call == mock.call('time', '3 m avg nitrate concentration')
 
     @patch('bloomcast.utils.SOG_Timeseries')
-    def test_load_biology_timeseries_read_diatoms(self, m_SOG_ts, ensemble):
-        ensemble.config = ensemble_config()
+    def test_load_biology_timeseries_read_diatoms(self, m_SOG_ts, ensemble, ensemble_config):
+        ensemble.config = ensemble_config
         ensemble.edit_files = [(1981, 'foo_8081.yaml', '_8081')]
         ensemble._load_biology_timeseries()
         call = ensemble.diatoms_ts[1981].read_data.call_args_list[1]
         assert call == mock.call('time', '3 m avg micro phytoplankton biomass')
 
     @patch('bloomcast.utils.SOG_Timeseries')
-    def test_load_biology_timeseries_mpl_dates(self, m_SOG_ts, ensemble):
-        ensemble.config = ensemble_config()
+    def test_load_biology_timeseries_mpl_dates(self, m_SOG_ts, ensemble, ensemble_config):
+        ensemble.config = ensemble_config
         ensemble.edit_files = [(1981, 'foo_8081.yaml', '_8081')]
         ensemble._load_biology_timeseries()
         ensemble.nitrate_ts[1981].calc_mpl_dates.assert_called_with(
@@ -310,8 +310,8 @@ class TestEnsembleTakeAction():
             ensemble.config.run_start_date)
 
     @patch('bloomcast.utils.SOG_Timeseries')
-    def test_load_biology_timeseries_copies(self, m_SOG_ts, ensemble):
-        ensemble.config = ensemble_config()
+    def test_load_biology_timeseries_copies(self, m_SOG_ts, ensemble, ensemble_config):
+        ensemble.config = ensemble_config
         ensemble.edit_files = [(1981, 'foo_8081.yaml', '_8081')]
         ensemble._load_biology_timeseries()
         assert ensemble.nitrate == ensemble.nitrate_ts

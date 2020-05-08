@@ -127,18 +127,17 @@ def climate_processor():
 class TestConfig():
     """Unit tests for Config object.
     """
-    def test_load_config_climate_url(self, config):
+    def test_load_config_climate_url(self, config, config_dict, infile_dict, monkeypatch):
         """load_config puts expected value in config.climate.url
         """
         test_url = 'http://example.com/climateData/bulkdata_e.html'
-        mock_config_dict = config_dict()
-        mock_config_dict['climate']['url'] = test_url
-        config._read_yaml_file = Mock(return_value=mock_config_dict)
-        config._read_SOG_infile = Mock(return_value=infile_dict())
+        monkeypatch.setitem(config_dict['climate'], 'url', test_url)
+        config._read_yaml_file = Mock(return_value=config_dict)
+        config._read_SOG_infile = Mock(return_value=infile_dict)
         config.load_config('config_file')
         assert config.climate.url == test_url
 
-    def test_load_config_climate_params(self, config):
+    def test_load_config_climate_params(self, config, config_dict, infile_dict, monkeypatch):
         """load_config puts expected value in config.climate.params
         """
         test_params = {
@@ -146,31 +145,27 @@ class TestConfig():
             'Prov': 'BC',
             'format': 'xml',
         }
-        mock_config_dict = config_dict()
-        mock_config_dict['climate']['params'] = test_params
-        config._read_yaml_file = Mock(return_value=mock_config_dict)
-        config._read_SOG_infile = Mock(return_value=infile_dict())
+        monkeypatch.setitem(config_dict['climate'], 'params', test_params)
+        config._read_yaml_file = Mock(return_value=config_dict)
+        config._read_SOG_infile = Mock(return_value=infile_dict)
         config.load_config('config_file')
         assert config.climate.params == test_params
 
-    def test_load_meteo_config_station_id(self, config):
+    def test_load_meteo_config_station_id(self, config, config_dict, infile_dict, monkeypatch):
         """_load_meteo_config puts exp value in config.climate.meteo.station_id
         """
         test_station_id = 889
-        mock_config_dict = config_dict()
-        mock_config_dict['climate']['meteo']['station_id'] = test_station_id
+        monkeypatch.setitem(config_dict['climate']['meteo'], 'station_id', test_station_id)
         config.climate = Mock()
-        config._read_yaml_file = Mock(return_value=mock_config_dict)
-        config._load_meteo_config(mock_config_dict, infile_dict())
+        config._read_yaml_file = Mock(return_value=config_dict)
+        config._load_meteo_config(config_dict, infile_dict)
         assert config.climate.meteo.station_id == test_station_id
 
-    def test_load_meteo_config_cloud_fraction_mapping(self, config):
+    def test_load_meteo_config_cloud_fraction_mapping(self, config, config_dict, infile_dict, monkeypatch):
         """_load_meteo_config puts expected value in cloud_fraction_mapping
         """
         test_cloud_fraction_mapping_file = 'cloud_fraction_mapping.yaml'
-        mock_config_dict = config_dict()
-        mock_config_dict['climate']['meteo']['cloud_fraction_mapping'] = (
-            test_cloud_fraction_mapping_file)
+        monkeypatch.setitem(config_dict['climate']['meteo'], 'cloud_fraction_mapping', test_cloud_fraction_mapping_file)
         test_cloud_fraction_mapping = {
             'Drizzle': [9.9675925925925934],
             'Clear': [0.0] * 12,
@@ -181,20 +176,19 @@ class TestConfig():
             return (DEFAULT if config_file == 'config_file'
                     else test_cloud_fraction_mapping)
         config._read_yaml_file = Mock(
-            return_value=mock_config_dict, side_effect=side_effect)
-        config._load_meteo_config(mock_config_dict, infile_dict())
+            return_value=config_dict, side_effect=side_effect)
+        config._load_meteo_config(config_dict, infile_dict)
         expected = test_cloud_fraction_mapping
         assert config.climate.meteo.cloud_fraction_mapping == expected
 
-    def test_load_wind_config_station_id(self, config):
+    def test_load_wind_config_station_id(self, config, config_dict, infile_dict, monkeypatch):
         """_load_wind_config puts value in config.climate.wind.station_id
         """
         test_station_id = 889
-        mock_config_dict = config_dict()
-        mock_config_dict['climate']['wind']['station_id'] = test_station_id
+        monkeypatch.setitem(config_dict['climate']['wind'], 'station_id', test_station_id)
         config.climate = Mock()
-        config._read_yaml_file = Mock(return_value=mock_config_dict)
-        config._load_wind_config(mock_config_dict, infile_dict())
+        config._read_yaml_file = Mock(return_value=config_dict)
+        config._load_wind_config(config_dict, infile_dict)
         assert config.climate.wind.station_id == test_station_id
 
 
