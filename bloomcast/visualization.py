@@ -37,7 +37,7 @@ def nitrate_diatoms_timeseries(
     axes_right = [ax.twinx() for ax in axes_left]
     # Set colours of background, spines, ticks, and labels
     for ax in axes_left:
-        ax.set_axis_bgcolor(colors['bg'])
+        ax.set_facecolor(colors['bg'])
         set_spine_and_tick_colors(ax, colors, yticks='nitrate')
     for ax in axes_right:
         set_spine_and_tick_colors(ax, colors, yticks='diatoms')
@@ -93,7 +93,7 @@ def temperature_salinity_timeseries(
     ax_left = fig.add_subplot(1, 1, 1)
     ax_right = ax_left.twinx()
     # Set colours of background, spines, ticks, and labels
-    ax_left.set_axis_bgcolor(colors['bg'])
+    ax_left.set_facecolor(colors['bg'])
     set_spine_and_tick_colors(ax_left, colors, yticks='temperature')
     set_spine_and_tick_colors(ax_right, colors, yticks='salinity')
     ax_left.annotate(
@@ -141,7 +141,7 @@ def mixing_layer_depth_wind_timeseries(
     ax_left = fig.add_subplot(1, 1, 1)
     ax_right = ax_left.twinx()
     # Set colours of background, spines, ticks, and labels
-    ax_left.set_axis_bgcolor(colors['bg'])
+    ax_left.set_facecolor(colors['bg'])
     set_spine_and_tick_colors(ax_left, colors, yticks='mld')
     set_spine_and_tick_colors(ax_right, colors, yticks='wind_speed')
     ax_left.annotate(
@@ -290,7 +290,7 @@ def profiles(
         ax.tick_params(labelbottom='off', labeltop='on')
         set_spine_and_tick_colors(ax, colors, xticks=label_colors[i])
         ax.set_xlabel(titles[i], color=colors[label_colors[i]])
-        ax.set_axis_bgcolor(colors['bg'])
+        ax.set_facecolor(colors['bg'])
         ax.grid(color=colors['axes'])
     # Add line to mark mixing layer depth with its value on left axes
     for ax in axs:
