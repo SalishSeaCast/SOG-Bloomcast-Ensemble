@@ -186,7 +186,7 @@ class Ensemble(cliff.command.Command):
             name, ext = os.path.splitext(ensemble_config.base_infile)
             filename = ''.join((name, suffix, ext))
             with open(filename, 'wt') as f:
-                yaml.dump(member_infile_edits, f)
+                yaml.safe_dump(member_infile_edits, f)
             self.edit_files.append((year, filename, suffix))
             self.log.debug('wrote infile edit file {}'.format(filename))
 
@@ -208,7 +208,7 @@ class Ensemble(cliff.command.Command):
             batch_description['jobs'].append(job)
         filename = 'bloomcast_ensemble_jobs.yaml'
         with open(filename, 'wt') as f:
-            yaml.dump(batch_description, f)
+            yaml.safe_dump(batch_description, f)
         self.log.debug(
             'wrote ensemble batch description file: {}'.format(filename))
 

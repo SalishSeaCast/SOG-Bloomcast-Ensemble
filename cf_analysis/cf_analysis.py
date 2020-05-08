@@ -130,7 +130,7 @@ def run():
                 build_raw_mapping(mapping, weather_desc, timestamp, yvr_data)
     calc_mapping_averages(mapping)
     with open(MAPPING_FILE, 'wt') as mapping_file:
-        yaml.dump(mapping, mapping_file)
+        yaml.safe_dump(mapping, mapping_file)
 
 
 def get_EC_data(data_month, request_params):

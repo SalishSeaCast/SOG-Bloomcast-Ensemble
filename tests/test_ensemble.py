@@ -151,7 +151,7 @@ class TestEnsembleTakeAction():
         ensemble.log = Mock()
         with patch('bloomcast.ensemble.open', mock_open(), create=True):
             ensemble._create_infile_edits()
-        result = m_yaml.dump.call_args[0][0]['forcing_data']
+        result = m_yaml.safe_dump.call_args[0][0]['forcing_data']
         assert result['avg_historical_wind_file']['value'] == 'wind_data_8081'
         expected_keys = (
             'avg_historical_wind_file avg_historical_air_temperature_file '
@@ -173,7 +173,7 @@ class TestEnsembleTakeAction():
         ensemble.log = Mock()
         with patch('bloomcast.ensemble.open', mock_open(), create=True):
             ensemble._create_infile_edits()
-        result = m_yaml.dump.call_args[0][0]['timeseries_results']
+        result = m_yaml.safe_dump.call_args[0][0]['timeseries_results']
         assert result['std_physics']['value'] == 'std_phys_bloomcast.out_8081'
         expected_keys = (
             'std_physics user_physics '
@@ -195,7 +195,7 @@ class TestEnsembleTakeAction():
         ensemble.log = Mock()
         with patch('bloomcast.ensemble.open', mock_open(), create=True):
             ensemble._create_infile_edits()
-        result = m_yaml.dump.call_args[0][0]['profiles_results']
+        result = m_yaml.safe_dump.call_args[0][0]['profiles_results']
         expected = 'profiles/bloomcast_8081'
         assert result['profile_file_base']['value'] == expected
         expected_keys = (
@@ -235,7 +235,7 @@ class TestEnsembleTakeAction():
         ]
         with patch('bloomcast.ensemble.open', mock_open(), create=True):
             ensemble._create_batch_description()
-        result = m_yaml.dump.call_args[0][0]
+        result = m_yaml.safe_dump.call_args[0][0]
         expected = ensemble.config.ensemble.max_concurrent_jobs
         assert result['max_concurrent_jobs'] == expected
         assert result['SOG_executable'] == ensemble.config.SOG_executable
