@@ -67,7 +67,7 @@ def nitrate_diatoms_timeseries(
         # Set y-axes ticks and labels
         axes_left[i].set_ybound(0, 30)
         axes_left[i].set_yticks(range(0, 31, 5))
-        axes_left[i].grid(color=colors['axes'])
+        axes_left[i].grid(linestyle=(0, (1, 3)), color=colors['axes'], alpha=0.5)
         axes_right[i].set_ybound(0, 18)
         axes_right[i].set_yticks(range(0, 19, 3))
         # Add lines at bloom date and actual to ensemble forcing transition
@@ -125,7 +125,7 @@ def temperature_salinity_timeseries(
     fig.subplots_adjust(bottom=0.17)
     # Set y-axes ticks and labels
     ax_left.set_ybound(4, 18)
-    ax_left.grid(color=colors['axes'])
+    ax_left.grid(linestyle=(0, (1, 3)), color=colors['axes'], alpha=0.5)
     ax_right.set_ybound(16, 30)
     ax_left.set_ylabel(titles[0], color=colors['temperature'])
     ax_right.set_ylabel(titles[1], color=colors['salinity'])
@@ -193,7 +193,7 @@ def mixing_layer_depth_wind_timeseries(
     ax_left.set_yticks(range(-30, 31, 5))
     ax_left.set_yticklabels(
         ('30', '25', '20', '15', '10', '5', '0', '', '', '', '', '', ''))
-    ax_left.grid(color=colors['axes'])
+    ax_left.grid(linestyle=(0, (1, 3)), color=colors['axes'], alpha=0.5)
     ax_right.set_ybound(-24, 24)
     ax_right.set_yticks(range(-24, 25, 4))
     ax_right.set_yticklabels(
@@ -291,7 +291,7 @@ def profiles(
         set_spine_and_tick_colors(ax, colors, xticks=label_colors[i])
         ax.set_xlabel(titles[i], color=colors[label_colors[i]])
         ax.set_facecolor(colors['bg'])
-        ax.grid(color=colors['axes'])
+        ax.grid(linestyle=(0, (1, 3)), color=colors['axes'], alpha=0.5)
     # Add line to mark mixing layer depth with its value on left axes
     for ax in axs:
         ax.axhline(mixing_layer_depth, color=colors[label_colors[-1]])
