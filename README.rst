@@ -19,7 +19,7 @@ SoG-bloomcast is written in Python.
 License
 =======
 
-The SoG-bloomcast code and documentation are copyright 2011-2015 by Doug Latornell and The University of British Columbia.
+The SoG-bloomcast code and documentation are copyright 2011-2021 by Doug Latornell and The University of British Columbia.
 
 They are licensed under the Apache License, Version 2.0.
 http://www.apache.org/licenses/LICENSE-2.0

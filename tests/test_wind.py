@@ -1,4 +1,4 @@
-# Copyright 2011-2015 Doug Latornell and The University of British Columbia
+# Copyright 2011-2021 Doug Latornell and The University of British Columbia
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
