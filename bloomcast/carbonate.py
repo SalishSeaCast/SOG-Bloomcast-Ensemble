@@ -18,7 +18,7 @@ All calculations adapted from CO2SYS v1.1
 Lewis, E., and D. W. R. Wallace. 1998. Program Developed for
 CO2 System Calculations. ORNL/CDIAC-105. Carbon Dioxide Information
 Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy,
-Oak Ridge, Tennessee. 
+Oak Ridge, Tennessee.
 http://cdiac.ornl.gov/oceans/co2rprt.html
 """
 
@@ -51,12 +51,12 @@ def calc_carbonate(TAlk, DIC, sigma_t, S, T, P, PO4, Si):
 def set_constants(Sal, TempK, Pdbar):
     """Variable & parameter value declarations, and subroutines related
     to carbonate system calculations in the SOG code
-    
+
     Constants and alkalinity parametrizations taken from CO2SYS v1.1
     Lewis, E., and D. W. R. Wallace. 1998. Program Developed for
     CO2 System Calculations. ORNL/CDIAC-105. Carbon Dioxide Information
     Analysis Center, Oak Ridge National Laboratory,
-    U.S. Department of Energy, Oak Ridge, Tennessee. 
+    U.S. Department of Energy, Oak Ridge, Tennessee.
     http://cdiac.ornl.gov/oceans/co2rprt.html
     """
 
@@ -65,13 +65,13 @@ def set_constants(Sal, TempK, Pdbar):
 
     # Gas Constant
     R_gas = 83.1451  # ml bar-1 K-1 mol-1, DOEv2
-    
+
     # Preallocate common operations
     Pbar     = Pdbar / 10.0
     TempK100 = TempK / 100.0
     logTempK = np.log(TempK)
     sqrSal   = np.sqrt(Sal)
-    
+
     # Calculate IonS:
     # This is from the DOE handbook, Chapter 5, p. 13/22, eq. 7.2.4:
     IonS = 19.924 * Sal / (1000.0 - 1.005 * Sal)
@@ -83,7 +83,7 @@ def set_constants(Sal, TempK, Pdbar):
     # this is 0.000416 * Sali / 35 = 0.0000119 * Sali
     # TB = (0.000232d0 / 10.811d0) * (Sal / 1.80655d0) ! in mol/kg-SW
     TB = 0.0004157 * Sal / 35.0    # in mol/kg-SW
-    
+
     # Calculate total sulfate:
     # Morris, A. W., and Riley, J. P., Deep-Sea Research 13:699-705, 1966:
     # this is .02824 * Sali / 35 = .0008067 * Sali
@@ -94,7 +94,7 @@ def set_constants(Sal, TempK, Pdbar):
     # this is .000068 * Sali / 35 = .00000195 * Sali
     # Approximate [F-] of Fraser River is 3 umol/kg
     TF = np.maximum((0.000067 / 18.998) * (Sal / 1.80655), 3.0e-6) # in mol/kg-SW
-    
+
     # CALCULATE EQUILIBRIUM CONSTANTS (SW scale)
     # Calculate KS:
     # Dickson, A. G., J. Chemical Thermodynamics, 22:113-127, 1990
@@ -146,7 +146,7 @@ def set_constants(Sal, TempK, Pdbar):
     C2   = -3.374 * Sal**0.5
     pK2  = pK20 + A2 + B2 / TempK + C2 * np.log(TempK)
     K2   = 10**(-pK2)
-        
+
     # Calculate KW:
     # Millero, Geochemica et Cosmochemica Acta 59:661-677, 1995.
     # his check value of 1.6 umol/kg-SW should be 6.2
@@ -154,7 +154,7 @@ def set_constants(Sal, TempK, Pdbar):
 	    (-5.977 + 118.67 / TempK + 1.0495 * logTempK) * sqrSal -
 	    0.01615 * Sal)
     KW = np.exp(lnKW)    # this is on the SWS pH scale in (mol/kg-SW)^2
-	
+
     # Calculate KB:
     # Dickson, A. G., Deep-Sea Research 37:755-766, 1990:
     lnKB = ((-8966.9 - 2890.53 * sqrSal - 77.942 * Sal +
@@ -164,7 +164,7 @@ def set_constants(Sal, TempK, Pdbar):
 	    0.053105 * sqrSal * TempK)
     KB = (np.exp(lnKB)           # this is on the total pH scale in mol/kg-SW
 	  / SWStoTOT)         # convert to SWS pH scale
-    
+
     # Calculate KP1, KP2, KP3, and KSi:
     # Yao and Millero, Aquatic Geochemistry 1:53-88, 1995
     # KP1, KP2, KP3 are on the SWS pH scale in mol/kg-SW.
@@ -173,17 +173,17 @@ def set_constants(Sal, TempK, Pdbar):
 	      (-106.736 / TempK + 0.69171) * sqrSal +
 	      (-0.65643 / TempK - 0.01844) * Sal)
     KP1 = np.exp(lnKP1)
-    
+
     lnKP2 = (-8814.715 / TempK + 172.1033 - 27.927 * logTempK +
 	      (-160.34 / TempK + 1.3566) * sqrSal +
 	      (0.37335 / TempK - 0.05778) * Sal)
     KP2 = np.exp(lnKP2)
-    
+
     lnKP3 = (-3070.75 / TempK - 18.126 +
 	      (17.27039 / TempK + 2.81197) * sqrSal +
 	      (-44.99486 / TempK - 0.09984) * Sal)
     KP3 = np.exp(lnKP3)
-    
+
     lnKSi = (-8904.2 / TempK + 117.4 - 19.334 * logTempK +
 	      (-458.79 / TempK + 3.5913) * sqrIonS +
 	      (188.74 / TempK - 1.5998) * IonS +
@@ -208,7 +208,7 @@ def pressure_corrections(TempK, Pbar):
 
     # Fugacity Factor
     Delta = 57.7 - 0.118 * TempK
-    b = (-1636.75 + 12.0408 * TempK - 0.0327957 * TempK**2 + 
+    b = (-1636.75 + 12.0408 * TempK - 0.0327957 * TempK**2 +
 	  3.16528 * 1.0e-5 * TempK**3)
     FugFac = np.exp((b + 2.0 * Delta) * 1.01325 / RT)
 
@@ -389,10 +389,10 @@ def ca_solubility(S, TempK, P, DIC, pH):
     # Riley, J. P. and Tongudai, M., Chemical Geology 2:263-269, 1967:
     # this is 0.010285 * S / 35
     Ca = 0.02128 / 40.087 * (S / 1.80655)
- 
+
     # Calcite solubility:
     # Mucci, Alphonso, Amer. J. of Science 283:781-799, 1983.
-    KCa = (10.0**(-171.9065 - 0.077993 * TempK + 2839.319 / TempK 
+    KCa = (10.0**(-171.9065 - 0.077993 * TempK + 2839.319 / TempK
 		   + 71.595 * logTempK / np.log(10.0)
 		   + (-0.77712 + 0.0028426 * TempK + 178.34 / TempK) * sqrtS
 		   - 0.07711 * S + 0.0041249 * sqrtS * S))
@@ -431,7 +431,7 @@ def ca_solubility(S, TempK, P, DIC, pH):
 def calc_rho(Sal, TempK, P):
     """ Calculate rho: Based on SOG code
     """
-    
+
     # Convert the temperature to Celsius
     TempC = TempK - 273.15
 
