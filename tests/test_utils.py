@@ -130,7 +130,7 @@ class TestConfig():
     def test_load_config_climate_url(self, config, config_dict, infile_dict, monkeypatch):
         """load_config puts expected value in config.climate.url
         """
-        test_url = 'http://example.com/climateData/bulkdata_e.html'
+        test_url = 'https://example.com/climateData/bulkdata_e.html'
         monkeypatch.setitem(config_dict['climate'], 'url', test_url)
         config._read_yaml_file = Mock(return_value=config_dict)
         config._read_SOG_infile = Mock(return_value=infile_dict)
