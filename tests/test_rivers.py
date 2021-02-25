@@ -31,7 +31,6 @@ def processor():
     return RiversProcessor(Mock(name='config'))
 
 
-@pytest.mark.usefixture('processor')
 class TestRiverProcessor():
     """Uni tests for RiverProcessor object.
     """

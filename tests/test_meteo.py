@@ -26,7 +26,6 @@ def meteo():
     return MeteoProcessor(Mock(name='config'))
 
 
-@pytest.mark.usefixture('meteo')
 class TestMeteoProcessor():
     """Unit tests for MeteoProcessor object.
     """

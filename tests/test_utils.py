@@ -123,7 +123,6 @@ def climate_processor():
     return ClimateDataProcessor(mock_config, mock_data_readers)
 
 
-@pytest.mark.usefixture('config')
 class TestConfig():
     """Unit tests for Config object.
     """
@@ -192,7 +191,7 @@ class TestConfig():
         assert config.climate.wind.station_id == test_station_id
 
 
-@pytest.mark.usefixture('forcing_processor')
+
 class TestForcingDataProcessor():
     """Unit tests for ForcingDataProcessor object.
     """
@@ -314,7 +313,6 @@ class TestForcingDataProcessor():
                 '2014-02-11 01:00 has been patched by linear interpolation')
 
 
-@pytest.mark.usefixture('climate_processor')
 class TestClimateDataProcessor():
     """Unit tests for ClimateDataProcessor object.
     """

@@ -29,7 +29,6 @@ def wind():
     return WindProcessor(Mock(name='config'))
 
 
-@pytest.mark.usefixture('wind')
 class TestWindProcessor():
     """Unit tests for WindProcessor object.
     """
