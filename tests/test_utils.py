@@ -210,6 +210,26 @@ class TestConfig():
         config._load_rivers_config(config_dict, infile_dict)
         assert config.rivers.minor.station_id == test_station_id
 
+    def test_load_rivers_config_major_forcing_data_file(self, config, config_dict, infile_dict, monkeypatch):
+        """_load_rivers_config puts value in config.rivers.output_file.major
+        """
+        test_output_file = 'Fraser_flow'
+        monkeypatch.setitem(infile_dict['forcing_data_files'], 'major_river', test_output_file)
+        config.rivers = Mock()
+        config._read_yaml_file = Mock(return_value=config_dict)
+        config._load_rivers_config(config_dict, infile_dict)
+        assert config.rivers.output_files["major"] == test_output_file
+
+    def test_load_rivers_config_minor_forcing_data_file(self, config, config_dict, infile_dict, monkeypatch):
+        """_load_rivers_config puts value in config.rivers.output_file.minor
+        """
+        test_output_file = 'Englishman_flow'
+        monkeypatch.setitem(infile_dict['forcing_data_files'], 'minor_river', test_output_file)
+        config.rivers = Mock()
+        config._read_yaml_file = Mock(return_value=config_dict)
+        config._load_rivers_config(config_dict, infile_dict)
+        assert config.rivers.output_files["minor"] == test_output_file
+
 
 class TestForcingDataProcessor():
     """Unit tests for ForcingDataProcessor object.
