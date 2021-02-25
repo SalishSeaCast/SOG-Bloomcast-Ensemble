@@ -55,7 +55,7 @@ class TestRiverProcessor():
             '  </tr>',
             '</table>',
         ]
-        processor.raw_data = bs4.BeautifulSoup(''.join(test_data))
+        processor.raw_data = bs4.BeautifulSoup(''.join(test_data), features="html.parser")
         processor.process_data('major')
         assert processor.data['major'] == [(datetime.date(2011, 9, 27), 4200.0)]
 
@@ -74,7 +74,7 @@ class TestRiverProcessor():
             '  </tr>',
             '</table>',
         ]
-        processor.raw_data = bs4.BeautifulSoup(''.join(test_data))
+        processor.raw_data = bs4.BeautifulSoup(''.join(test_data), features="html.parser")
         processor.process_data('major')
         assert processor.data['major'] == [(datetime.date(2011, 9, 27), 4300.0)]
 
@@ -93,7 +93,7 @@ class TestRiverProcessor():
             '  </tr>',
             '</table>',
         ]
-        processor.raw_data = bs4.BeautifulSoup(''.join(test_data))
+        processor.raw_data = bs4.BeautifulSoup(''.join(test_data), features="html.parser")
         processor.process_data('major')
         expected = [
             (datetime.date(2011, 9, 27), 4200.0),
@@ -123,7 +123,7 @@ class TestRiverProcessor():
             '  </tr>',
             '</table>',
         ]
-        processor.raw_data = bs4.BeautifulSoup(''.join(test_data))
+        processor.raw_data = bs4.BeautifulSoup(''.join(test_data), features="html.parser")
         processor.process_data('major')
         expected = [
             (datetime.date(2011, 9, 27), 4300.0),
