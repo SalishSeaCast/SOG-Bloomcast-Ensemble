@@ -17,7 +17,6 @@
 import datetime
 import logging
 import sys
-import time
 
 import arrow
 import requests
