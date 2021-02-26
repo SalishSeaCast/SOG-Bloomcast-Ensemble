@@ -57,8 +57,9 @@ logging:
   bloom_date_log_filename: bloom_date_evolution.log
   toaddrs:
     - sallen@eoas.ubc.ca
-  # Run "python -m smtpd -n -c DebuggingServer localhost:1025" to
-  # capture email messages for testing
+  # Run
+  #    python3 -m smtpd -n -c DebuggingServer localhost:1025
+  # to capture email messages for testing
   use_test_smtpd: False
 
 results:
