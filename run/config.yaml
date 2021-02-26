@@ -45,7 +45,12 @@ rivers:
   major:
     station_id: 08MF005  # Fraser River at Hope
   minor:
-    station_id: 08HB002  # Englishman River at Parksville
+#    station_id: 08HB002  # Englishman River at Parksville
+                          # gauge data stream failed on 25-Sep-2020
+    station_id: 08HB034  # Nanaimo River at Cassidy
+    scale_factor: 0.351  # Susan's scale factor to use Nanaimo at Cassidy as estimate
+                         # of Englishman at Parksville after failure of Englishman
+                         # gauge data stream
 
 logging:
   bloomcast_log_filename: bloomcast.log

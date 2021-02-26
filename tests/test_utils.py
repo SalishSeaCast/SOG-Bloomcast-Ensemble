@@ -67,6 +67,7 @@ def config_dict():
             },
             'minor': {
                 'station_id': None,
+                'scale_factor': None
             },
         },
         'logging': {
@@ -209,6 +210,16 @@ class TestConfig():
         config._read_yaml_file = Mock(return_value=config_dict)
         config._load_rivers_config(config_dict, infile_dict)
         assert config.rivers.minor.station_id == test_station_id
+
+    def test_load_rivers_config_minor_scale_factor(self, config, config_dict, infile_dict, monkeypatch):
+        """_load_rivers_config puts value in config.rivers.minor.scale_factor
+        """
+        test_scale_factor = 0.351
+        monkeypatch.setitem(config_dict['rivers']['minor'], 'scale_factor', test_scale_factor)
+        config.rivers = Mock()
+        config._read_yaml_file = Mock(return_value=config_dict)
+        config._load_rivers_config(config_dict, infile_dict)
+        assert config.rivers.minor.scale_factor == test_scale_factor
 
     def test_load_rivers_config_major_forcing_data_file(self, config, config_dict, infile_dict, monkeypatch):
         """_load_rivers_config puts value in config.rivers.output_file.major

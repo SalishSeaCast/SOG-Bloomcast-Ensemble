@@ -46,7 +46,12 @@ class RiversProcessor(ForcingDataProcessor):
         """
         for river in 'major minor'.split():
             self.get_river_data(river)
-            self.process_data(river, end_date=self.config.data_date)
+            try:
+                scale_factor = self.config.rivers.getattr(river).scale_factor
+            except AttributeError:
+                # Only minor river has scale factor
+                scale_factor = 1
+            self.process_data(river, scale_factor, end_date=self.config.data_date)
             output_file = self.config.rivers.output_files[river]
             with open(output_file, 'wt') as file_obj:
                 file_obj.writelines(self.format_data(river))
@@ -94,7 +99,7 @@ class RiversProcessor(ForcingDataProcessor):
         }
         return params
 
-    def process_data(self, qty, end_date=arrow.now().floor('day')):
+    def process_data(self, qty, scale_factor=1, end_date=arrow.now().floor('day')):
         """Process data from BeautifulSoup parser object to a list of
         hourly timestamps and data values.
         """
@@ -109,27 +114,27 @@ class RiversProcessor(ForcingDataProcessor):
             if datestamp > end_date.date():
                 break
             if datestamp == data_day:
-                flow_sum += self._convert_flow(flow)
+                flow_sum += self._convert_flow(flow, scale_factor)
                 count += 1
             else:
                 self.data[qty].append((data_day, flow_sum / count))
                 data_day = datestamp
-                flow_sum = self._convert_flow(flow)
+                flow_sum = self._convert_flow(flow, scale_factor)
                 count = 1
         self.data[qty].append((data_day, flow_sum / count))
         self.patch_data(qty)
 
-    def _convert_flow(self, flow_string):
+    def _convert_flow(self, flow_string, scale_factor):
         """Convert a flow data value from a string to a float.
 
         Handles 'provisional values' which are marked with a `*` at
         the end of the string.
         """
         try:
-            return float(flow_string.replace(',', ''))
+            return float(flow_string.replace(',', '')) * scale_factor
         except ValueError:
             # Ignore training `*`
-            return float(flow_string[:-1].replace(',', ''))
+            return float(flow_string[:-1].replace(',', '')) * scale_factor
 
     def read_datestamp(self, string):
         """Read datestamp from BeautifulSoup parser object and return

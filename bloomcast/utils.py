@@ -123,6 +123,7 @@ class Config(object):
         self.rivers.minor = _Container()
         minor_river = config_dict['rivers']['minor']
         self.rivers.minor.station_id = minor_river['station_id']
+        self.rivers.minor.scale_factor = minor_river['scale_factor']
         forcing_data_files = infile_dict['forcing_data_files']
         self.rivers.output_files = {}
         for river in 'major minor'.split():

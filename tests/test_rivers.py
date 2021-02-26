@@ -59,6 +59,23 @@ class TestRiverProcessor():
         processor.process_data('major')
         assert processor.data['major'] == [(datetime.date(2011, 9, 27), 4200.0)]
 
+    def test_process_data_minor_river_scaling(self, processor):
+        """process_data produces expected result for scaled minor river
+        re: 25-Sep-2020 failure of Englishman River gauge data stream and replacement of it
+        with scaled Nanaimo River values for 2021 predictions
+        """
+        test_data = [
+            '<table>',
+            '  <tr>',
+            '    <td>2021-02-24 17:04:00</td>',
+            '    <td>10.0</td>',
+            '  </tr>',
+            '</table>',
+        ]
+        processor.raw_data = bs4.BeautifulSoup(''.join(test_data), features="html.parser")
+        processor.process_data('major', 0.351)
+        assert processor.data['major'] == [(datetime.date(2021, 2, 24), 3.51)]
+
     def test_process_data_2_rows_1_day(self, processor):
         """process_data produces result for 2 rows of data from same day
         """
