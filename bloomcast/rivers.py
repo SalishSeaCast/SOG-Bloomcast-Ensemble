@@ -47,7 +47,7 @@ class RiversProcessor(ForcingDataProcessor):
         for river in 'major minor'.split():
             self.get_river_data(river)
             try:
-                scale_factor = self.config.rivers.getattr(river).scale_factor
+                scale_factor = getattr(self.config.rivers, river).scale_factor
             except AttributeError:
                 # Only minor river has scale factor
                 scale_factor = 1
