@@ -8,4 +8,4 @@ CONDA_BLOOMCAST_ENV=/home/dlatorne/conda_envs/bloomcast
 RUN_DIR=/data/dlatorne/SOG-projects/SOG-Bloomcast-Ensemble/run
 source $CONDA_BASE_ENV/bin/activate $CONDA_BLOOMCAST_ENV && \
     cd $RUN_DIR && \
-    $CONDA_BLOOMCAST_ENV/bin/bloomcast ensemble -v config.yaml
+    $CONDA_BLOOMCAST_ENV/bin/bloomcast ensemble -v config.yaml --debug
