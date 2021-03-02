@@ -297,7 +297,7 @@ profiles_results:
     variable_name: Hoff_startyr
     description: year to start Hoffmueller results output
   hoffmueller_start_day:
-    value: 263
+    value: 264
     variable_name: Hoff_startday
     description: day to start Hoffmueller results output
   hoffmueller_start_sec:
