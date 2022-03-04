@@ -19,13 +19,13 @@ name: bloomcast
 
 channels:
   - conda-forge
+  - nodefaults
 
 dependencies:
   - arrow
   - beautifulsoup4
   - jupyterlab
   - cliff
-  - colander=1.5.1
   - matplotlib
   - numpy
   - pip
@@ -40,3 +40,6 @@ dependencies:
   # For documentation
   - sphinx
   - sphinx_rtd_theme
+
+  - pip:
+    - colander==1.5.1
