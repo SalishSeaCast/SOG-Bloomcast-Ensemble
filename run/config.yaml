@@ -7,7 +7,7 @@ SOG_executable: ../../SOG-code-bloomcast/SOG
 
 ensemble:
   max_concurrent_jobs: 32
-  base_infile: 2021_bloomcast_infile.yaml
+  base_infile: 2022_bloomcast_infile.yaml
   start_year: 1981   # 1st bloomcast year
   end_year: 2010     # last bloomcast year
   forcing_data_file_roots:
@@ -46,11 +46,12 @@ rivers:
     station_id: 08MF005  # Fraser River at Hope
   minor:
 #    station_id: 08HB002  # Englishman River at Parksville
-                          # gauge data stream failed on 25-Sep-2020
+                          # gauge data stream failed on 25-Sep-2020 and resumed on 30-Apr-2021
     station_id: 08HB034  # Nanaimo River at Cassidy
     scale_factor: 0.351  # Susan's scale factor to use Nanaimo at Cassidy as estimate
                          # of Englishman at Parksville after failure of Englishman
-                         # gauge data stream
+                         # gauge data stream.
+                         # Used for 2021 and 2022 forecasts.
 
 logging:
   bloomcast_log_filename: bloomcast.log
