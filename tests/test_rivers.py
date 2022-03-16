@@ -50,14 +50,16 @@ class TestRiverProcessor():
         test_data = [
             '<table>',
             '  <tr>',
-            '    <td>2011-09-27 21:11:00</td>',
-            '    <td>4200.0</td>',
+            '    <td class="sorting_1">2022-03-16 15:40:00</td>',
+            '    <td data-order="4199.95915878108">4,200</td>',
+            '    <td>PRELIMINARY</td>',
+            '    <td>UNSPECIFIED</td>',
             '  </tr>',
             '</table>',
         ]
         processor.raw_data = bs4.BeautifulSoup(''.join(test_data), features="html.parser")
         processor.process_data('major')
-        assert processor.data['major'] == [(datetime.date(2011, 9, 27), 4200.0)]
+        assert processor.data['major'] == [(datetime.date(2022, 3, 16), 4200.0)]
 
     def test_process_data_minor_river_scaling(self, processor):
         """process_data produces expected result for scaled minor river
@@ -67,14 +69,16 @@ class TestRiverProcessor():
         test_data = [
             '<table>',
             '  <tr>',
-            '    <td>2021-02-24 17:04:00</td>',
-            '    <td>10.0</td>',
+            '    <td class="sorting_1">2022-03-16 15:40:00</td>',
+            '    <td data-order="9.95915878108">10</td>',
+            '    <td>PRELIMINARY</td>',
+            '    <td>UNSPECIFIED</td>',
             '  </tr>',
             '</table>',
         ]
         processor.raw_data = bs4.BeautifulSoup(''.join(test_data), features="html.parser")
         processor.process_data('major', 0.351)
-        assert processor.data['major'] == [(datetime.date(2021, 2, 24), 3.51)]
+        assert processor.data['major'] == [(datetime.date(2022, 3, 16), 3.51)]
 
     def test_process_data_2_rows_1_day(self, processor):
         """process_data produces result for 2 rows of data from same day
@@ -82,18 +86,22 @@ class TestRiverProcessor():
         test_data = [
             '<table>',
             '  <tr>',
-            '    <td>2011-09-27 21:11:00</td>',
-            '    <td>4200.0</td>',
+            '    <td class="sorting_1">2022-03-16 21:11:00</td>',
+            '    <td data-order="4199.95915878108">4,200</td>',
+            '    <td>PRELIMINARY</td>',
+            '    <td>UNSPECIFIED</td>',
             '  </tr>',
             '  <tr>',
-            '    <td>2011-09-27 21:35:00</td>',
-            '    <td>4400.0</td>',
+            '    <td class="sorting_1">2022-03-16 21:35:00</td>',
+            '    <td data-order="4399.95915878108">4,400</td>',
+            '    <td>PRELIMINARY</td>',
+            '    <td>UNSPECIFIED</td>',
             '  </tr>',
             '</table>',
         ]
         processor.raw_data = bs4.BeautifulSoup(''.join(test_data), features="html.parser")
         processor.process_data('major')
-        assert processor.data['major'] == [(datetime.date(2011, 9, 27), 4300.0)]
+        assert processor.data['major'] == [(datetime.date(2022, 3, 16), 4300.0)]
 
     def test_process_data_2_rows_2_days(self, processor):
         """process_data produces expected result for 2 rows of data from 2 days
@@ -101,20 +109,24 @@ class TestRiverProcessor():
         test_data = [
             '<table>',
             '  <tr>',
-            '    <td>2011-09-27 21:11:00</td>',
-            '    <td>4200.0</td>',
+            '    <td class="sorting_1">2022-03-15 21:11:00</td>',
+            '    <td data-order="4199.95915878108">4,200</td>',
+            '    <td>PRELIMINARY</td>',
+            '    <td>UNSPECIFIED</td>',
             '  </tr>',
             '  <tr>',
-            '    <td>2011-09-28 21:35:00</td>',
-            '    <td>4400.0</td>',
+            '    <td class="sorting_1">2022-03-16 21:35:00</td>',
+            '    <td data-order="4399.95915878108">4,400</td>',
+            '    <td>PRELIMINARY</td>',
+            '    <td>UNSPECIFIED</td>',
             '  </tr>',
             '</table>',
         ]
         processor.raw_data = bs4.BeautifulSoup(''.join(test_data), features="html.parser")
         processor.process_data('major')
         expected = [
-            (datetime.date(2011, 9, 27), 4200.0),
-            (datetime.date(2011, 9, 28), 4400.0),
+            (datetime.date(2022, 3, 15), 4200.0),
+            (datetime.date(2022, 3, 16), 4400.0),
         ]
         assert processor.data['major'] == expected
 
@@ -124,27 +136,35 @@ class TestRiverProcessor():
         test_data = [
             '<table>',
             '  <tr>',
-            '    <td>2011-09-27 21:11:00</td>',
-            '    <td>4200.0</td>',
+            '    <td class="sorting_1">2022-03-15 21:11:00</td>',
+            '    <td data-order="4199.95915878108">4,200</td>',
+            '    <td>PRELIMINARY</td>',
+            '    <td>UNSPECIFIED</td>',
             '  </tr>',
             '  <tr>',
-            '    <td>2011-09-27 21:35:00</td>',
-            '    <td>4400.0</td>',
+            '    <td class="sorting_1">2022-03-15 21:35:00</td>',
+            '    <td data-order="4399.95915878108">4,400</td>',
+            '    <td>PRELIMINARY</td>',
+            '    <td>UNSPECIFIED</td>',
             '  <tr>',
-            '    <td>2011-09-28 21:11:00</td>',
-            '    <td>3200.0</td>',
+            '    <td class="sorting_1">2022-03-16 21:11:00</td>',
+            '    <td data-order="3199.95915878108">3,200</td>',
+            '    <td>PRELIMINARY</td>',
+            '    <td>UNSPECIFIED</td>',
             '  </tr>',
             '  <tr>',
-            '    <td>2011-09-28 21:35:00</td>',
-            '    <td>3400.0</td>',
+            '    <td class="sorting_1">2022-03-16 21:35:00</td>',
+            '    <td data-order="3399.95915878108">3,400</td>',
+            '    <td>PRELIMINARY</td>',
+            '    <td>UNSPECIFIED</td>',
             '  </tr>',
             '</table>',
         ]
         processor.raw_data = bs4.BeautifulSoup(''.join(test_data), features="html.parser")
         processor.process_data('major')
         expected = [
-            (datetime.date(2011, 9, 27), 4300.0),
-            (datetime.date(2011, 9, 28), 3300.0),
+            (datetime.date(2022, 3, 15), 4300.0),
+            (datetime.date(2022, 3, 16), 3300.0),
         ]
         assert processor.data['major'] == expected
 
