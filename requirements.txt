@@ -78,7 +78,7 @@ parso==0.8.3
 pbr==5.8.1
 pexpect==4.8.0
 pickleshare==0.7.5
-Pillow==9.0.1
+Pillow==9.3.0
 pip==22.0.3
 pluggy==1.0.0
 prettytable==3.1.1
