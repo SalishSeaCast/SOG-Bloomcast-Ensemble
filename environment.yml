@@ -24,6 +24,7 @@ channels:
 dependencies:
   - arrow
   - beautifulsoup4
+  - colander<2
   - jupyterlab
   - cliff
   - matplotlib
@@ -40,6 +41,3 @@ dependencies:
   # For documentation
   - sphinx
   - sphinx_rtd_theme
-
-  - pip:
-    - colander==1.5.1
