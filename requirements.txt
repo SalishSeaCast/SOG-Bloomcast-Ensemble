@@ -143,7 +143,7 @@ tornado==6.3.3
 traitlets==5.9.0
 translationstring==1.4
 typing_extensions==4.4.0
-urllib3==1.26.14
+urllib3==1.26.18
 wcwidth==0.2.6
 webencodings==0.5.1
 websocket-client==1.5.1
