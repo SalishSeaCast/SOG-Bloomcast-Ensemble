@@ -15,7 +15,7 @@
 # packages installed in the environment and their versions used in
 # recent development.
 
-name: bloomcast-2024
+name: bloomcast
 
 channels:
   - conda-forge
