@@ -6,6 +6,7 @@
 #   $ mamba env create -f SOG-Bloomcast-Ensemble/envs/environment-dev.yaml
 #   $ mamba activate bloomcast-dev
 #   (bloomcast-dev)$ python -m pip install --editable SOG
+#   (bloomcast-dev)$ python -m pip install --editable SOG-Bloomcast-Ensemble
 #
 # The environment will also include all the tools used to develop,
 # test, and document the SOG-Bloomcast-Ensemble package.
@@ -32,6 +33,10 @@ dependencies:
   - python=3.12
   - pyyaml
   - requests
+
+  # For coding style and repo QA
+  - black
+  - pre-commit
 
   # For unit tests
   - pytest
