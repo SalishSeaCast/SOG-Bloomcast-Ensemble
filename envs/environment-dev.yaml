@@ -3,10 +3,9 @@
 # Create a conda environment in which the `bloomcast` command can be run
 # with:
 #
-#   $ mamba env create -f SOG-Bloomcast-Ensemble/envs/environment.yml
-#   $ mamba activate bloomcast
-#   (bloomcast)$ python -m pip install --editable SOG
-#   (bloomcast)$ python -m pip install --editable SOG-Bloomcast-Ensemble
+#   $ mamba env create -f SOG-Bloomcast-Ensemble/envs/environment-dev.yaml
+#   $ mamba activate bloomcast-dev
+#   (bloomcast-dev)$ python -m pip install --editable SOG
 #
 # The environment will also include all the tools used to develop,
 # test, and document the SOG-Bloomcast-Ensemble package.
@@ -15,7 +14,7 @@
 # packages installed in the environment and their versions used in
 # recent development.
 
-name: bloomcast
+name: bloomcast-dev
 
 channels:
   - conda-forge
