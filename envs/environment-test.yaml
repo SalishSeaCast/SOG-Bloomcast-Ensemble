@@ -28,5 +28,6 @@ dependencies:
   - pytest-randomly
 
   - pip:
-    # Install the SOG-Bloomcast-Ensemble package in editable mode
-    - ../
+    # Install theSOG and SOG-Bloomcast-Ensemble packages in editable mode
+    - --editable git+https://github.com/SalishSeaCast/SOG.git#egg=SOG
+    - --editable ../
