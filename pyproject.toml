@@ -20,7 +20,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "SoG-bloomcast"
+name = "bloomcast"
 dynamic = [ "version" ]
 description = "Strait of Georgia spring diatom bloom predictor"
 readme = "README.rst"
@@ -55,7 +55,7 @@ ensemble = "bloomcast.ensemble:Ensemble"
 
 
 [tool.hatch.build.targets.wheel]
-packages = ["SoG-bloomcast"]
+packages = ["bloomcast"]
 
 [tool.hatch.version]
 path = "bloomcast/__about__.py"
