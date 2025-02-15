@@ -16,8 +16,8 @@
 
 
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "SoG-bloomcast"
@@ -26,8 +26,7 @@ version = "3.1"
 description = "Strait of Georgia spring diatom bloom predictor"
 readme = "README.rst"
 requires-python = ">=3.12"
-license = {text = "Apache License, Version 2.0"}
-#license-files = { paths = ["LICENSE"] }
+license-files = { paths = ["LICENSE"] }
 authors = [
     {name = "Doug Latornell", email = "dlatornell@eoas.ubc.ca"}
 ]
@@ -55,6 +54,5 @@ bloomcast = "bloomcast.main:main"
 ensemble = "bloomcast.ensemble:Ensemble"
 
 
-[tool.setuptools.packages.find]
-include = ["."]
-include_package_data = true
+[tool.hatch.build.targets.wheel]
+packages = ["SoG-bloomcast"]
