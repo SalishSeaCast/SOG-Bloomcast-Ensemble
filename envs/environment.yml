@@ -1,17 +1,17 @@
-# conda environment description file for SoG-bloomcast package development environment
+# conda environment description file for SOG-Bloomcast-Ensemble package development environment
 #
 # Create a conda environment in which the `bloomcast` command can be run
 # with:
 #
-#   $ conda env create -f SOG-Bloomcast-Ensemble/environment.yml
-#   $ conda activate bloomcast
+#   $ mamba env create -f SOG-Bloomcast-Ensemble/envs/environment.yml
+#   $ mamba activate bloomcast
 #   (bloomcast)$ python -m pip install --editable SOG
 #   (bloomcast)$ python -m pip install --editable SOG-Bloomcast-Ensemble
 #
 # The environment will also include all the tools used to develop,
-# test, and document the SoG-bloomcast package.
+# test, and document the SOG-Bloomcast-Ensemble package.
 #
-# See the requirements.txt file for an exhaustive list of all the
+# See the envs/requirements.txt file for an exhaustive list of all the
 # packages installed in the environment and their versions used in
 # recent development.
 

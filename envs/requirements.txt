@@ -1,4 +1,4 @@
-# Python packages and their versions required for the SoG-bloomcast
+# Python packages and their versions required for the SOG-Bloomcast-Ensemble
 # development environment
 #
 # See docs/Development.rst for instructions on how to create a conda
@@ -6,7 +6,7 @@
 #
 # Update this file by merging the output the command:
 #
-#   python -m pip list --format=freeze >> requirements.txt
+#   python -m pip list --format=freeze >> envs/requirements.txt
 
 alabaster==0.7.16
 anyio==4.4.0
