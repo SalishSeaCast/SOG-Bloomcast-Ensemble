@@ -16,8 +16,8 @@
 
 Operational prediction of the Strait of Georgia spring phytoplankton bloom
 
-This module is connected to the `bloomcast` command via a console_scripts
-entry point in setup.py.
+This module is connected to the :command:`bloomcast ensemble` command via the scripts and
+entry-points configuration elements in the :file:`pyproject.toml` file.
 """
 import sys
 
