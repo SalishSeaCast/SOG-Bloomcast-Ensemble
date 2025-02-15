@@ -103,7 +103,7 @@ class RiversProcessor(ForcingDataProcessor):
         """Process data from BeautifulSoup parser object to a list of
         hourly timestamps and data values.
         """
-        tds = self.raw_data.findAll("td")
+        tds = self.raw_data.find_all("td")
         timestamps = (td.string for td in tds[::4])
         flows = (td.text for td in tds[1::4])
         data_day = self.read_datestamp(tds[0].string)
