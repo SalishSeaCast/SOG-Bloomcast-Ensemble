@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Rivers flows forcing data processing module for SoG-bloomcast project.
-"""
+"""Rivers flows forcing data processing module for SoG-bloomcast project."""
 import datetime
 import logging
 import sys
@@ -28,12 +27,12 @@ from .utils import (
 )
 
 
-log = logging.getLogger('bloomcast.rivers')
+log = logging.getLogger("bloomcast.rivers")
 
 
 class RiversProcessor(ForcingDataProcessor):
-    """River flows forcing data processor.
-    """
+    """River flows forcing data processor."""
+
     def __init__(self, config):
         super(RiversProcessor, self).__init__(config)
 
@@ -44,7 +43,7 @@ class RiversProcessor(ForcingDataProcessor):
         from the end, patch missing values, and write the data to
         files in the format that SOG expects.
         """
-        for river in 'major minor'.split():
+        for river in "major minor".split():
             self.get_river_data(river)
             try:
                 scale_factor = getattr(self.config.rivers, river).scale_factor
@@ -53,11 +52,9 @@ class RiversProcessor(ForcingDataProcessor):
                 scale_factor = 1
             self.process_data(river, scale_factor, end_date=self.config.data_date)
             output_file = self.config.rivers.output_files[river]
-            with open(output_file, 'wt') as file_obj:
+            with open(output_file, "wt") as file_obj:
                 file_obj.writelines(self.format_data(river))
-            log.debug(
-                'latest {0} river flow {1}'
-                .format(river, self.data[river][-1]))
+            log.debug("latest {0} river flow {1}".format(river, self.data[river][-1]))
 
     def get_river_data(self, river):
         """Return a BeautifulSoup parser object containing the river
@@ -65,23 +62,26 @@ class RiversProcessor(ForcingDataProcessor):
         WaterOffice page.
         """
         params = self.config.rivers.params
-        params['stn'] = getattr(self.config.rivers, river).station_id
+        params["stn"] = getattr(self.config.rivers, river).station_id
         today = arrow.now().date()
-        start_year = (self.config.run_start_date.year
-                      if self.config.run_start_date.year != today.year
-                      else today.year)
+        start_year = (
+            self.config.run_start_date.year
+            if self.config.run_start_date.year != today.year
+            else today.year
+        )
         params.update(self._date_params(start_year))
         response = requests.get(
             self.config.rivers.data_url,
             params=params,
-            cookies=self.config.rivers.disclaimer_cookie)
+            cookies=self.config.rivers.disclaimer_cookie,
+        )
         log.debug(
-            'got {0} river data for {1}-01-01 to {2}'
-            .format(
-                river, start_year,
-                self.config.data_date.format('YYYY-MM-DD')))
-        soup = bs4.BeautifulSoup(response.content, 'html.parser')
-        self.raw_data = soup.find('table')
+            "got {0} river data for {1}-01-01 to {2}".format(
+                river, start_year, self.config.data_date.format("YYYY-MM-DD")
+            )
+        )
+        soup = bs4.BeautifulSoup(response.content, "html.parser")
+        self.raw_data = soup.find("table")
 
     def _date_params(self, start_year):
         """Return a dict of the components of start and end dates for
@@ -94,16 +94,16 @@ class RiversProcessor(ForcingDataProcessor):
         """
         end_date = self.config.data_date.shift(days=+1)
         params = {
-            'startDate': arrow.get(start_year, 1, 1).format('YYYY-MM-DD'),
-            'endDate': end_date.format('YYYY-MM-DD')
+            "startDate": arrow.get(start_year, 1, 1).format("YYYY-MM-DD"),
+            "endDate": end_date.format("YYYY-MM-DD"),
         }
         return params
 
-    def process_data(self, qty, scale_factor=1, end_date=arrow.now().floor('day')):
+    def process_data(self, qty, scale_factor=1, end_date=arrow.now().floor("day")):
         """Process data from BeautifulSoup parser object to a list of
         hourly timestamps and data values.
         """
-        tds = self.raw_data.findAll('td')
+        tds = self.raw_data.findAll("td")
         timestamps = (td.string for td in tds[::4])
         flows = (td.text for td in tds[1::4])
         data_day = self.read_datestamp(tds[0].string)
@@ -131,20 +131,19 @@ class RiversProcessor(ForcingDataProcessor):
         the end of the string.
         """
         try:
-            return float(flow_string.replace(',', '')) * scale_factor
+            return float(flow_string.replace(",", "")) * scale_factor
         except ValueError:
             # Ignore training `*`
-            return float(flow_string[:-1].replace(',', '')) * scale_factor
+            return float(flow_string[:-1].replace(",", "")) * scale_factor
 
     def read_datestamp(self, string):
         """Read datestamp from BeautifulSoup parser object and return
         it as a date instance.
         """
-        return datetime.datetime.strptime(string, '%Y-%m-%d %H:%M:%S').date()
+        return datetime.datetime.strptime(string, "%Y-%m-%d %H:%M:%S").date()
 
     def patch_data(self, qty):
-        """Patch missing data values by interpolation.
-        """
+        """Patch missing data values by interpolation."""
         i = 0
         data = self.data[qty]
         gap_count = 0
@@ -159,17 +158,19 @@ class RiversProcessor(ForcingDataProcessor):
                     missing_date = data[i][0] + j * datetime.timedelta(days=1)
                     data.insert(i + j, (missing_date, None))
                     log.debug(
-                        '{qty} river data patched for {date}'
-                        .format(qty=qty, date=missing_date))
+                        "{qty} river data patched for {date}".format(
+                            qty=qty, date=missing_date
+                        )
+                    )
                     gap_count += 1
                 gap_end = i + delta - 1
                 self.interpolate_values(qty, gap_start, gap_end)
             i += delta
         if gap_count:
             log.debug(
-                '{count} {qty} river data values patched; '
-                'see debug log on disk for details'
-                .format(count=gap_count, qty=qty))
+                "{count} {qty} river data values patched; "
+                "see debug log on disk for details".format(count=gap_count, qty=qty)
+            )
 
     def format_data(self, qty):
         """Generate lines of river flow forcing data in the format
@@ -188,7 +189,7 @@ class RiversProcessor(ForcingDataProcessor):
         for data in self.data[qty]:
             datestamp = data[0]
             flow = data[1]
-            line = '{0:%Y %m %d} {1:e}\n'.format(datestamp, flow)
+            line = "{0:%Y %m %d} {1:e}\n".format(datestamp, flow)
             yield line
 
 
@@ -199,10 +200,10 @@ def run(config_file):
     logging.basicConfig(level=logging.DEBUG)
     config = Config()
     config.load_config(config_file)
-    config.data_date = arrow.now().floor('day')
+    config.data_date = arrow.now().floor("day")
     rivers = RiversProcessor(config)
     rivers.make_forcing_data_files()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run(sys.argv[1])

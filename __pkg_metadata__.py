@@ -12,16 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Python packaging metadata for SoG-bloomcast.
-"""
+"""Python packaging metadata for SoG-bloomcast."""
 
 
 __all__ = [
-    'PROJECT', 'DESCRIPTION', 'VERSION', 'DEV_STATUS',
+    "PROJECT",
+    "DESCRIPTION",
+    "VERSION",
+    "DEV_STATUS",
 ]
 
 
-PROJECT = 'SoG-bloomcast'
-DESCRIPTION = 'Strait of Georgia spring diatom bloom predictor'
-VERSION = '3.1'
-DEV_STATUS = '5 - Production'
+PROJECT = "SoG-bloomcast"
+DESCRIPTION = "Strait of Georgia spring diatom bloom predictor"
+VERSION = "3.1"
+DEV_STATUS = "5 - Production"

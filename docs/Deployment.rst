@@ -123,4 +123,3 @@ Edit the :file:`run/config.yaml` file to point to the year's infile via the :kbd
       base_infile: 2015_bloomcast_infile.yaml
 
     ...
-

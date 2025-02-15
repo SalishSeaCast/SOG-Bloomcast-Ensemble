@@ -183,4 +183,3 @@ This snippet of Python shows the transformation algorithm in detail::
   # oceanography
   cross_wind = -cross_wind
   along_wind = -along_wind
-
