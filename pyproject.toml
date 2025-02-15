@@ -21,14 +21,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "SoG-bloomcast"
-#dynamic = [ "version" ]
-version = "3.1"
+dynamic = [ "version" ]
 description = "Strait of Georgia spring diatom bloom predictor"
 readme = "README.rst"
 requires-python = ">=3.12"
 license-files = { paths = ["LICENSE"] }
 authors = [
-    {name = "Doug Latornell", email = "dlatornell@eoas.ubc.ca"}
+    {name = "Doug Latornell", email = "dlatornell@eoas.ubc.ca"},
+    {name = "Susan Allen", email = "sallen@eoas.ubc.ca"},
 ]
 dependencies = [
     # see envs/environment-dev.yaml for conda environment dev installation,
@@ -56,3 +56,6 @@ ensemble = "bloomcast.ensemble:Ensemble"
 
 [tool.hatch.build.targets.wheel]
 packages = ["SoG-bloomcast"]
+
+[tool.hatch.version]
+path = "bloomcast/__about__.py"
