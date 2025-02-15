@@ -54,6 +54,13 @@ bloomcast = "bloomcast.main:main"
 ensemble = "bloomcast.ensemble:Ensemble"
 
 
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "tests",
+]
+
+
 [tool.coverage.run]
 branch = true
 source = [ "bloomcast", "tests"]
