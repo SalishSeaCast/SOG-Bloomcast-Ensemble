@@ -38,8 +38,10 @@ dependencies:
   - black
   - pre-commit
 
-  # For unit tests
+  # For unit tests and coverage monitoring
   - pytest
+  - pytest-cov
+  - pytest-randomly
 
   # For documentation
   - sphinx
