@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Wind forcing data processing module for SoG-bloomcast project.
-"""
+"""Wind forcing data processing module for SoG-bloomcast project."""
 import datetime
 import logging
 import math
@@ -29,14 +28,14 @@ from .utils import (
 )
 
 
-log = logging.getLogger('bloomcast.wind')
+log = logging.getLogger("bloomcast.wind")
 
 
 class WindProcessor(ClimateDataProcessor):
-    """Wind forcing data processor.
-    """
+    """Wind forcing data processor."""
+
     def __init__(self, config):
-        data_readers = {'wind': self.read_wind_velocity}
+        data_readers = {"wind": self.read_wind_velocity}
         super(WindProcessor, self).__init__(config, data_readers)
 
     def make_forcing_data_file(self):
@@ -49,13 +48,13 @@ class WindProcessor(ClimateDataProcessor):
         """
         self.raw_data = []
         for data_month in self._get_data_months():
-            self.get_climate_data('wind', data_month)
-            log.debug('got wind data for {0:%Y-%m}'.format(data_month))
-        self.process_data('wind')
-        log.debug('latest wind {0}'.format(self.data['wind'][-1]))
-        data_date = arrow.get(self.data['wind'][-1][0]).replace(hour=0)
-        output_file = self.config.climate.wind.output_files['wind']
-        with open(output_file, 'wt') as file_obj:
+            self.get_climate_data("wind", data_month)
+            log.debug("got wind data for {0:%Y-%m}".format(data_month))
+        self.process_data("wind")
+        log.debug("latest wind {0}".format(self.data["wind"][-1]))
+        data_date = arrow.get(self.data["wind"][-1][0]).replace(hour=0)
+        output_file = self.config.climate.wind.output_files["wind"]
+        with open(output_file, "wt") as file_obj:
             file_obj.writelines(self.format_data())
         return data_date
 
@@ -63,8 +62,8 @@ class WindProcessor(ClimateDataProcessor):
         """Read wind velocity from XML data object and transform it to
         along- and cross-strait components.
         """
-        speed = record.find('windspd').text
-        direction = record.find('winddir').text
+        speed = record.find("windspd").text
+        direction = record.find("winddir").text
         try:
             # Convert from km/hr to m/s
             speed = float(speed) * 1000 / (60 * 60)
@@ -84,12 +83,12 @@ class WindProcessor(ClimateDataProcessor):
         v_wind = speed * math.cos(radian_direction)
         # Rotate components to align u direction with Strait
         strait_heading = math.radians(305)
-        cross_wind = (
-            u_wind * math.cos(strait_heading)
-            - v_wind * math.sin(strait_heading))
-        along_wind = (
-            u_wind * math.sin(strait_heading)
-            + v_wind * math.cos(strait_heading))
+        cross_wind = u_wind * math.cos(strait_heading) - v_wind * math.sin(
+            strait_heading
+        )
+        along_wind = u_wind * math.sin(strait_heading) + v_wind * math.cos(
+            strait_heading
+        )
         # Resolve atmosphere/ocean direction difference in favour of
         # oceanography
         cross_wind = -cross_wind
@@ -97,8 +96,7 @@ class WindProcessor(ClimateDataProcessor):
         return cross_wind, along_wind
 
     def _valuegetter(self, data_item):
-        """Return the along-strait wind velocity component.
-        """
+        """Return the along-strait wind velocity component."""
         return data_item[0]
 
     def interpolate_values(self, qty, gap_start, gap_end):
@@ -110,21 +108,20 @@ class WindProcessor(ClimateDataProcessor):
         gap_hours = gap_end - gap_start + 1
         if gap_hours > 11:
             log.warning(
-                'A wind forcing data gap > 11 hr starting at '
-                '{0:%Y-%m-%d %H:00} has been patched by linear interpolation'
-                .format(self.data[qty][gap_start][0]))
+                "A wind forcing data gap > 11 hr starting at "
+                "{0:%Y-%m-%d %H:00} has been patched by linear interpolation".format(
+                    self.data[qty][gap_start][0]
+                )
+            )
         last_cross_wind, last_along_wind = self.data[qty][gap_start - 1][1]
         next_cross_wind, next_along_wind = self.data[qty][gap_end + 1][1]
-        delta_cross_wind = (
-            (next_cross_wind - last_cross_wind) / (gap_hours + 1))
-        delta_along_wind = (
-            (next_along_wind - last_along_wind) / (gap_hours + 1))
+        delta_cross_wind = (next_cross_wind - last_cross_wind) / (gap_hours + 1)
+        delta_along_wind = (next_along_wind - last_along_wind) / (gap_hours + 1)
         for i in range(gap_end - gap_start + 1):
             timestamp = self.data[qty][gap_start + i][0]
             cross_wind = last_cross_wind + delta_cross_wind * (i + 1)
             along_wind = last_along_wind + delta_along_wind * (i + 1)
-            self.data[qty][gap_start + i] = (
-                timestamp, (cross_wind, along_wind))
+            self.data[qty][gap_start + i] = (timestamp, (cross_wind, along_wind))
 
     def format_data(self):
         """Generate lines of wind forcing data in the format expected
@@ -142,22 +139,23 @@ class WindProcessor(ClimateDataProcessor):
         * Cross-strait wind component
         * Along-strait wind component
         """
-        for data in self.data['wind']:
+        for data in self.data["wind"]:
             timestamp = data[0]
             wind = data[1]
-            line = '{0:%d %m %Y} {1:.1f} {2:f} {3:f}\n'.format(
-                timestamp, timestamp.hour, wind[0], wind[1])
+            line = "{0:%d %m %Y} {1:.1f} {2:f} {3:f}\n".format(
+                timestamp, timestamp.hour, wind[0], wind[1]
+            )
             yield line
 
 
 class WindTimeseries(SOG_Timeseries):
-    """Wind speed data expressed as a SOG timerseries object.
-    """
+    """Wind speed data expressed as a SOG timerseries object."""
+
     def read_data(
         self,
         run_start_date,
-        indep_field='timestamp',
-        dep_field='wind speed',
+        indep_field="timestamp",
+        dep_field="wind speed",
     ):
         def interesting(data):
             for row in data:
@@ -173,7 +171,7 @@ class WindTimeseries(SOG_Timeseries):
                 yield timestamp, wind_speed
 
         self.indep_data, self.dep_data = [], []
-        with open(self.datafile, 'rt') as data:
+        with open(self.datafile, "rt") as data:
             for timestamp, wind_speed in interesting(data):
                 self.indep_data.append(timestamp)
                 self.dep_data.append(wind_speed)
@@ -192,5 +190,5 @@ def run(config_file):
     wind.make_forcing_data_file()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run(sys.argv[1])

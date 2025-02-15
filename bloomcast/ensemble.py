@@ -37,53 +37,53 @@ from . import (
 )
 
 
-__all__ = ['Ensemble']
+__all__ = ["Ensemble"]
 
 
 # Colours for plots
 COLORS = {
-    'axes': '#ebebeb',     # bootswatch superhero theme text
-    'bg': '#2B3E50',       # bootswatch superhero theme background
-    'diatoms': '#7CC643',
-    'nitrate': '#82AFDC',
-    'temperature': '#D83F83',
-    'salinity': '#82DCDC',
-    'temperature_lines': {
-        'early': '#F00C27',
-        'median': '#D83F83',
-        'late': '#BD9122',
+    "axes": "#ebebeb",  # bootswatch superhero theme text
+    "bg": "#2B3E50",  # bootswatch superhero theme background
+    "diatoms": "#7CC643",
+    "nitrate": "#82AFDC",
+    "temperature": "#D83F83",
+    "salinity": "#82DCDC",
+    "temperature_lines": {
+        "early": "#F00C27",
+        "median": "#D83F83",
+        "late": "#BD9122",
     },
-    'salinity_lines': {
-        'early': '#0EB256',
-        'median': '#82DCDC',
-        'late': '#224EBD',
+    "salinity_lines": {
+        "early": "#0EB256",
+        "median": "#82DCDC",
+        "late": "#224EBD",
     },
-    'mld': '#df691a',
-    'wind_speed': '#ebebeb',
+    "mld": "#df691a",
+    "wind_speed": "#ebebeb",
 }
 
 
 class Ensemble(cliff.command.Command):
-    """run the ensemble bloomcast
-    """
-    log = logging.getLogger('bloomcast.ensemble')
-    bloom_date_log = logging.getLogger('bloomcast.ensemble.bloom_date')
+    """run the ensemble bloomcast"""
+
+    log = logging.getLogger("bloomcast.ensemble")
+    bloom_date_log = logging.getLogger("bloomcast.ensemble.bloom_date")
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.description = '''
+        parser.description = """
             Run an ensemble forecast to predict  the first spring diatom
             phytoplankton bloom in the Strait of Georgia.
-        '''
+        """
         parser.add_argument(
-            'config_file',
-            help='path and name of configuration file',
+            "config_file",
+            help="path and name of configuration file",
         )
         parser.add_argument(
-            '--data-date',
+            "--data-date",
             type=arrow.get,
-            help='data date for development and debugging; overridden if '
-                 'wind forcing data is collected and processed',
+            help="data date for development and debugging; overridden if "
+            "wind forcing data is collected and processed",
         )
         return parser
 
@@ -96,31 +96,40 @@ class Ensemble(cliff.command.Command):
         self.config.data_date = parsed_args.data_date
         if not self.config.get_forcing_data and self.config.data_date is None:
             self.log.debug(
-                'This will not end well: '
-                'get_forcing_data={0.get_forcing_data} '
-                'and data_date={0.data_date}'.format(self.config))
+                "This will not end well: "
+                "get_forcing_data={0.get_forcing_data} "
+                "and data_date={0.data_date}".format(self.config)
+            )
             return
-        self.log.debug('run start date/time is {0:%Y-%m-%d %H:%M:%S}'
-                       .format(self.config.run_start_date))
+        self.log.debug(
+            "run start date/time is {0:%Y-%m-%d %H:%M:%S}".format(
+                self.config.run_start_date
+            )
+        )
         # Check run start date and current date to ensure that
         # river flow data are available.
         # River flow data are only available in a rolling 18-month window.
-        run_start_yr_jan1 = (
-            arrow.get(self.config.run_start_date).replace(month=1, day=1))
+        run_start_yr_jan1 = arrow.get(self.config.run_start_date).replace(
+            month=1, day=1
+        )
         river_date_limit = arrow.now().shift(months=-18)
         if run_start_yr_jan1 < river_date_limit:
             self.log.error(
-                'A bloomcast run starting {0.run_start_date:%Y-%m-%d} cannot '
-                'be done today because there are no river flow data available '
-                'prior to {1}'
-                .format(self.config, river_date_limit.format('YYYY-MM-DD')))
+                "A bloomcast run starting {0.run_start_date:%Y-%m-%d} cannot "
+                "be done today because there are no river flow data available "
+                "prior to {1}".format(
+                    self.config, river_date_limit.format("YYYY-MM-DD")
+                )
+            )
             return
         try:
             get_forcing_data(self.config, self.log)
         except ValueError:
             self.log.info(
-                'Wind data date {} is unchanged since last run'
-                .format(self.config.data_date.format('YYYY-MM-DD')))
+                "Wind data date {} is unchanged since last run".format(
+                    self.config.data_date.format("YYYY-MM-DD")
+                )
+            )
             return
         self._create_infile_edits()
         self._create_batch_description()
@@ -130,211 +139,218 @@ class Ensemble(cliff.command.Command):
         prediction, bloom_dates = self._calc_bloom_dates()
         self._load_physics_timeseries(prediction)
         timeseries_plots = self._create_timeseries_graphs(
-            COLORS, prediction, bloom_dates)
+            COLORS, prediction, bloom_dates
+        )
         self._load_profiles(prediction)
         profile_plots = self._create_profile_graphs(COLORS)
-        self.render_results(
-            prediction, bloom_dates, timeseries_plots, profile_plots)
+        self.render_results(prediction, bloom_dates, timeseries_plots, profile_plots)
 
     def _create_infile_edits(self):
-        """Create YAML infile edit files for each ensemble member SOG run.
-        """
+        """Create YAML infile edit files for each ensemble member SOG run."""
         ensemble_config = self.config.ensemble
         start_year = ensemble_config.start_year
         end_year = ensemble_config.end_year + 1
         forcing_data_file_roots = ensemble_config.forcing_data_file_roots
         forcing_data_key_pairs = (
-            ('wind', 'avg_historical_wind_file'),
-            ('air_temperature', 'avg_historical_air_temperature_file'),
-            ('cloud_fraction', 'avg_historical_cloud_file'),
-            ('relative_humidity', 'avg_historical_humidity_file'),
-            ('major_river', 'avg_historical_major_river_file'),
-            ('minor_river', 'avg_historical_minor_river_file'),
+            ("wind", "avg_historical_wind_file"),
+            ("air_temperature", "avg_historical_air_temperature_file"),
+            ("cloud_fraction", "avg_historical_cloud_file"),
+            ("relative_humidity", "avg_historical_humidity_file"),
+            ("major_river", "avg_historical_major_river_file"),
+            ("minor_river", "avg_historical_minor_river_file"),
         )
         timeseries_key_pairs = (
-            ('std_phys_ts_outfile', 'std_physics'),
-            ('user_phys_ts_outfile', 'user_physics'),
-            ('std_bio_ts_outfile', 'std_biology'),
-            ('user_bio_ts_outfile', 'user_biology'),
-            ('std_chem_ts_outfile', 'std_chemistry'),
-            ('user_chem_ts_outfile', 'user_chemistry'),
+            ("std_phys_ts_outfile", "std_physics"),
+            ("user_phys_ts_outfile", "user_physics"),
+            ("std_bio_ts_outfile", "std_biology"),
+            ("user_bio_ts_outfile", "user_biology"),
+            ("std_chem_ts_outfile", "std_chemistry"),
+            ("user_chem_ts_outfile", "user_chemistry"),
         )
         profiles_key_pairs = (
-            ('profiles_outfile_base', 'profile_file_base'),
-            ('user_profiles_outfile_base', 'user_profile_file_base'),
-            ('halocline_outfile', 'halocline_file'),
-            ('Hoffmueller_profiles_outfile', 'hoffmueller_file'),
-            ('user_Hoffmueller_profiles_outfile', 'user_hoffmueller_file'),
+            ("profiles_outfile_base", "profile_file_base"),
+            ("user_profiles_outfile_base", "user_profile_file_base"),
+            ("halocline_outfile", "halocline_file"),
+            ("Hoffmueller_profiles_outfile", "hoffmueller_file"),
+            ("user_Hoffmueller_profiles_outfile", "user_hoffmueller_file"),
         )
         self.edit_files = []
         for year in range(start_year, end_year):
             suffix = two_yr_suffix(year)
             member_infile_edits = infile_edits_template.copy()
-            forcing_data = member_infile_edits['forcing_data']
-            timeseries_results = member_infile_edits['timeseries_results']
-            profiles_results = member_infile_edits['profiles_results']
+            forcing_data = member_infile_edits["forcing_data"]
+            timeseries_results = member_infile_edits["timeseries_results"]
+            profiles_results = member_infile_edits["profiles_results"]
             for config_key, infile_key in forcing_data_key_pairs:
-                filename = ''.join(
-                    (forcing_data_file_roots[config_key], suffix))
-                forcing_data[infile_key]['value'] = filename
+                filename = "".join((forcing_data_file_roots[config_key], suffix))
+                forcing_data[infile_key]["value"] = filename
             for config_key, infile_key in timeseries_key_pairs:
-                filename = ''.join((getattr(self.config, config_key), suffix))
-                timeseries_results[infile_key]['value'] = filename
+                filename = "".join((getattr(self.config, config_key), suffix))
+                timeseries_results[infile_key]["value"] = filename
             for config_key, infile_key in profiles_key_pairs:
-                filename = ''.join((getattr(self.config, config_key), suffix))
-                profiles_results[infile_key]['value'] = filename
+                filename = "".join((getattr(self.config, config_key), suffix))
+                profiles_results[infile_key]["value"] = filename
             name, ext = os.path.splitext(ensemble_config.base_infile)
-            filename = ''.join((name, suffix, ext))
-            with open(filename, 'wt') as f:
+            filename = "".join((name, suffix, ext))
+            with open(filename, "wt") as f:
                 yaml.safe_dump(member_infile_edits, f)
             self.edit_files.append((year, filename, suffix))
-            self.log.debug('wrote infile edit file {}'.format(filename))
+            self.log.debug("wrote infile edit file {}".format(filename))
 
     def _create_batch_description(self):
-        """Create the YAML batch description file for the ensemble runs.
-        """
+        """Create the YAML batch description file for the ensemble runs."""
         batch_description = {
-            'max_concurrent_jobs': self.config.ensemble.max_concurrent_jobs,
-            'SOG_executable': self.config.SOG_executable,
-            'base_infile': self.config.ensemble.base_infile,
-            'jobs': [],
+            "max_concurrent_jobs": self.config.ensemble.max_concurrent_jobs,
+            "SOG_executable": self.config.SOG_executable,
+            "base_infile": self.config.ensemble.base_infile,
+            "jobs": [],
         }
         for year, edit_file, suffix in self.edit_files:
             job = {
-                ''.join(('bloomcast', suffix)): {
-                    'edit_files': [edit_file],
+                "".join(("bloomcast", suffix)): {
+                    "edit_files": [edit_file],
                 }
             }
-            batch_description['jobs'].append(job)
-        filename = 'bloomcast_ensemble_jobs.yaml'
-        with open(filename, 'wt') as f:
+            batch_description["jobs"].append(job)
+        filename = "bloomcast_ensemble_jobs.yaml"
+        with open(filename, "wt") as f:
             yaml.safe_dump(batch_description, f)
-        self.log.debug(
-            'wrote ensemble batch description file: {}'.format(filename))
+        self.log.debug("wrote ensemble batch description file: {}".format(filename))
 
     def _run_SOG_batch(self):
-        """Run the ensemble of SOG runs at a batch job.
-        """
+        """Run the ensemble of SOG runs at a batch job."""
         if not self.config.run_SOG:
-            self.log.info('Skipped running SOG')
+            self.log.info("Skipped running SOG")
             return
-        returncode = SOGcommand.api.batch('bloomcast_ensemble_jobs.yaml')
+        returncode = SOGcommand.api.batch("bloomcast_ensemble_jobs.yaml")
         self.log.info(
-            'ensemble batch SOG runs completed with return code {}'
-            .format(returncode))
+            "ensemble batch SOG runs completed with return code {}".format(returncode)
+        )
 
     def _load_biology_timeseries(self):
-        """Load biological timeseries results from all ensemble SOG runs.
-        """
+        """Load biological timeseries results from all ensemble SOG runs."""
         self.nitrate_ts, self.diatoms_ts = {}, {}
         for member, edit_file, suffix in self.edit_files:
-            filename = ''.join((self.config.std_bio_ts_outfile, suffix))
+            filename = "".join((self.config.std_bio_ts_outfile, suffix))
             self.nitrate_ts[member] = utils.SOG_Timeseries(filename)
-            self.nitrate_ts[member].read_data(
-                'time', '3 m avg nitrate concentration')
+            self.nitrate_ts[member].read_data("time", "3 m avg nitrate concentration")
             self.nitrate_ts[member].calc_mpl_dates(self.config.run_start_date)
             self.diatoms_ts[member] = utils.SOG_Timeseries(filename)
             self.diatoms_ts[member].read_data(
-                'time', '3 m avg micro phytoplankton biomass')
+                "time", "3 m avg micro phytoplankton biomass"
+            )
             self.diatoms_ts[member].calc_mpl_dates(self.config.run_start_date)
-            self.log.debug(
-                'read nitrate & diatoms timeseries from {}'.format(filename))
+            self.log.debug("read nitrate & diatoms timeseries from {}".format(filename))
         self.nitrate = copy.deepcopy(self.nitrate_ts)
         self.diatoms = copy.deepcopy(self.diatoms_ts)
 
     def _load_chemistry_timeseries(self):
-        """Load carbon chemistry timeseries results from all ensemble SOG runs.
-        """
+        """Load carbon chemistry timeseries results from all ensemble SOG runs."""
         self.DIC_ts, self.alkalinity_ts = {}, {}
         for member, edit_file, suffix in self.edit_files:
-            filename = ''.join((self.config.std_chem_ts_outfile, suffix))
+            filename = "".join((self.config.std_chem_ts_outfile, suffix))
             self.DIC_ts[member] = utils.SOG_Timeseries(filename)
-            self.DIC_ts[member].read_data(
-                'time', '3 m avg DIC concentration')
+            self.DIC_ts[member].read_data("time", "3 m avg DIC concentration")
             self.DIC_ts[member].calc_mpl_dates(self.config.run_start_date)
             self.alkalinity_ts[member] = utils.SOG_Timeseries(filename)
-            self.alkalinity_ts[member].read_data(
-                'time', '3 m avg alkalinity')
-            self.alkalinity_ts[member].calc_mpl_dates(
-                self.config.run_start_date)
-            self.log.debug(
-                'read DIC & alkalinity timeseries from {}'.format(filename))
+            self.alkalinity_ts[member].read_data("time", "3 m avg alkalinity")
+            self.alkalinity_ts[member].calc_mpl_dates(self.config.run_start_date)
+            self.log.debug("read DIC & alkalinity timeseries from {}".format(filename))
         self.DIC = copy.deepcopy(self.DIC_ts)
         self.alkalinity = copy.deepcopy(self.alkalinity_ts)
 
     def _calc_bloom_dates(self):
-        """Calculate the predicted spring bloom date.
-        """
+        """Calculate the predicted spring bloom date."""
         run_start_date = self.config.run_start_date
-        bloomcast.clip_results_to_jan1(
-            self.nitrate, self.diatoms, run_start_date)
+        bloomcast.clip_results_to_jan1(self.nitrate, self.diatoms, run_start_date)
         bloomcast.reduce_results_to_daily(
-            self.nitrate, self.diatoms, run_start_date,
-            self.config.SOG_timestep)
+            self.nitrate, self.diatoms, run_start_date, self.config.SOG_timestep
+        )
         first_low_nitrate_days = bloomcast.find_low_nitrate_days(
-            self.nitrate, bloomcast.NITRATE_HALF_SATURATION_CONCENTRATION)
+            self.nitrate, bloomcast.NITRATE_HALF_SATURATION_CONCENTRATION
+        )
         bloom_dates, bloom_biomasses = bloomcast.find_phytoplankton_peak(
-            self.diatoms, first_low_nitrate_days,
-            bloomcast.PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH)
+            self.diatoms,
+            first_low_nitrate_days,
+            bloomcast.PHYTOPLANKTON_PEAK_WINDOW_HALF_WIDTH,
+        )
         ord_days = np.array(
-            [bloom_date.toordinal() for bloom_date in bloom_dates.values()])
+            [bloom_date.toordinal() for bloom_date in bloom_dates.values()]
+        )
         median = np.rint(np.median(ord_days))
         early_bound, late_bound = np.percentile(ord_days, (5, 95))
-        prediction = OrderedDict([
-            ('early', find_member(bloom_dates, np.trunc(early_bound))),
-            ('median', find_member(bloom_dates, median)),
-            ('late', find_member(bloom_dates, np.ceil(late_bound))),
-        ])
+        prediction = OrderedDict(
+            [
+                ("early", find_member(bloom_dates, np.trunc(early_bound))),
+                ("median", find_member(bloom_dates, median)),
+                ("late", find_member(bloom_dates, np.ceil(late_bound))),
+            ]
+        )
         min_bound, max_bound = np.percentile(ord_days, (0, 100))
-        extremes = OrderedDict([
-            ('min', find_member(bloom_dates, np.trunc(min_bound))),
-            ('max', find_member(bloom_dates, np.ceil(max_bound))),
-        ])
+        extremes = OrderedDict(
+            [
+                ("min", find_member(bloom_dates, np.trunc(min_bound))),
+                ("max", find_member(bloom_dates, np.ceil(max_bound))),
+            ]
+        )
         self.log.info(
-            'Predicted earliest bloom date is {}'
-            .format(bloom_dates[extremes['min']]))
+            "Predicted earliest bloom date is {}".format(bloom_dates[extremes["min"]])
+        )
         self.log.info(
-            'Earliest bloom date is based on forcing from {}/{}'
-            .format(extremes['min'] - 1, extremes['min']))
+            "Earliest bloom date is based on forcing from {}/{}".format(
+                extremes["min"] - 1, extremes["min"]
+            )
+        )
         self.log.info(
-            'Predicted early bound bloom date is {}'
-            .format(bloom_dates[prediction['early']]))
+            "Predicted early bound bloom date is {}".format(
+                bloom_dates[prediction["early"]]
+            )
+        )
         self.log.info(
-            'Early bound bloom date is based on forcing from {}/{}'
-            .format(prediction['early'] - 1, prediction['early']))
+            "Early bound bloom date is based on forcing from {}/{}".format(
+                prediction["early"] - 1, prediction["early"]
+            )
+        )
         self.log.info(
-            'Predicted median bloom date is {}'
-            .format(bloom_dates[prediction['median']]))
+            "Predicted median bloom date is {}".format(
+                bloom_dates[prediction["median"]]
+            )
+        )
         self.log.info(
-            'Median bloom date is based on forcing from {}/{}'
-            .format(prediction['median'] - 1, prediction['median']))
+            "Median bloom date is based on forcing from {}/{}".format(
+                prediction["median"] - 1, prediction["median"]
+            )
+        )
         self.log.info(
-            'Predicted late bound bloom date is {}'
-            .format(bloom_dates[prediction['late']]))
+            "Predicted late bound bloom date is {}".format(
+                bloom_dates[prediction["late"]]
+            )
+        )
         self.log.info(
-            'Late bound bloom date is based on forcing from {}/{}'
-            .format(prediction['late'] - 1, prediction['late']))
+            "Late bound bloom date is based on forcing from {}/{}".format(
+                prediction["late"] - 1, prediction["late"]
+            )
+        )
         self.log.info(
-            'Predicted latest bloom date is {}'
-            .format(bloom_dates[extremes['max']]))
+            "Predicted latest bloom date is {}".format(bloom_dates[extremes["max"]])
+        )
         self.log.info(
-            'Latest bloom date is based on forcing from {}/{}'
-            .format(extremes['max'] - 1, extremes['max']))
-        line = (
-            '  {data_date}'
-            .format(data_date=self.config.data_date.format('YYYY-MM-DD')))
-        for member in 'median early late'.split():
-            line += (
-                '      {bloom_date}  {forcing_year}'
-                .format(
-                    bloom_date=bloom_dates[prediction[member]],
-                    forcing_year=prediction[member]))
+            "Latest bloom date is based on forcing from {}/{}".format(
+                extremes["max"] - 1, extremes["max"]
+            )
+        )
+        line = "  {data_date}".format(
+            data_date=self.config.data_date.format("YYYY-MM-DD")
+        )
+        for member in "median early late".split():
+            line += "      {bloom_date}  {forcing_year}".format(
+                bloom_date=bloom_dates[prediction[member]],
+                forcing_year=prediction[member],
+            )
         for member in extremes.values():
-            line += (
-                '      {bloom_date}  {forcing_year}'
-                .format(
-                    bloom_date=bloom_dates[member],
-                    forcing_year=member))
+            line += "      {bloom_date}  {forcing_year}".format(
+                bloom_date=bloom_dates[member], forcing_year=member
+            )
         self.bloom_date_log.info(line)
         return prediction, bloom_dates
 
@@ -349,64 +365,58 @@ class Ensemble(cliff.command.Command):
         self.mixing_layer_depth = {}
         for member in prediction.values():
             suffix = two_yr_suffix(member)
-            filename = ''.join((self.config.std_phys_ts_outfile, suffix))
+            filename = "".join((self.config.std_phys_ts_outfile, suffix))
             self.temperature[member] = utils.SOG_Timeseries(filename)
-            self.temperature[member].read_data('time', '3 m avg temperature')
+            self.temperature[member].read_data("time", "3 m avg temperature")
             self.temperature[member].calc_mpl_dates(self.config.run_start_date)
             self.salinity[member] = utils.SOG_Timeseries(filename)
-            self.salinity[member].read_data('time', '3 m avg salinity')
+            self.salinity[member].read_data("time", "3 m avg salinity")
             self.salinity[member].calc_mpl_dates(self.config.run_start_date)
             self.log.debug(
-                'read temperature and salinity timeseries from {}'
-                .format(filename))
-        suffix = two_yr_suffix(prediction['median'])
-        filename = ''.join((self.config.std_phys_ts_outfile, suffix))
+                "read temperature and salinity timeseries from {}".format(filename)
+            )
+        suffix = two_yr_suffix(prediction["median"])
+        filename = "".join((self.config.std_phys_ts_outfile, suffix))
         self.mixing_layer_depth = utils.SOG_Timeseries(filename)
-        self.mixing_layer_depth.read_data(
-            'time', 'mixing layer depth')
-        self.mixing_layer_depth.calc_mpl_dates(
-            self.config.run_start_date)
-        self.log.debug(
-            'read mixing layer depth timeseries from {}'.format(filename))
-        filename = 'Sandheads_wind'
+        self.mixing_layer_depth.read_data("time", "mixing layer depth")
+        self.mixing_layer_depth.calc_mpl_dates(self.config.run_start_date)
+        self.log.debug("read mixing layer depth timeseries from {}".format(filename))
+        filename = "Sandheads_wind"
         self.wind = wind.WindTimeseries(filename)
         self.wind.read_data(self.config.run_start_date)
         self.wind.calc_mpl_dates(self.config.run_start_date)
-        self.log.debug(
-            'read wind speed forcing timeseries from {}'.format(filename))
+        self.log.debug("read wind speed forcing timeseries from {}".format(filename))
 
     def _create_timeseries_graphs(self, colors, prediction, bloom_dates):
-        """Create time series plot figure objects.
-        """
+        """Create time series plot figure objects."""
         timeseries_plots = {
-            'nitrate_diatoms': visualization.nitrate_diatoms_timeseries(
+            "nitrate_diatoms": visualization.nitrate_diatoms_timeseries(
                 self.nitrate_ts,
                 self.diatoms_ts,
                 colors,
                 self.config.data_date,
                 prediction,
                 bloom_dates,
-                titles=('3 m Avg Nitrate Concentration [µM N]',
-                        '3 m Avg Diatom Biomass [µM N]'),
-            ),
-            'temperature_salinity':
-                visualization.temperature_salinity_timeseries(
-                    self.temperature,
-                    self.salinity,
-                    colors,
-                    self.config.data_date,
-                    prediction,
-                    bloom_dates,
-                    titles=('3 m Avg Temperature [°C]',
-                            '3 m Avg Salinity [-]'),
+                titles=(
+                    "3 m Avg Nitrate Concentration [µM N]",
+                    "3 m Avg Diatom Biomass [µM N]",
                 ),
-            'mld_wind': visualization.mixing_layer_depth_wind_timeseries(
+            ),
+            "temperature_salinity": visualization.temperature_salinity_timeseries(
+                self.temperature,
+                self.salinity,
+                colors,
+                self.config.data_date,
+                prediction,
+                bloom_dates,
+                titles=("3 m Avg Temperature [°C]", "3 m Avg Salinity [-]"),
+            ),
+            "mld_wind": visualization.mixing_layer_depth_wind_timeseries(
                 self.mixing_layer_depth,
                 self.wind,
                 colors,
                 self.config.data_date,
-                titles=('Mixing Layer Depth [m]',
-                        'Wind Speed [m/s]'),
+                titles=("Mixing Layer Depth [m]", "Wind Speed [m/s]"),
             ),
         }
         return timeseries_plots
@@ -422,103 +432,114 @@ class Ensemble(cliff.command.Command):
         """
         self.temperature_profile, self.salinity_profile = {}, {}
         self.diatoms_profile, self.nitrate_profile = {}, {}
-        member = prediction['median']
+        member = prediction["median"]
         suffix = two_yr_suffix(member)
-        filename = ''.join(
-            (self.config.Hoffmueller_profiles_outfile, suffix))
+        filename = "".join((self.config.Hoffmueller_profiles_outfile, suffix))
         profile_number = (
-            self.config.data_date.date()
-            - self.config.run_start_date.date()).days - 1
-        self.log.debug('use profile number {}'.format(profile_number))
+            self.config.data_date.date() - self.config.run_start_date.date()
+        ).days - 1
+        self.log.debug("use profile number {}".format(profile_number))
         self.temperature_profile = utils.SOG_HoffmuellerProfile(filename)
-        self.temperature_profile.read_data(
-            'depth', 'temperature', profile_number)
-        self.log.debug('read temperature profile from {}'.format(filename))
+        self.temperature_profile.read_data("depth", "temperature", profile_number)
+        self.log.debug("read temperature profile from {}".format(filename))
         self.salinity_profile = utils.SOG_HoffmuellerProfile(filename)
-        self.salinity_profile.read_data(
-            'depth', 'salinity', profile_number)
-        self.log.debug('read salinity profile from {}'.format(filename))
+        self.salinity_profile.read_data("depth", "salinity", profile_number)
+        self.log.debug("read salinity profile from {}".format(filename))
         self.diatoms_profile = utils.SOG_HoffmuellerProfile(filename)
-        self.diatoms_profile.read_data(
-            'depth', 'micro phytoplankton', profile_number)
-        self.log.debug('read diatom biomass profile from {}'.format(filename))
+        self.diatoms_profile.read_data("depth", "micro phytoplankton", profile_number)
+        self.log.debug("read diatom biomass profile from {}".format(filename))
         self.nitrate_profile = utils.SOG_HoffmuellerProfile(filename)
-        self.nitrate_profile.read_data(
-            'depth', 'nitrate', profile_number)
-        self.log.debug(
-            'read nitrate concentration profile from {}'.format(filename))
+        self.nitrate_profile.read_data("depth", "nitrate", profile_number)
+        self.log.debug("read nitrate concentration profile from {}".format(filename))
 
     def _create_profile_graphs(self, colors):
-        """Create profile plot figure objects.
-        """
+        """Create profile plot figure objects."""
         profile_datetime = self.config.data_date.replace(hour=12)
         profile_dt = profile_datetime.naive - self.config.run_start_date
         profile_hour = profile_dt.days * 24 + profile_dt.seconds / 3600
         self.mixing_layer_depth.boolean_slice(
-            self.mixing_layer_depth.indep_data >= profile_hour)
+            self.mixing_layer_depth.indep_data >= profile_hour
+        )
         profile_plots = visualization.profiles(
             profiles=(
-                self.temperature_profile, self.salinity_profile,
-                self.diatoms_profile, self.nitrate_profile,
+                self.temperature_profile,
+                self.salinity_profile,
+                self.diatoms_profile,
+                self.nitrate_profile,
             ),
             titles=(
-                'Temperature [°C]', 'Salinity [-]',
-                'Diatom Biomass [µM N]', 'Nitrate Concentration [µM N]',
+                "Temperature [°C]",
+                "Salinity [-]",
+                "Diatom Biomass [µM N]",
+                "Nitrate Concentration [µM N]",
             ),
             limits=((4, 10), (16, 32), None, (0, 32)),
             mixing_layer_depth=self.mixing_layer_depth.dep_data[0],
             label_colors=(
-                'temperature', 'salinity', 'diatoms', 'nitrate', 'mld',
+                "temperature",
+                "salinity",
+                "diatoms",
+                "nitrate",
+                "mld",
             ),
             colors=colors,
         )
         return profile_plots
 
     def render_results(
-        self, prediction, bloom_dates, timeseries_plots, profile_plots,
+        self,
+        prediction,
+        bloom_dates,
+        timeseries_plots,
+        profile_plots,
     ):
-        """Render bloomcast results and plots to files.
-        """
+        """Render bloomcast results and plots to files."""
         ts_plot_files = {}
         for key, fig in timeseries_plots.items():
-            filename = '{}_timeseries.svg'.format(key)
-            visualization.save_image(
-                fig, filename, facecolor=fig.get_facecolor())
+            filename = "{}_timeseries.svg".format(key)
+            visualization.save_image(fig, filename, facecolor=fig.get_facecolor())
             ts_plot_files[key] = filename
-            self.log.debug(
-                'saved {} time series figure as {}'.format(key, filename))
+            self.log.debug("saved {} time series figure as {}".format(key, filename))
         visualization.save_image(
-            profile_plots, 'profiles.svg', facecolor=fig.get_facecolor())
-        self.log.debug('saved profiles figure as profiles.svg')
+            profile_plots, "profiles.svg", facecolor=fig.get_facecolor()
+        )
+        self.log.debug("saved profiles figure as profiles.svg")
         if self.config.results.push_to_web:
             results_path = self.config.results.path
             latest_bloomcast = {
-                'run_start_date': self.config.run_start_date.strftime(
-                    '%Y-%m-%d'),
-                'data_date': self.config.data_date.format('YYYY-MM-DD'),
-                'prediction': dict(prediction),
-                'bloom_dates': {
-                    data_year: date.strftime('%Y-%m-%d')
-                    for data_year, date in bloom_dates.items()},
-                'ts_plot_files': ts_plot_files,
-                'profiles_plot_file': 'profiles.svg',
+                "run_start_date": self.config.run_start_date.strftime("%Y-%m-%d"),
+                "data_date": self.config.data_date.format("YYYY-MM-DD"),
+                "prediction": dict(prediction),
+                "bloom_dates": {
+                    data_year: date.strftime("%Y-%m-%d")
+                    for data_year, date in bloom_dates.items()
+                },
+                "ts_plot_files": ts_plot_files,
+                "profiles_plot_file": "profiles.svg",
             }
-            with (results_path/'latest_bloomcast.yaml').open('wt') as f:
+            with (results_path / "latest_bloomcast.yaml").open("wt") as f:
                 yaml.safe_dump(latest_bloomcast, f)
-            self.log.debug('saved most bloomcast results to {}'.format(
-                results_path / 'latest_bloomcast.yaml'))
+            self.log.debug(
+                "saved most bloomcast results to {}".format(
+                    results_path / "latest_bloomcast.yaml"
+                )
+            )
             for plot_file in ts_plot_files.values():
                 shutil.copy2(plot_file, str(results_path))
-                self.log.debug('copied {} to {}'.format(
-                    plot_file, results_path/plot_file))
-            shutil.copy2('profiles.svg', str(results_path))
-            self.log.debug('copied profiles.svg to {}'.format(
-                results_path/'profiles.svg'))
-            shutil.copy2(
-                self.config.logging.bloom_date_log_filename, str(results_path))
-            self.log.debug('copied {} to {}'.format(
-                self.config.logging.bloom_date_log_filename,
-                results_path/self.config.logging.bloom_date_log_filename))
+                self.log.debug(
+                    "copied {} to {}".format(plot_file, results_path / plot_file)
+                )
+            shutil.copy2("profiles.svg", str(results_path))
+            self.log.debug(
+                "copied profiles.svg to {}".format(results_path / "profiles.svg")
+            )
+            shutil.copy2(self.config.logging.bloom_date_log_filename, str(results_path))
+            self.log.debug(
+                "copied {} to {}".format(
+                    self.config.logging.bloom_date_log_filename,
+                    results_path / self.config.logging.bloom_date_log_filename,
+                )
+            )
 
 
 def configure_logging(config, bloom_date_log):
@@ -528,66 +549,73 @@ def configure_logging(config, bloom_date_log):
     Debug logging on/off & email recipient(s) for warning messages
     are set in config file.
     """
-    root_logger = logging.getLogger('')
+    root_logger = logging.getLogger("")
     console_handler = root_logger.handlers[0]
 
     def patched_data_filter(record):
-        if (record.funcName == 'patch_data'
-                and 'data patched' in record.msg):
+        if record.funcName == "patch_data" and "data patched" in record.msg:
             return 0
         return 1
+
     console_handler.addFilter(patched_data_filter)
 
     def requests_info_debug_filter(record):
-        if (record.name.startswith('requests.')
-                and record.levelname in {'INFO', 'DEBUG'}):
+        if record.name.startswith("requests.") and record.levelname in {
+            "INFO",
+            "DEBUG",
+        }:
             return 0
         return 1
+
     console_handler.addFilter(requests_info_debug_filter)
 
     disk = logging.handlers.RotatingFileHandler(
-        config.logging.bloomcast_log_filename, maxBytes=1024 * 1024)
+        config.logging.bloomcast_log_filename, maxBytes=1024 * 1024
+    )
     disk.setFormatter(
         logging.Formatter(
-            '%(asctime)s %(levelname)s [%(name)s] %(message)s',
-            datefmt='%Y-%m-%d %H:%M'))
+            "%(asctime)s %(levelname)s [%(name)s] %(message)s", datefmt="%Y-%m-%d %H:%M"
+        )
+    )
     disk.setLevel(logging.DEBUG)
     disk.addFilter(requests_info_debug_filter)
     root_logger.addHandler(disk)
 
-    mailhost = (('localhost', 1025) if config.logging.use_test_smtpd
-                else 'smtp.eos.ubc.ca')
+    mailhost = (
+        ("localhost", 1025) if config.logging.use_test_smtpd else "smtp.eos.ubc.ca"
+    )
     email = logging.handlers.SMTPHandler(
-        mailhost, fromaddr='SoG-bloomcast@eos.ubc.ca',
+        mailhost,
+        fromaddr="SoG-bloomcast@eos.ubc.ca",
         toaddrs=config.logging.toaddrs,
-        subject='Warning Message from SoG-bloomcast',
+        subject="Warning Message from SoG-bloomcast",
         timeout=10.0,
     )
-    email.setFormatter(
-        logging.Formatter('%(levelname)s:%(name)s:%(message)s'))
+    email.setFormatter(logging.Formatter("%(levelname)s:%(name)s:%(message)s"))
     email.setLevel(logging.WARNING)
     root_logger.addHandler(email)
 
-    bloom_date_evolution = logging.FileHandler(
-        config.logging.bloom_date_log_filename)
-    bloom_date_evolution.setFormatter(logging.Formatter('%(message)s'))
+    bloom_date_evolution = logging.FileHandler(config.logging.bloom_date_log_filename)
+    bloom_date_evolution.setFormatter(logging.Formatter("%(message)s"))
     bloom_date_evolution.setLevel(logging.INFO)
     bloom_date_log.addHandler(bloom_date_evolution)
     bloom_date_log.propagate = False
 
 
 def get_forcing_data(config, log):
-    """Collect and process forcing data.
-    """
+    """Collect and process forcing data."""
     if not config.get_forcing_data:
-        log.info('Skipped collection and processing of forcing data')
+        log.info("Skipped collection and processing of forcing data")
         return
     wind_processor = wind.WindProcessor(config)
     config.data_date = wind_processor.make_forcing_data_file()
-    log.info('based on wind data forcing data date is {}'
-             .format(config.data_date.format('YYYY-MM-DD')))
+    log.info(
+        "based on wind data forcing data date is {}".format(
+            config.data_date.format("YYYY-MM-DD")
+        )
+    )
     try:
-        with open('wind_data_date', 'rt') as f:
+        with open("wind_data_date", "rt") as f:
             last_data_date = arrow.get(f.readline().strip()).date()
     except IOError:
         # Fake a wind data date to get things rolling
@@ -595,8 +623,8 @@ def get_forcing_data(config, log):
     if config.data_date.date() == last_data_date:
         raise ValueError
     else:
-        with open('wind_data_date', 'wt') as f:
-            f.write('{}\n'.format(config.data_date.format('YYYY-MM-DD')))
+        with open("wind_data_date", "wt") as f:
+            f.write("{}\n".format(config.data_date.format("YYYY-MM-DD")))
     meteo_processor = meteo.MeteoProcessor(config)
     meteo_processor.make_forcing_data_files()
     rivers_processor = rivers.RiversProcessor(config)
@@ -615,10 +643,7 @@ def two_yr_suffix(year):
 
     :returns: String of the form ``_XXYY`` like ``_8081`` for 1981
     """
-    return ('_{year_m1}{year}'
-            .format(
-                year_m1=str(year - 1)[-2:],
-                year=str(year)[-2:]))
+    return "_{year_m1}{year}".format(year_m1=str(year - 1)[-2:], year=str(year)[-2:])
 
 
 def find_member(bloom_dates, ord_day):
@@ -640,11 +665,14 @@ def find_member(bloom_dates, ord_day):
     :returns: Ensemble member identifier
     :rtype: str
     """
+
     def find_matches(day):
         return [
-            member for member, bloom_date in bloom_dates.items()
+            member
+            for member, bloom_date in bloom_dates.items()
             if bloom_date.toordinal() == day
         ]
+
     matches = find_matches(ord_day)
     if not matches:
         for i in range(1, 11):
@@ -655,103 +683,101 @@ def find_member(bloom_dates, ord_day):
     return max(matches)
 
 
-infile_edits_template = {   # pragma: no cover
-    'forcing_data': {
-        'use_average_forcing_data': {
-            'description': 'yes=avg only; no=fail if data runs out; fill=historic then avg',
-            'value': 'histfill',
-            'variable_name': 'use_average_forcing_data'
+infile_edits_template = {  # pragma: no cover
+    "forcing_data": {
+        "use_average_forcing_data": {
+            "description": "yes=avg only; no=fail if data runs out; fill=historic then avg",
+            "value": "histfill",
+            "variable_name": "use_average_forcing_data",
         },
-        'avg_historical_wind_file': {
-            'description': 'average/historical wind forcing data path/filename',
-            'value': None,
-            'variable_name': 'n/a',
+        "avg_historical_wind_file": {
+            "description": "average/historical wind forcing data path/filename",
+            "value": None,
+            "variable_name": "n/a",
         },
-        'avg_historical_air_temperature_file': {
-            'description': 'average/historical air temperature forcing data path/filename',
-            'value': None,
-            'variable_name': 'n/a',
+        "avg_historical_air_temperature_file": {
+            "description": "average/historical air temperature forcing data path/filename",
+            "value": None,
+            "variable_name": "n/a",
         },
-        'avg_historical_cloud_file': {
-            'description': 'average/historical cloud fraction forcing data path/filename',
-            'value': None,
-            'variable_name': 'n/a'
+        "avg_historical_cloud_file": {
+            "description": "average/historical cloud fraction forcing data path/filename",
+            "value": None,
+            "variable_name": "n/a",
         },
-        'avg_historical_humidity_file': {
-            'description': 'average/historical humidity forcing data path/filename',
-            'value': None,
-            'variable_name': 'n/a',
+        "avg_historical_humidity_file": {
+            "description": "average/historical humidity forcing data path/filename",
+            "value": None,
+            "variable_name": "n/a",
         },
-        'avg_historical_major_river_file': {
-            'description': 'average/historical major river forcing data path/filename',
-            'value': None,
-            'variable_name': 'n/a',
+        "avg_historical_major_river_file": {
+            "description": "average/historical major river forcing data path/filename",
+            "value": None,
+            "variable_name": "n/a",
         },
-        'avg_historical_minor_river_file': {
-            'description': 'average/historical minor river forcing data path/filename',
-            'value': None,
-            'variable_name': 'n/a',
-        },
-    },
-
-    'timeseries_results': {
-        'std_physics': {
-            'description': 'path/filename for standard physics time series output',
-            'value': None,
-            'variable_name': 'std_phys_ts_out',
-        },
-        'user_physics': {
-            'description': 'path/filename for user physics time series output',
-            'value': None,
-            'variable_name': 'user_phys_ts_out',
-        },
-        'std_biology': {
-            'description': 'path/filename for standard biology time series output',
-            'value': None,
-            'variable_name': 'std_bio_ts_out',
-        },
-        'user_biology': {
-            'description': 'path/filename for user biology time series output',
-            'value': None,
-            'variable_name': 'user_bio_ts_out',
-        },
-        'std_chemistry': {
-            'description': 'path/filename for standard chemistry time series output',
-            'value': None,
-            'variable_name': 'std_chem_ts_out',
-        },
-        'user_chemistry': {
-            'description': 'path/filename for user chemistry time series output',
-            'value': None,
-            'variable_name': 'user_chem_ts_out',
+        "avg_historical_minor_river_file": {
+            "description": "average/historical minor river forcing data path/filename",
+            "value": None,
+            "variable_name": "n/a",
         },
     },
-
-    'profiles_results': {
-        'profile_file_base': {
-            'description': 'path/filename base for profiles (datetime will be appended)',
-            'value': None,
-            'variable_name': 'profilesBase_fn',
+    "timeseries_results": {
+        "std_physics": {
+            "description": "path/filename for standard physics time series output",
+            "value": None,
+            "variable_name": "std_phys_ts_out",
         },
-        'user_profile_file_base': {
-            'description': 'path/filename base for user profiles (datetime appended)',
-            'value': None,
-            'variable_name': 'userprofilesBase_fn',
+        "user_physics": {
+            "description": "path/filename for user physics time series output",
+            "value": None,
+            "variable_name": "user_phys_ts_out",
         },
-        'halocline_file': {
-            'description': 'path/filename for halocline results',
-            'value': None,
-            'variable_name': 'haloclines_fn',
+        "std_biology": {
+            "description": "path/filename for standard biology time series output",
+            "value": None,
+            "variable_name": "std_bio_ts_out",
         },
-        'hoffmueller_file': {
-            'description': 'path/filename for Hoffmueller results',
-            'value': None,
-            'variable_name': 'Hoffmueller_fn',
+        "user_biology": {
+            "description": "path/filename for user biology time series output",
+            "value": None,
+            "variable_name": "user_bio_ts_out",
         },
-        'user_hoffmueller_file': {
-            'description': 'path/filename for user Hoffmueller results',
-            'value': None,
-            'variable_name': 'userHoffmueller_fn',
+        "std_chemistry": {
+            "description": "path/filename for standard chemistry time series output",
+            "value": None,
+            "variable_name": "std_chem_ts_out",
+        },
+        "user_chemistry": {
+            "description": "path/filename for user chemistry time series output",
+            "value": None,
+            "variable_name": "user_chem_ts_out",
+        },
+    },
+    "profiles_results": {
+        "profile_file_base": {
+            "description": "path/filename base for profiles (datetime will be appended)",
+            "value": None,
+            "variable_name": "profilesBase_fn",
+        },
+        "user_profile_file_base": {
+            "description": "path/filename base for user profiles (datetime appended)",
+            "value": None,
+            "variable_name": "userprofilesBase_fn",
+        },
+        "halocline_file": {
+            "description": "path/filename for halocline results",
+            "value": None,
+            "variable_name": "haloclines_fn",
+        },
+        "hoffmueller_file": {
+            "description": "path/filename for Hoffmueller results",
+            "value": None,
+            "variable_name": "Hoffmueller_fn",
+        },
+        "user_hoffmueller_file": {
+            "description": "path/filename for user Hoffmueller results",
+            "value": None,
+            "variable_name": "userHoffmueller_fn",
         },
     },
 }

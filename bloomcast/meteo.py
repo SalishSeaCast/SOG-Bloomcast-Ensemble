@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Meteorolgical forcing data processing module for SoG-bloomcast project.
-"""
+"""Meteorolgical forcing data processing module for SoG-bloomcast project."""
 import logging
 import sys
 import contextlib
@@ -26,17 +25,17 @@ from .utils import (
 )
 
 
-log = logging.getLogger('bloomcast.meteo')
+log = logging.getLogger("bloomcast.meteo")
 
 
 class MeteoProcessor(ClimateDataProcessor):
-    """Meteorological forcing data processor.
-    """
+    """Meteorological forcing data processor."""
+
     def __init__(self, config):
         data_readers = {
-            'air_temperature': self.read_temperature,
-            'relative_humidity': self.read_humidity,
-            'cloud_fraction': self.read_cloud_fraction,
+            "air_temperature": self.read_temperature,
+            "relative_humidity": self.read_humidity,
+            "cloud_fraction": self.read_cloud_fraction,
         }
         super(MeteoProcessor, self).__init__(config, data_readers)
 
@@ -51,21 +50,27 @@ class MeteoProcessor(ClimateDataProcessor):
         contexts = []
         for qty in self.config.climate.meteo.quantities:
             output_file = self.config.climate.meteo.output_files[qty]
-            file_objs[qty] = open(output_file, 'wt')
+            file_objs[qty] = open(output_file, "wt")
             contexts.append(file_objs[qty])
         self.raw_data = []
         for data_month in self._get_data_months():
-            self.get_climate_data('meteo', data_month)
-            log.debug('got meteo data for {0:%Y-%m}'.format(data_month))
+            self.get_climate_data("meteo", data_month)
+            log.debug("got meteo data for {0:%Y-%m}".format(data_month))
         with contextlib.ExitStack() as stack:
             files = dict(
-                [(qty,
-                  stack.enter_context(open(
-                      self.config.climate.meteo.output_files[qty], 'wt')))
-                 for qty in self.config.climate.meteo.quantities])
+                [
+                    (
+                        qty,
+                        stack.enter_context(
+                            open(self.config.climate.meteo.output_files[qty], "wt")
+                        ),
+                    )
+                    for qty in self.config.climate.meteo.quantities
+                ]
+            )
             for qty in self.config.climate.meteo.quantities:
                 self.process_data(qty, end_date=self.config.data_date)
-                log.debug('latest {0} {1}'.format(qty, self.data[qty][-1]))
+                log.debug("latest {0} {1}".format(qty, self.data[qty][-1]))
                 files[qty].writelines(self.format_data(qty))
 
     def read_temperature(self, record):
@@ -74,7 +79,7 @@ class MeteoProcessor(ClimateDataProcessor):
         SOG expects air temperature to be in 10ths of degrees Celcius due
         to legacy data formating of files from Environment Canada.
         """
-        temperature = record.find('temp').text
+        temperature = record.find("temp").text
         try:
             temperature = float(temperature) * 10
         except TypeError:
@@ -83,9 +88,8 @@ class MeteoProcessor(ClimateDataProcessor):
         return temperature
 
     def read_humidity(self, record):
-        """Read relative humidity from XML data object.
-        """
-        humidity = record.find('relhum').text
+        """Read relative humidity from XML data object."""
+        humidity = record.find("relhum").text
         try:
             humidity = float(humidity)
         except TypeError:
@@ -97,19 +101,21 @@ class MeteoProcessor(ClimateDataProcessor):
         """Read weather description from XML data object and transform
         it to cloud fraction via Susan's heuristic mapping.
         """
-        weather_desc = record.find('weather').text
+        weather_desc = record.find("weather").text
         mapping = self.config.climate.meteo.cloud_fraction_mapping
         try:
             cloud_fraction = mapping[weather_desc]
         except KeyError:
-            if weather_desc is None or weather_desc == 'NA':
+            if weather_desc is None or weather_desc == "NA":
                 # None indicates missing data
                 cloud_fraction = [None]
             else:
                 log.warning(
-                    'Unrecognized weather description: {0} at {1}; '
-                    'cloud fraction set to 10'
-                    .format(weather_desc, self.read_timestamp(record)))
+                    "Unrecognized weather description: {0} at {1}; "
+                    "cloud fraction set to 10".format(
+                        weather_desc, self.read_timestamp(record)
+                    )
+                )
                 cloud_fraction = [10]
         if len(cloud_fraction) == 1:
             cloud_fraction = cloud_fraction[0]
@@ -134,15 +140,16 @@ class MeteoProcessor(ClimateDataProcessor):
         follow expressed as floats with 2 decimal place.
         """
         for i in range(len(self.data[qty]) // 24):
-            data = self.data[qty][i * 24:(i + 1) * 24]
+            data = self.data[qty][i * 24 : (i + 1) * 24]
             timestamp = data[0][0]
-            line = '{0} {1:%Y %m %d} 42'.format(
-                self.config.climate.meteo.station_id, timestamp)
+            line = "{0} {1:%Y %m %d} 42".format(
+                self.config.climate.meteo.station_id, timestamp
+            )
             for j, hour in enumerate(data):
                 try:
-                    line += ' {0:.2f}'.format(hour[1])
-                    if qty == 'cloud_fraction':
-                        last_cf = hour[1] or data[j-1][1]
+                    line += " {0:.2f}".format(hour[1])
+                    if qty == "cloud_fraction":
+                        last_cf = hour[1] or data[j - 1][1]
                 except TypeError:
                     # This is a hack to work around NavCanada not reporting
                     # a YVR weather description (from which we get cloud
@@ -150,14 +157,15 @@ class MeteoProcessor(ClimateDataProcessor):
                     # happening. The upshot is that the final few values
                     # in the dataset can be None, so we persist the last valid
                     # value for that very special case, and log a warning.
-                    if qty == 'cloud_fraction':
-                        line += ' {0:.2f}'.format(last_cf)
+                    if qty == "cloud_fraction":
+                        line += " {0:.2f}".format(last_cf)
                         log.warning(
-                            f'missing cloud fraction value {hour} '
-                            f'filled with {last_cf}')
+                            f"missing cloud fraction value {hour} "
+                            f"filled with {last_cf}"
+                        )
                     else:
                         raise
-            line += '\n'
+            line += "\n"
             yield line
 
 
@@ -168,10 +176,10 @@ def run(config_file):
     logging.basicConfig(level=logging.DEBUG)
     config = Config()
     config.load_config(config_file)
-    config.data_date = arrow.now().floor('day')
+    config.data_date = arrow.now().floor("day")
     meteo = MeteoProcessor(config)
     meteo.make_forcing_data_files()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run(sys.argv[1])

@@ -16,8 +16,8 @@
 
 Operational prediction of the Strait of Georgia spring phytoplankton bloom
 
-This module is connected to the `bloomcast` command via a console_scripts
-entry point in setup.py.
+This module is connected to the :command:`bloomcast ensemble` command via the scripts and
+entry-points configuration elements in the :file:`pyproject.toml` file.
 """
 import sys
 
@@ -28,15 +28,16 @@ from . import __pkg_metadata__
 
 
 __all__ = [
-    'BloomcastApp', 'main',
+    "BloomcastApp",
+    "main",
 ]
 
 
 class BloomcastApp(cliff.app.App):
-    CONSOLE_MESSAGE_FORMAT = '%(levelname)s:%(name)s:%(message)s'
+    CONSOLE_MESSAGE_FORMAT = "%(levelname)s:%(name)s:%(message)s"
 
     def __init__(self):
-        app_namespace = 'bloomcast.app'
+        app_namespace = "bloomcast.app"
         super(BloomcastApp, self).__init__(
             description=__pkg_metadata__.DESCRIPTION,
             version=__pkg_metadata__.VERSION,
@@ -49,5 +50,5 @@ def main(argv=sys.argv[1:]):
     return app.run(argv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

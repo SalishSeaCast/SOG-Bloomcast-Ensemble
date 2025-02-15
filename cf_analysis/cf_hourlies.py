@@ -34,29 +34,29 @@ import requests
 import yaml
 
 
-EC_URL = 'http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html'
+EC_URL = "http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html"
 START_YEAR = 2002
 END_YEAR = 2012
 STATION_ID = 889  # YVR
-MAPPING_FILE = 'cloud_fraction_mapping.yaml'
-HOURLY_FILE_ROOT = 'cf_hourly_yvr'
+MAPPING_FILE = "cloud_fraction_mapping.yaml"
+HOURLY_FILE_ROOT = "cf_hourly_yvr"
 
 
 root_log = logging.getLogger()
-log = logging.getLogger('cf_hourlies')
+log = logging.getLogger("cf_hourlies")
 logging.basicConfig(level=logging.DEBUG)
-formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
+formatter = logging.Formatter("%(levelname)s:%(name)s:%(message)s")
 console = logging.StreamHandler()
 console.setFormatter(formatter)
 log.addHandler(console)
-disk = logging.FileHandler('cf_hourlies.log', mode='w')
+disk = logging.FileHandler("cf_hourlies.log", mode="w")
 disk.setFormatter(formatter)
 log.addHandler(disk)
 root_log.addHandler(disk)
 log.propagate = False
 
 
-with open(MAPPING_FILE, 'rt') as f:
+with open(MAPPING_FILE, "rt") as f:
     mapping = yaml.safe_load(f.read())
 
 
@@ -67,41 +67,41 @@ def run():
         for month in range(1, 13)
     )
     request_params = {
-        'timeframe': 1,                 # Daily
-        'Prov': 'BC',
-        'format': 'xml',
-        'StationID': 889,               # YVR
-        'Day': 1,
+        "timeframe": 1,  # Daily
+        "Prov": "BC",
+        "format": "xml",
+        "StationID": 889,  # YVR
+        "Day": 1,
     }
     data = []
     for data_month in data_months:
         ec_data = get_EC_data(data_month, request_params)
-        for record in ec_data.findall('stationdata'):
-            parts = [record.get(part)
-                     for part in 'year month day hour'.split()]
+        for record in ec_data.findall("stationdata"):
+            parts = [record.get(part) for part in "year month day hour".split()]
             timestamp = datetime(*map(int, parts))
             data.append((timestamp, read_cloud_fraction(timestamp, record)))
         patch_data(data)
-    hourly_file_name = (
-        '{0}_{1}_{2}'.format(HOURLY_FILE_ROOT, START_YEAR, END_YEAR))
-    with open(hourly_file_name, 'wt') as hourly_file:
+    hourly_file_name = "{0}_{1}_{2}".format(HOURLY_FILE_ROOT, START_YEAR, END_YEAR)
+    with open(hourly_file_name, "wt") as hourly_file:
         hourly_file.writelines(format_data(data))
 
 
 def get_EC_data(data_month, request_params):
-    request_params.update({
-        'Year': data_month.year,
-        'Month': data_month.month,
-    })
+    request_params.update(
+        {
+            "Year": data_month.year,
+            "Month": data_month.month,
+        }
+    )
     response = requests.get(EC_URL, params=request_params)
-    log.info('got meteo data for {0:%Y-%m}'.format(data_month))
+    log.info("got meteo data for {0:%Y-%m}".format(data_month))
     tree = ElementTree.parse(StringIO(response.content))
     ec_data = tree.getroot()
     return ec_data
 
 
 def read_cloud_fraction(timestamp, record):
-    weather_desc = record.find('weather').text
+    weather_desc = record.find("weather").text
     try:
         cloud_fraction = mapping[weather_desc]
     except KeyError:
@@ -110,9 +110,9 @@ def read_cloud_fraction(timestamp, record):
             cloud_fraction = [None]
         else:
             log.warning(
-                'Unrecognized weather description: {0} at {1}; '
-                'cloud fraction set to 10'
-                .format(weather_desc, timestamp))
+                "Unrecognized weather description: {0} at {1}; "
+                "cloud fraction set to 10".format(weather_desc, timestamp)
+            )
             cloud_fraction = [10]
     if len(cloud_fraction) == 1:
         cloud_fraction = cloud_fraction[0]
@@ -122,22 +122,20 @@ def read_cloud_fraction(timestamp, record):
 
 
 def patch_data(data):
-    """Patch missing data values by interpolation.
-    """
+    """Patch missing data values by interpolation."""
     gap_start = gap_end = None
     for i, value in enumerate(data):
         if value[1] is None:
             gap_start = i if gap_start is None else gap_start
             gap_end = i
-            log.debug('data patched for {0[0]}'.format(value))
+            log.debug("data patched for {0[0]}".format(value))
         elif gap_start is not None:
             interpolate_values(data, gap_start, gap_end)
             gap_start = gap_end = None
 
 
 def interpolate_values(data, gap_start, gap_end):
-    """Calculate values for missing data via linear interpolation.
-    """
+    """Calculate values for missing data via linear interpolation."""
     last_value = data[gap_start - 1][1]
     next_value = data[gap_end + 1][1]
     delta = (next_value - last_value) / (gap_end - gap_start + 2)
@@ -163,14 +161,14 @@ def format_data(data):
     expressed as floats with 2 decimal place.
     """
     for i in range(len(data) / 24):
-        item = data[i * 24:(i + 1) * 24]
+        item = data[i * 24 : (i + 1) * 24]
         timestamp = item[0][0]
-        line = '{0} {1:%Y %m %d} 42'.format(STATION_ID, timestamp)
+        line = "{0} {1:%Y %m %d} 42".format(STATION_ID, timestamp)
         for hour in item:
-            line += ' {0:.2f}'.format(hour[1])
-        line += '\n'
+            line += " {0:.2f}".format(hour[1])
+        line += "\n"
         yield line
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()
