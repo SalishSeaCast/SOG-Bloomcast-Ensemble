@@ -34,6 +34,9 @@ dependencies:
   - pyyaml
   - requests
 
+  # For capturing email messages during testing
+  - aiosmtpd
+
   # For coding style, repo QA, and package management
   - black
   - hatch
