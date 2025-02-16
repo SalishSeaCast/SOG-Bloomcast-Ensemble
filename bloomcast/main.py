@@ -19,12 +19,13 @@ Operational prediction of the Strait of Georgia spring phytoplankton bloom
 This module is connected to the :command:`bloomcast ensemble` command via the scripts and
 entry-points configuration elements in the :file:`pyproject.toml` file.
 """
+import importlib.metadata
 import sys
+from pathlib import Path
+import tomllib
 
 import cliff.app
 import cliff.commandmanager
-
-from . import __pkg_metadata__
 
 
 __all__ = [
@@ -38,9 +39,11 @@ class BloomcastApp(cliff.app.App):
 
     def __init__(self):
         app_namespace = "bloomcast.app"
+        with Path("../pyproject.toml").open("rb") as metadata:
+            pkg_info = tomllib.load(metadata)
         super(BloomcastApp, self).__init__(
-            description=__pkg_metadata__.DESCRIPTION,
-            version=__pkg_metadata__.VERSION,
+            description=pkg_info["project"]["description"],
+            version=importlib.metadata.version(pkg_info["project"]["name"]),
             command_manager=cliff.commandmanager.CommandManager(app_namespace),
         )
 
