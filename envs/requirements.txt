@@ -51,7 +51,7 @@ fastjsonschema==2.21.1
 filelock==3.17.0
 fonttools==4.56.0
 fqdn==1.5.1
-h11==0.14.0
+h11==0.16.0
 h2==4.2.0
 hatch==1.14.0
 hatchling==1.27.0
