@@ -175,7 +175,7 @@ toml==0.10.2
 tomli==2.2.1
 tomli_w==1.2.0
 tomlkit==0.13.2
-tornado==6.4.2
+tornado==6.5.1
 traitlets==5.14.3
 translationstring==1.4
 trove-classifiers==2025.1.15.22
