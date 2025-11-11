@@ -23,7 +23,7 @@ beautifulsoup4==4.13.3
 black==25.1.0
 bleach==6.2.0
 bloomcast==3.1
-Brotli==1.1.0
+Brotli==1.2.0
 cached-property==1.5.2
 certifi==2025.1.31
 cffi==1.17.1
