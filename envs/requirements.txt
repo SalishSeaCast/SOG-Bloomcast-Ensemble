@@ -48,7 +48,7 @@ editables==0.5
 exceptiongroup==1.2.2
 executing==2.1.0
 fastjsonschema==2.21.1
-filelock==3.17.0
+filelock==3.20.1
 fonttools==4.61.0
 fqdn==1.5.1
 h11==0.16.0
