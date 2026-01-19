@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Wind forcing data processing module for SoG-bloomcast project."""
+
 import datetime
 import logging
 import math
@@ -26,7 +27,6 @@ from .utils import (
     Config,
     SOG_Timeseries,
 )
-
 
 log = logging.getLogger("bloomcast.wind")
 

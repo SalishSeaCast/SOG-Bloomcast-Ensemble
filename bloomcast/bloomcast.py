@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Driver module for SoG-bloomcast project"""
+
 from copy import copy
 import datetime
 import logging

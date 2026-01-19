@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Results visualization functions for SoG-bloomcast."""
+
 import datetime
 
 import matplotlib.backends.backend_agg

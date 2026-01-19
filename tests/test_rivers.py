@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Unit tests for SoG-bloomcast rivers module."""
+
 import datetime
 from unittest.mock import (
     Mock,

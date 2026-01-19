@@ -50,6 +50,7 @@ The algorithm she decided on is:
   * weather description strings as keys
   * arrays of either 1 or 12 cloud fraction values as values
 """
+
 import contextlib
 from cStringIO import StringIO
 from datetime import (
@@ -60,7 +61,6 @@ import logging
 from xml.etree import cElementTree as ElementTree
 import requests
 import yaml
-
 
 EC_URL = "http://www.climate.weatheroffice.gc.ca/climateData/bulkdata_e.html"
 START_YEAR = 2002
