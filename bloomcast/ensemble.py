@@ -15,6 +15,7 @@
 """SoG-bloomcast command plug-in to run an ensemble forecast to predict
 the first spring diatom phytoplankon bloom in the Strait of Georgia.
 """
+
 from collections import OrderedDict
 import copy
 import logging
@@ -35,7 +36,6 @@ from . import (
     visualization,
     wind,
 )
-
 
 __all__ = ["Ensemble"]
 

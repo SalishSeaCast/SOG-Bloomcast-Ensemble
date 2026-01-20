@@ -13,6 +13,7 @@
 # limitations under the License.
 
 """Rivers flows forcing data processing module for SoG-bloomcast project."""
+
 import datetime
 import logging
 import sys
@@ -25,7 +26,6 @@ from .utils import (
     Config,
     ForcingDataProcessor,
 )
-
 
 log = logging.getLogger("bloomcast.rivers")
 

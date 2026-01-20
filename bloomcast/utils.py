@@ -16,6 +16,7 @@
 
 A collection of classes that are used in other bloomcast modules.
 """
+
 import datetime
 import logging
 import io
@@ -29,7 +30,6 @@ import requests
 import yaml
 
 import SOGcommand
-
 
 log = logging.getLogger("bloomcast.utils")
 
@@ -428,7 +428,7 @@ class SOG_Relation(object):
         for the data fields.
         """
         with open(self.datafile, "rt") as file_obj:
-            (field_names, field_units) = self.read_header(file_obj)
+            field_names, field_units = self.read_header(file_obj)
             indep_col = field_names.index(indep_field)
             dep_col = field_names.index(dep_field)
             self.indep_units = field_units[indep_col]
@@ -487,7 +487,7 @@ class SOG_HoffmuellerProfile(SOG_Relation):
         for the data fields.
         """
         with open(self.datafile, "rt") as file_obj:
-            (field_names, field_units) = self.read_header(file_obj)
+            field_names, field_units = self.read_header(file_obj)
             indep_col = field_names.index(indep_field)
             dep_col = field_names.index(dep_field)
             self.indep_units = field_units[indep_col]
