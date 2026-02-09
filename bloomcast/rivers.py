@@ -104,8 +104,8 @@ class RiversProcessor(ForcingDataProcessor):
         hourly timestamps and data values.
         """
         tds = self.raw_data.find_all("td")
-        timestamps = (td.string for td in tds[::4])
-        flows = (td.text for td in tds[1::4])
+        timestamps = (td.string for td in tds[::5])
+        flows = (td.text for td in tds[1::5])
         data_day = self.read_datestamp(tds[0].string)
         flow_sum = count = 0
         self.data[qty] = []
