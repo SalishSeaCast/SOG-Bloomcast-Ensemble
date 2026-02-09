@@ -191,6 +191,10 @@ class Bloomcast(object):
         """
         log.setLevel(logging.DEBUG)
 
+        # reduce the logging noise from matplotlib so that we only see warnings
+        matplotlib_log = logging.getLogger("matplotlib")
+        matplotlib_log.setLevel(logging.WARNING)
+
         def patched_data_filter(record):
             if record.funcName == "patch_data" and "data patched" in record.msg:
                 return 0

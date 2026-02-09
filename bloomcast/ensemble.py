@@ -552,6 +552,10 @@ def configure_logging(config, bloom_date_log):
     root_logger = logging.getLogger("")
     console_handler = root_logger.handlers[0]
 
+    # reduce the logging noise from matplotlib so that we only see warnings
+    matplotlib_log = logging.getLogger("matplotlib")
+    matplotlib_log.setLevel(logging.WARNING)
+
     def patched_data_filter(record):
         if record.funcName == "patch_data" and "data patched" in record.msg:
             return 0
