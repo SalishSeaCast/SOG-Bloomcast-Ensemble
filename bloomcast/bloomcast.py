@@ -160,7 +160,7 @@ class Bloomcast(object):
         if run_start_yr_jan1 < river_date_limit:
             log.error(
                 "A bloomcast run starting {0.run_start_date:%Y-%m-%d} cannot "
-                "be done today because there are no river flow data availble "
+                "be done today because there are no river flow data available "
                 "prior to {1}".format(
                     self.config, river_date_limit.format("YYYY-MM-DD")
                 )
