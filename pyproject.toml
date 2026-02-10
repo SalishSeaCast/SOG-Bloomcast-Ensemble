@@ -1,4 +1,4 @@
-# Copyright 2011– present by Doug Latornell and The University of British Columbia
+# Copyright 2011 – present by Doug Latornell and The University of British Columbia
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,21 +25,21 @@ dynamic = [ "version" ]
 description = "Strait of Georgia spring diatom bloom predictor"
 readme = "README.rst"
 requires-python = ">=3.13"
-license-files = { paths = ["LICENSE"] }
+license = { file = "LICENSE" }
 authors = [
     {name = "Doug Latornell", email = "dlatornell@eoas.ubc.ca"},
     {name = "Susan Allen", email = "sallen@eoas.ubc.ca"},
 ]
 dependencies = [
     # see envs/environment-dev.yaml for conda environment dev installation,
-    # see envs/requirements.txt for package versions used during recent development    "arrow",
+    # see envs/requirements.txt for package versions used during recent development
+    "arrow",
     "BeautifulSoup4",
     "cliff",
     "matplotlib",
     "numpy",
     "PyYAML",
-    "requests"
-    # "SOGcommand"  # use python -m pip install --editable SOG/
+    "requests",
 ]
 
 [project.urls]
@@ -74,3 +74,33 @@ packages = ["bloomcast"]
 
 [tool.hatch.version]
 path = "bloomcast/__about__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.dependencies]
+arrow = "*"
+beautifulsoup4 = "*"
+colander = "<2"
+jupyterlab = "*"
+cliff = "*"
+matplotlib = "*"
+numpy = "*"
+pip = "*"
+python = "3.14.*"
+pyyaml = "*"
+requests = "*"
+
+[tool.pixi.pypi-dependencies]
+sogcommand = { git = "https://github.com/SalishSeaCast/SOG.git" }
+bloomcast = { path = ".", editable = true }
+
+[tool.pixi.tasks]
+
+[tool.pixi.environments]
+default = { features = [], solve-group = "default" }
