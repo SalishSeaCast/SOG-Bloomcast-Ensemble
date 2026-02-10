@@ -106,6 +106,7 @@ bloomcast = { path = ".", editable = true }
 [tool.pixi.environments]
 default = { features = [], solve-group = "default" }
 test = { features = ["test"], solve-group = "default" }
+test-py314 = ["py314", "test"]
 
 [tool.pixi.feature.test.dependencies]
 pytest = "*"
@@ -116,3 +117,6 @@ pytest-randomly = "*"
 pytest = "pytest"
 pytest-cov = "pytest --cov=./"
 pytest-cov-html = "pytest --cov=./ --cov-report html"
+
+[tool.pixi.feature.py314.dependencies]
+python = "3.14.*"
