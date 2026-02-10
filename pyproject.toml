@@ -107,6 +107,7 @@ bloomcast = { path = ".", editable = true }
 default = { features = [], solve-group = "default" }
 test = { features = ["test"], solve-group = "default" }
 test-py314 = ["py314", "test"]
+docs = { features = ["docs"], solve-group = "default" }
 
 [tool.pixi.feature.test.dependencies]
 pytest = "*"
@@ -120,3 +121,13 @@ pytest-cov-html = "pytest --cov=./ --cov-report html"
 
 [tool.pixi.feature.py314.dependencies]
 python = "3.14.*"
+
+[tool.pixi.feature.docs.dependencies]
+sphinx = "8.1.3.*"
+sphinx-rtd-theme = "3.0.0.*"
+
+[tool.pixi.feature.docs.tasks]
+docs = { cmd = "make clean html", cwd = "docs/" }
+
+[dependency-groups]
+docs = ["commonmark>=0.9.1,<0.10", "recommonmark>=0.7.1,<0.8", "readthedocs-sphinx-ext>=2.2.5,<3"]
