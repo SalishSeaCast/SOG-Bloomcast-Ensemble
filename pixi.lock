@@ -1787,7 +1787,7 @@ packages:
 - pypi: ./
   name: bloomcast
   version: '3.1'
-  sha256: 8d732f6633465b71db8844d617b2a92a8183890984aedc90371b50f77f192868
+  sha256: 6681d7933bfa766610845bac92cbc3199fae37bd0b02d7446c41a25a19b0005d
   requires_dist:
   - arrow
   - beautifulsoup4
