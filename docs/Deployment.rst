@@ -7,7 +7,11 @@ Environment
 -----------
 
 Set up a :ref:`DevelopmentAndDeploymentEnvironment` on :kbd:`salish`,
-excluding the testing and debugging tools.
+excluding the testing and debugging tools:
+
+.. code-block:: bash
+
+    pixi install -e default
 
 
 Input Files
