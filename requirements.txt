@@ -118,7 +118,7 @@ parso==0.8.6
 pathspec==1.0.4
 pbr==7.0.3
 pexpect==4.9.0
-pillow==12.1.0
+pillow==12.1.1
 pip==26.0
 platformdirs==4.5.1
 pluggy==1.6.0
