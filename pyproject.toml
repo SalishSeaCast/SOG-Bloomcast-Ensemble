@@ -1,4 +1,4 @@
-# Copyright 2011– present by Doug Latornell and The University of British Columbia
+# Copyright 2011 – present by Doug Latornell and The University of British Columbia
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,21 +25,20 @@ dynamic = [ "version" ]
 description = "Strait of Georgia spring diatom bloom predictor"
 readme = "README.rst"
 requires-python = ">=3.13"
-license-files = { paths = ["LICENSE"] }
+license = { file = "LICENSE" }
 authors = [
     {name = "Doug Latornell", email = "dlatornell@eoas.ubc.ca"},
     {name = "Susan Allen", email = "sallen@eoas.ubc.ca"},
 ]
 dependencies = [
-    # see envs/environment-dev.yaml for conda environment dev installation,
-    # see envs/requirements.txt for package versions used during recent development    "arrow",
+    # see `pixi list -e dev` for package versions used during recent development
+    "arrow",
     "BeautifulSoup4",
     "cliff",
     "matplotlib",
     "numpy",
     "PyYAML",
-    "requests"
-    # "SOGcommand"  # use python -m pip install --editable SOG/
+    "requests",
 ]
 
 [project.urls]
@@ -74,3 +73,80 @@ packages = ["bloomcast"]
 
 [tool.hatch.version]
 path = "bloomcast/__about__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.dependencies]
+arrow = "*"
+beautifulsoup4 = "*"
+colander = "<2"
+jupyterlab = "*"
+cliff = "*"
+matplotlib = "*"
+numpy = "*"
+pixi-pycharm = ">=0.0.10,<0.0.11"
+python = "3.14.*"
+pyyaml = "*"
+requests = "*"
+
+[tool.pixi.pypi-dependencies]
+sogcommand = { git = "https://github.com/SalishSeaCast/SOG.git" }
+bloomcast = { path = ".", editable = true }
+
+[tool.pixi.tasks]
+
+[tool.pixi.environments]
+default = { features = [], solve-group = "default" }
+test = { features = ["test"], solve-group = "default" }
+test-py314 = ["py314", "test"]
+docs = { features = ["docs"], solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default" }
+
+[tool.pixi.feature.test.dependencies]
+pytest = "*"
+pytest-cov = "*"
+pytest-randomly = "*"
+
+[tool.pixi.feature.test.tasks]
+pytest = "pytest"
+pytest-cov = "pytest --cov=./"
+pytest-cov-html = "pytest --cov=./ --cov-report html"
+
+[tool.pixi.feature.py314.dependencies]
+python = "3.14.*"
+
+[tool.pixi.feature.docs.dependencies]
+sphinx = "8.1.3.*"
+sphinx-rtd-theme = "3.0.0.*"
+
+[tool.pixi.feature.docs.tasks]
+docs = { cmd = "make clean html", cwd = "docs/" }
+
+[dependency-groups]
+docs = ["commonmark>=0.9.1,<0.10", "recommonmark>=0.7.1,<0.8", "readthedocs-sphinx-ext>=2.2.5,<3"]
+
+[tool.pixi.feature.dev.dependencies]
+# For coding style, repo QA, and pkg management
+black = "*"
+hatch = "*"
+pre-commit = "*"
+# For reuirements.txt file maintenance (until dependabot supports pixi.lock files)
+pip = ">=25.3,<26"
+# For unit tests
+pytest = "*"
+pytest-cov = "*"
+pytest-randomly = "*"
+# For documentation
+sphinx = "8.1.3.*"
+sphinx-rtd-theme = "3.0.0.*"
+# For capturing email messages during testing
+aiosmtpd = "*"
+
+[tool.pixi.feature.dev.tasks]
+update-reqs = "python -m pip list --format=freeze >> requirements.txt"
