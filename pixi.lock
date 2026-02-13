@@ -274,7 +274,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zlib-ng-2.3.3-hceb46e0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: git+https://github.com/SalishSeaCast/SOG.git#2e8945ad445023cc18f158e68195333d30e79012
+      - pypi: git+https://github.com/SalishSeaCast/SOG.git?rev=55af3c26752595ebc970ec3e20a632a86e96fa50#55af3c26752595ebc970ec3e20a632a86e96fa50
       - pypi: ./
   dev:
     channels:
@@ -608,7 +608,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zlib-ng-2.3.3-hceb46e0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: git+https://github.com/SalishSeaCast/SOG.git#2e8945ad445023cc18f158e68195333d30e79012
+      - pypi: git+https://github.com/SalishSeaCast/SOG.git?rev=55af3c26752595ebc970ec3e20a632a86e96fa50#55af3c26752595ebc970ec3e20a632a86e96fa50
       - pypi: ./
   docs:
     channels:
@@ -902,7 +902,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b1/92/dfd892312d822f36c55366118b95d914e5f16de11044a27cf10a7d71bbbf/commonmark-0.9.1-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/64/71/c89e7709a0d4f93af1848e9855112299a820b470d84f917b4dd5998bdd07/readthedocs_sphinx_ext-2.2.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c6/77/ed589c75db5d02a77a1d5d2d9abc63f29676467d396c64277f98b50b79c2/recommonmark-0.7.1-py2.py3-none-any.whl
-      - pypi: git+https://github.com/SalishSeaCast/SOG.git#2e8945ad445023cc18f158e68195333d30e79012
+      - pypi: git+https://github.com/SalishSeaCast/SOG.git?rev=55af3c26752595ebc970ec3e20a632a86e96fa50#55af3c26752595ebc970ec3e20a632a86e96fa50
       - pypi: ./
   test:
     channels:
@@ -1185,7 +1185,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zlib-ng-2.3.3-hceb46e0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: git+https://github.com/SalishSeaCast/SOG.git#2e8945ad445023cc18f158e68195333d30e79012
+      - pypi: git+https://github.com/SalishSeaCast/SOG.git?rev=55af3c26752595ebc970ec3e20a632a86e96fa50#55af3c26752595ebc970ec3e20a632a86e96fa50
       - pypi: ./
   test-py314:
     channels:
@@ -1468,7 +1468,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.23.0-pyhcf101f3_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zlib-ng-2.3.3-hceb46e0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
-      - pypi: git+https://github.com/SalishSeaCast/SOG.git#2e8945ad445023cc18f158e68195333d30e79012
+      - pypi: git+https://github.com/SalishSeaCast/SOG.git?rev=55af3c26752595ebc970ec3e20a632a86e96fa50#55af3c26752595ebc970ec3e20a632a86e96fa50
       - pypi: ./
 packages:
 - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -1787,7 +1787,7 @@ packages:
 - pypi: ./
   name: bloomcast
   version: '3.1'
-  sha256: 4e0f827d6c025c962f8fae6a40542cd209163df4f4159b03fac602864c279544
+  sha256: 9ecf168bfe6d2907c0963dbf12059b127b6782312d1885e119e6c9ae63b4c729
   requires_dist:
   - arrow
   - beautifulsoup4
@@ -1796,6 +1796,7 @@ packages:
   - numpy
   - pyyaml
   - requests
+  - sogcommand @ git+https://github.com/SalishSeaCast/SOG.git@55af3c26752595ebc970ec3e20a632a86e96fa50
   requires_python: '>=3.13'
 - conda: https://conda.anaconda.org/conda-forge/linux-64/brotli-1.2.0-hed03a55_1.conda
   sha256: e511644d691f05eb12ebe1e971fd6dc3ae55a4df5c253b4e1788b789bdf2dfa6
@@ -4985,7 +4986,7 @@ packages:
   - pkg:pypi/snowballstemmer?source=hash-mapping
   size: 73009
   timestamp: 1747749529809
-- pypi: git+https://github.com/SalishSeaCast/SOG.git#2e8945ad445023cc18f158e68195333d30e79012
+- pypi: git+https://github.com/SalishSeaCast/SOG.git?rev=55af3c26752595ebc970ec3e20a632a86e96fa50#55af3c26752595ebc970ec3e20a632a86e96fa50
   name: sogcommand
   version: 1.3.3
   requires_dist:

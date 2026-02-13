@@ -39,6 +39,7 @@ dependencies = [
     "numpy",
     "PyYAML",
     "requests",
+    "sogcommand @ git+https://github.com/SalishSeaCast/SOG.git@55af3c26752595ebc970ec3e20a632a86e96fa50?rev_type=rev",
 ]
 
 [project.urls]
@@ -96,7 +97,6 @@ pyyaml = "*"
 requests = "*"
 
 [tool.pixi.pypi-dependencies]
-sogcommand = { git = "https://github.com/SalishSeaCast/SOG.git" }
 bloomcast = { path = ".", editable = true }
 
 [tool.pixi.tasks]
