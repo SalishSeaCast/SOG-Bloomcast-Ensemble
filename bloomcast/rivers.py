@@ -133,7 +133,7 @@ class RiversProcessor(ForcingDataProcessor):
         try:
             return float(flow_string.replace(",", "")) * scale_factor
         except ValueError:
-            # Ignore training `*`
+            # Ignore trailing `*`
             return float(flow_string[:-1].replace(",", "")) * scale_factor
 
     def read_datestamp(self, string):
