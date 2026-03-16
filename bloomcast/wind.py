@@ -36,7 +36,7 @@ class WindProcessor(ClimateDataProcessor):
 
     def __init__(self, config):
         data_readers = {"wind": self.read_wind_velocity}
-        super(WindProcessor, self).__init__(config, data_readers)
+        super().__init__(config, data_readers)
 
     def make_forcing_data_file(self):
         """Get the wind forcing data from the Environment Canada web

@@ -41,7 +41,7 @@ class BloomcastApp(cliff.app.App):
         app_namespace = "bloomcast.app"
         with Path("../pyproject.toml").open("rb") as metadata:
             pkg_info = tomllib.load(metadata)
-        super(BloomcastApp, self).__init__(
+        super().__init__(
             description=pkg_info["project"]["description"],
             version=importlib.metadata.version(pkg_info["project"]["name"]),
             command_manager=cliff.commandmanager.CommandManager(app_namespace),

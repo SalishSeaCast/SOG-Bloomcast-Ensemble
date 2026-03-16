@@ -34,7 +34,7 @@ class RiversProcessor(ForcingDataProcessor):
     """River flows forcing data processor."""
 
     def __init__(self, config):
-        super(RiversProcessor, self).__init__(config)
+        super().__init__(config)
 
     def make_forcing_data_files(self):
         """Get the river flows forcing data from the Environment

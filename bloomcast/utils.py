@@ -282,7 +282,7 @@ class ClimateDataProcessor(ForcingDataProcessor):
 
     def __init__(self, config, data_readers):
         self.data_readers = data_readers
-        super(ClimateDataProcessor, self).__init__(config)
+        super().__init__(config)
 
     def get_climate_data(self, data_type, data_month):
         """Return a list of XML objects containing the specified type of
