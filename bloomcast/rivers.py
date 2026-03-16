@@ -54,7 +54,7 @@ class RiversProcessor(ForcingDataProcessor):
             output_file = self.config.rivers.output_files[river]
             with open(output_file, "wt") as file_obj:
                 file_obj.writelines(self.format_data(river))
-            log.debug("latest {0} river flow {1}".format(river, self.data[river][-1]))
+            log.debug(f"latest {river} river flow {self.data[river][-1]}")
 
     def get_river_data(self, river):
         """Return a BeautifulSoup parser object containing the river
@@ -76,9 +76,7 @@ class RiversProcessor(ForcingDataProcessor):
             cookies=self.config.rivers.disclaimer_cookie,
         )
         log.debug(
-            "got {0} river data for {1}-01-01 to {2}".format(
-                river, start_year, self.config.data_date.format("YYYY-MM-DD")
-            )
+            f"got {river} river data for {start_year}-01-01 to {self.config.data_date:YYYY-MM-DD}"
         )
         soup = bs4.BeautifulSoup(response.content, "html.parser")
         self.raw_data = soup.find("table")
@@ -94,8 +92,8 @@ class RiversProcessor(ForcingDataProcessor):
         """
         end_date = self.config.data_date.shift(days=+1)
         params = {
-            "startDate": arrow.get(start_year, 1, 1).format("YYYY-MM-DD"),
-            "endDate": end_date.format("YYYY-MM-DD"),
+            "startDate": f"{arrow.get(start_year, 1, 1):YYYY-MM-DD}",
+            "endDate": f"{end_date:YYYY-MM-DD}",
         }
         return params
 
@@ -157,19 +155,14 @@ class RiversProcessor(ForcingDataProcessor):
                 for j in range(1, delta):
                     missing_date = data[i][0] + j * datetime.timedelta(days=1)
                     data.insert(i + j, (missing_date, None))
-                    log.debug(
-                        "{qty} river data patched for {date}".format(
-                            qty=qty, date=missing_date
-                        )
-                    )
+                    log.debug(f"{qty} river data patched for {missing_date}")
                     gap_count += 1
                 gap_end = i + delta - 1
                 self.interpolate_values(qty, gap_start, gap_end)
             i += delta
         if gap_count:
             log.debug(
-                "{count} {qty} river data values patched; "
-                "see debug log on disk for details".format(count=gap_count, qty=qty)
+                f"{gap_count} {qty} river data values patched; see debug log on disk for details"
             )
 
     def format_data(self, qty):
@@ -189,7 +182,7 @@ class RiversProcessor(ForcingDataProcessor):
         for data in self.data[qty]:
             datestamp = data[0]
             flow = data[1]
-            line = "{0:%Y %m %d} {1:e}\n".format(datestamp, flow)
+            line = f"{datestamp:%Y %m %d} {flow:e}\n"
             yield line
 
 
