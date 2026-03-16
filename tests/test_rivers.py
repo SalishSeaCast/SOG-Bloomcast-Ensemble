@@ -35,15 +35,6 @@ def processor():
 class TestRiverProcessor:
     """Unit tests for RiverProcessor object."""
 
-    def test_date_params(self, processor):
-        """_date_params handles month-end rollover correctly"""
-        processor.config.data_date = arrow.get(2011, 11, 30)
-        expected = {
-            "startDate": "2011-01-01",
-            "endDate": "2011-12-01",
-        }
-        assert processor._date_params(2011) == expected
-
     def test_date_range(self, processor):
         """_date_range returns the expected date range"""
         processor.config.data_date = arrow.get(2026, 3, 15)

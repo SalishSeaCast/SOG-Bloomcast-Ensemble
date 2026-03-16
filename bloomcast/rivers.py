@@ -101,22 +101,6 @@ class RiversProcessor(ForcingDataProcessor):
         start_date = arrow.get(start_year, 1, 1)
         return start_date, end_date
 
-    def _date_params(self, start_year):
-        """Return a dict of the components of start and end dates for
-        river flow data based on the specified start year.
-
-        The keys are the component names in the format required for
-        requests to the :kbd:`wateroffice.gc.ca` site.
-
-        The values are date components as integers.
-        """
-        end_date = self.config.data_date.shift(days=+1)
-        params = {
-            "startDate": f"{arrow.get(start_year, 1, 1):YYYY-MM-DD}",
-            "endDate": f"{end_date:YYYY-MM-DD}",
-        }
-        return params
-
     def process_data(self, qty, scale_factor=1, end_date=arrow.now().floor("day")):
         """Process data from BeautifulSoup parser object to a list of
         hourly timestamps and data values.
