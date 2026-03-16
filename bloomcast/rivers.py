@@ -69,6 +69,7 @@ class RiversProcessor(ForcingDataProcessor):
             if self.config.run_start_date.year != today.year
             else today.year
         )
+        start_date, end_date = self._date_range(start_year)
         params.update(self._date_params(start_year))
         response = requests.get(
             self.config.rivers.data_url,
@@ -76,10 +77,25 @@ class RiversProcessor(ForcingDataProcessor):
             cookies=self.config.rivers.disclaimer_cookie,
         )
         log.debug(
-            f"got {river} river data for {start_year}-01-01 to {self.config.data_date:YYYY-MM-DD}"
+            f"got {river} river data for {start_date.replace(" ", "-")} to {end_date.replace(' ', '-')}"
         )
         soup = bs4.BeautifulSoup(response.content, "html.parser")
         self.raw_data = soup.find("table")
+
+    def _date_range(self, start_year):
+        """
+        Generates a range of dates from the given start year to the configured end date.
+
+        Args:
+            start_year (int): The starting year of the date range.
+
+        Returns:
+            tuple: A tuple containing the start date as an Arrow object and the
+            end date as an Arrow object.
+        """
+        end_date = self.config.data_date
+        start_date = arrow.get(start_year, 1, 1)
+        return start_date, end_date
 
     def _date_params(self, start_year):
         """Return a dict of the components of start and end dates for
