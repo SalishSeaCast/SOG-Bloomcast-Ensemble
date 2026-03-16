@@ -34,7 +34,7 @@ class RiversProcessor(ForcingDataProcessor):
     """River flows forcing data processor."""
 
     def __init__(self, config):
-        super(RiversProcessor, self).__init__(config)
+        super().__init__(config)
 
     def make_forcing_data_files(self):
         """Get the river flows forcing data from the Environment
@@ -133,7 +133,7 @@ class RiversProcessor(ForcingDataProcessor):
         try:
             return float(flow_string.replace(",", "")) * scale_factor
         except ValueError:
-            # Ignore training `*`
+            # Ignore trailing `*`
             return float(flow_string[:-1].replace(",", "")) * scale_factor
 
     def read_datestamp(self, string):

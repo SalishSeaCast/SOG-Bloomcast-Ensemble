@@ -37,7 +37,7 @@ class MeteoProcessor(ClimateDataProcessor):
             "relative_humidity": self.read_humidity,
             "cloud_fraction": self.read_cloud_fraction,
         }
-        super(MeteoProcessor, self).__init__(config, data_readers)
+        super().__init__(config, data_readers)
 
     def make_forcing_data_files(self):
         """Get the meteorological forcing data from the Environment
