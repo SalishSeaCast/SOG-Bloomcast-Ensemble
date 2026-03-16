@@ -34,14 +34,6 @@ climate:
     station_id: 6831    # Sandheads
 
 rivers:
-  data_url: https://wateroffice.ec.gc.ca/report/real_time_e.html
-  disclaimer_cookie:
-    disclaimer: agree
-  params:
-    type: realTime
-    mode: Table
-    prm1: 47              # discharge
-    prm2: -1
   major:  # Fraser River at Hope
     file: /data/dlatorne/SOG-projects/SOG-forcing/ECget/Fraser_flow
   minor:  # Englishman River at Parksville

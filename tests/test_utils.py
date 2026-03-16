@@ -52,15 +52,6 @@ def config_dict():
             "wind": {"station_id": None},
         },
         "rivers": {
-            "disclaimer_url": None,
-            "accept_disclaimer": {
-                "disclaimer_action": None,
-            },
-            "data_url": None,
-            "params": {
-                "mode": None,
-                "prm1": None,
-            },
             "major": {
                 "file": None,
             },

@@ -17,6 +17,7 @@
 import datetime
 import logging
 import sys
+from pathlib import Path
 
 import arrow
 import requests
@@ -57,12 +58,21 @@ class RiversProcessor(ForcingDataProcessor):
             log.debug(f"latest {river} river flow {self.data[river][-1]}")
 
     def get_river_data(self, river):
-        """Return a BeautifulSoup parser object containing the river
-        flow data table scraped from the Environment Canada
-        WaterOffice page.
         """
-        params = self.config.rivers.params
-        params["stn"] = getattr(self.config.rivers, river).station_id
+        Retrieves river data within a specified date range.
+
+        This method reads data from a file associated with a specified river and filters
+        it based on a date range. The date range is determined by the current year or
+        a specific configuration value, and the data matching the range is stored for further processing.
+
+        Args:
+            river (str): The name of the river whose data is to be retrieved.
+
+        Attributes:
+            raw_data (list): A list storing lines of river data from the file that fall within
+            the specified date range.
+
+        """
         today = arrow.now().date()
         start_year = (
             self.config.run_start_date.year
@@ -70,17 +80,11 @@ class RiversProcessor(ForcingDataProcessor):
             else today.year
         )
         start_date, end_date = self._date_range(start_year)
-        params.update(self._date_params(start_year))
-        response = requests.get(
-            self.config.rivers.data_url,
-            params=params,
-            cookies=self.config.rivers.disclaimer_cookie,
-        )
-        log.debug(
-            f"got {river} river data for {start_date.replace(" ", "-")} to {end_date.replace(' ', '-')}"
-        )
-        soup = bs4.BeautifulSoup(response.content, "html.parser")
-        self.raw_data = soup.find("table")
+        self.raw_data = []
+        for line in Path(getattr(self.config.rivers, river).file).open("rt"):
+            line_date = arrow.get(*(map(int, line.split()[:3])))
+            if start_date <= line_date <= end_date:
+                self.raw_data.append(line)
 
     def _date_range(self, start_year):
         """
