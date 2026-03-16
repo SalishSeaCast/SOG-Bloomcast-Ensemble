@@ -115,11 +115,9 @@ class Config(object):
         """Load Config values for river flows forcing data."""
         self.rivers.major = _Container()
         major_river = config_dict["rivers"]["major"]
-        self.rivers.major.station_id = major_river["station_id"]
         self.rivers.major.file = major_river["file"]
         self.rivers.minor = _Container()
         minor_river = config_dict["rivers"]["minor"]
-        self.rivers.minor.station_id = minor_river["station_id"]
         self.rivers.minor.file = minor_river["file"]
         self.rivers.minor.scale_factor = minor_river["scale_factor"]
         forcing_data_files = infile_dict["forcing_data_files"]

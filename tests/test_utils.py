@@ -62,11 +62,9 @@ def config_dict():
                 "prm1": None,
             },
             "major": {
-                "station_id": None,
                 "file": None,
             },
             "minor": {
-                "station_id": None,
                 "scale_factor": None,
                 "file": None,
             },
@@ -208,19 +206,6 @@ class TestConfig:
         config._load_wind_config(config_dict, infile_dict)
         assert config.climate.wind.station_id == test_station_id
 
-    def test_load_rivers_config_major_station_id(
-        self, config, config_dict, infile_dict, monkeypatch
-    ):
-        """_load_rivers_config puts value in config.rivers.major.station_id"""
-        test_station_id = "08MF005"
-        monkeypatch.setitem(
-            config_dict["rivers"]["major"], "station_id", test_station_id
-        )
-        config.rivers = Mock()
-        config._read_yaml_file = Mock(return_value=config_dict)
-        config._load_rivers_config(config_dict, infile_dict)
-        assert config.rivers.major.station_id == test_station_id
-
     def test_load_rivers_config_major_file(
         self, config, config_dict, infile_dict, monkeypatch
     ):
@@ -231,19 +216,6 @@ class TestConfig:
         config._read_yaml_file = Mock(return_value=config_dict)
         config._load_rivers_config(config_dict, infile_dict)
         assert config.rivers.major.file == test_file
-
-    def test_load_rivers_config_minor_station_id(
-        self, config, config_dict, infile_dict, monkeypatch
-    ):
-        """_load_rivers_config puts value in config.rivers.minor.station_id"""
-        test_station_id = "08HB002"
-        monkeypatch.setitem(
-            config_dict["rivers"]["minor"], "station_id", test_station_id
-        )
-        config.rivers = Mock()
-        config._read_yaml_file = Mock(return_value=config_dict)
-        config._load_rivers_config(config_dict, infile_dict)
-        assert config.rivers.minor.station_id == test_station_id
 
     def test_load_rivers_config_minor_file(
         self, config, config_dict, infile_dict, monkeypatch
