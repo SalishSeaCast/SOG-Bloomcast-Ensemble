@@ -102,28 +102,31 @@ class RiversProcessor(ForcingDataProcessor):
         return start_date, end_date
 
     def process_data(self, qty, scale_factor=1, end_date=arrow.now().floor("day")):
-        """Process data from BeautifulSoup parser object to a list of
-        hourly timestamps and data values.
         """
-        tds = self.raw_data.find_all("td")
-        timestamps = (td.string for td in tds[::5])
-        flows = (td.text for td in tds[1::5])
-        data_day = self.read_datestamp(tds[0].string)
-        flow_sum = count = 0
+        Processes raw data by parsing, filtering, and transforming it into the desired
+        format for storage. Applies scaling to the flow values and patches the resulting
+        data for any inconsistencies. Filters the data based on the provided end date.
+
+        Parameters:
+        qty: str
+            The quantity identifier for the data being processed.
+        scale_factor: int, optional
+            A scaling factor applied to the flow values in the data. Default is 1.
+        end_date: datetime, optional
+            The inclusive end date for filtering the data. Default is the current day.
+
+        Raises:
+        KeyError
+            If the quantity identifier is already present in the processed data.
+
+        """
         self.data[qty] = []
-        for timestamp, flow in zip(timestamps, flows):
+        for row in self.raw_data:
+            timestamp, flow = row.rsplit(None, 1)
             datestamp = self.read_datestamp(timestamp)
             if datestamp > end_date.date():
                 break
-            if datestamp == data_day:
-                flow_sum += self._convert_flow(flow, scale_factor)
-                count += 1
-            else:
-                self.data[qty].append((data_day, flow_sum / count))
-                data_day = datestamp
-                flow_sum = self._convert_flow(flow, scale_factor)
-                count = 1
-        self.data[qty].append((data_day, flow_sum / count))
+            self.data[qty].append((datestamp, self._convert_flow(flow, scale_factor)))
         self.patch_data(qty)
 
     def _convert_flow(self, flow_string, scale_factor):
@@ -142,7 +145,7 @@ class RiversProcessor(ForcingDataProcessor):
         """Read datestamp from BeautifulSoup parser object and return
         it as a date instance.
         """
-        return datetime.datetime.strptime(string, "%Y-%m-%d %H:%M:%S").date()
+        return datetime.datetime.strptime(string, "%Y %m %d").date()
 
     def patch_data(self, qty):
         """Patch missing data values by interpolation."""
