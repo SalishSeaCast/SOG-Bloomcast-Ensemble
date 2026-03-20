@@ -17,6 +17,7 @@
 import datetime
 import logging
 import sys
+from pathlib import Path
 
 import arrow
 import requests
@@ -54,74 +55,78 @@ class RiversProcessor(ForcingDataProcessor):
             output_file = self.config.rivers.output_files[river]
             with open(output_file, "wt") as file_obj:
                 file_obj.writelines(self.format_data(river))
-            log.debug("latest {0} river flow {1}".format(river, self.data[river][-1]))
+            log.debug(f"latest {river} river flow {self.data[river][-1]}")
 
     def get_river_data(self, river):
-        """Return a BeautifulSoup parser object containing the river
-        flow data table scraped from the Environment Canada
-        WaterOffice page.
         """
-        params = self.config.rivers.params
-        params["stn"] = getattr(self.config.rivers, river).station_id
+        Retrieves river data within a specified date range.
+
+        This method reads data from a file associated with a specified river and filters
+        it based on a date range. The date range is determined by the current year or
+        a specific configuration value, and the data matching the range is stored for further processing.
+
+        Args:
+            river (str): The name of the river whose data is to be retrieved.
+
+        Attributes:
+            raw_data (list): A list storing lines of river data from the file that fall within
+            the specified date range.
+
+        """
         today = arrow.now().date()
         start_year = (
             self.config.run_start_date.year
             if self.config.run_start_date.year != today.year
             else today.year
         )
-        params.update(self._date_params(start_year))
-        response = requests.get(
-            self.config.rivers.data_url,
-            params=params,
-            cookies=self.config.rivers.disclaimer_cookie,
-        )
-        log.debug(
-            "got {0} river data for {1}-01-01 to {2}".format(
-                river, start_year, self.config.data_date.format("YYYY-MM-DD")
-            )
-        )
-        soup = bs4.BeautifulSoup(response.content, "html.parser")
-        self.raw_data = soup.find("table")
+        start_date, end_date = self._date_range(start_year)
+        self.raw_data = []
+        for line in Path(getattr(self.config.rivers, river).file).open("rt"):
+            line_date = arrow.get(*(map(int, line.split()[:3])))
+            if start_date <= line_date <= end_date:
+                self.raw_data.append(line)
 
-    def _date_params(self, start_year):
-        """Return a dict of the components of start and end dates for
-        river flow data based on the specified start year.
-
-        The keys are the component names in the format required for
-        requests to the :kbd:`wateroffice.gc.ca` site.
-
-        The values are date components as integers.
+    def _date_range(self, start_year):
         """
-        end_date = self.config.data_date.shift(days=+1)
-        params = {
-            "startDate": arrow.get(start_year, 1, 1).format("YYYY-MM-DD"),
-            "endDate": end_date.format("YYYY-MM-DD"),
-        }
-        return params
+        Generates a range of dates from the given start year to the configured end date.
+
+        Args:
+            start_year (int): The starting year of the date range.
+
+        Returns:
+            tuple: A tuple containing the start date as an Arrow object and the
+            end date as an Arrow object.
+        """
+        end_date = self.config.data_date
+        start_date = arrow.get(start_year, 1, 1)
+        return start_date, end_date
 
     def process_data(self, qty, scale_factor=1, end_date=arrow.now().floor("day")):
-        """Process data from BeautifulSoup parser object to a list of
-        hourly timestamps and data values.
         """
-        tds = self.raw_data.find_all("td")
-        timestamps = (td.string for td in tds[::5])
-        flows = (td.text for td in tds[1::5])
-        data_day = self.read_datestamp(tds[0].string)
-        flow_sum = count = 0
+        Processes raw data by parsing, filtering, and transforming it into the desired
+        format for storage. Applies scaling to the flow values and patches the resulting
+        data for any inconsistencies. Filters the data based on the provided end date.
+
+        Parameters:
+        qty: str
+            The quantity identifier for the data being processed.
+        scale_factor: int, optional
+            A scaling factor applied to the flow values in the data. Default is 1.
+        end_date: datetime, optional
+            The inclusive end date for filtering the data. Default is the current day.
+
+        Raises:
+        KeyError
+            If the quantity identifier is already present in the processed data.
+
+        """
         self.data[qty] = []
-        for timestamp, flow in zip(timestamps, flows):
+        for row in self.raw_data:
+            timestamp, flow = row.rsplit(None, 1)
             datestamp = self.read_datestamp(timestamp)
             if datestamp > end_date.date():
                 break
-            if datestamp == data_day:
-                flow_sum += self._convert_flow(flow, scale_factor)
-                count += 1
-            else:
-                self.data[qty].append((data_day, flow_sum / count))
-                data_day = datestamp
-                flow_sum = self._convert_flow(flow, scale_factor)
-                count = 1
-        self.data[qty].append((data_day, flow_sum / count))
+            self.data[qty].append((datestamp, self._convert_flow(flow, scale_factor)))
         self.patch_data(qty)
 
     def _convert_flow(self, flow_string, scale_factor):
@@ -140,7 +145,7 @@ class RiversProcessor(ForcingDataProcessor):
         """Read datestamp from BeautifulSoup parser object and return
         it as a date instance.
         """
-        return datetime.datetime.strptime(string, "%Y-%m-%d %H:%M:%S").date()
+        return datetime.datetime.strptime(string, "%Y %m %d").date()
 
     def patch_data(self, qty):
         """Patch missing data values by interpolation."""
@@ -157,19 +162,14 @@ class RiversProcessor(ForcingDataProcessor):
                 for j in range(1, delta):
                     missing_date = data[i][0] + j * datetime.timedelta(days=1)
                     data.insert(i + j, (missing_date, None))
-                    log.debug(
-                        "{qty} river data patched for {date}".format(
-                            qty=qty, date=missing_date
-                        )
-                    )
+                    log.debug(f"{qty} river data patched for {missing_date}")
                     gap_count += 1
                 gap_end = i + delta - 1
                 self.interpolate_values(qty, gap_start, gap_end)
             i += delta
         if gap_count:
             log.debug(
-                "{count} {qty} river data values patched; "
-                "see debug log on disk for details".format(count=gap_count, qty=qty)
+                f"{gap_count} {qty} river data values patched; see debug log on disk for details"
             )
 
     def format_data(self, qty):
@@ -189,7 +189,7 @@ class RiversProcessor(ForcingDataProcessor):
         for data in self.data[qty]:
             datestamp = data[0]
             flow = data[1]
-            line = "{0:%Y %m %d} {1:e}\n".format(datestamp, flow)
+            line = f"{datestamp:%Y %m %d} {flow:e}\n"
             yield line
 
 

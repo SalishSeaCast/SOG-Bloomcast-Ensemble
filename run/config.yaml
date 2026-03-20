@@ -34,22 +34,15 @@ climate:
     station_id: 6831    # Sandheads
 
 rivers:
-  data_url: https://wateroffice.ec.gc.ca/report/real_time_e.html
-  disclaimer_cookie:
-    disclaimer: agree
-  params:
-    type: realTime
-    mode: Table
-    prm1: 47              # discharge
-    prm2: -1
-  major:
-    station_id: 08MF005  # Fraser River at Hope
-  minor:
-    station_id: 08HB002  # Englishman River at Parksville
+  major:  # Fraser River at Hope
+    file: /data/dlatorne/SOG-projects/SOG-forcing/ECget/Fraser_flow
+  minor:  # Englishman River at Parksville
+    file: /data/dlatorne/SOG-projects/SOG-forcing/ECget/Englishman_flow
     scale_factor: 1
-#    station_id: 08HB034  # Nanaimo River at Cassidy
-                          # Alternative gauge data stream when Englishman gauge fails
-#    scale_factor: 0.351  # Susan's scale factor to use Nanaimo at Cassidy as estimate
+  # Alternate minor river: Nanaimo River at Cassidy
+  # Used in the evnet that the Englishman River gauge fails
+  # file: /data/dlatorne/SOG-projects/SOG-forcing/ECget/Nanaimo_flow
+  # scale_factor: 0.351  # Susan's scale factor to use Nanaimo at Cassidy as estimate
                          # of Englishman at Parksville after failure of Englishman
                          # gauge data stream.
                          # Used for 2021 and 2022 forecasts.
