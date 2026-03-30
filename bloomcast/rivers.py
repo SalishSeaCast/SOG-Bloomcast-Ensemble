@@ -84,7 +84,7 @@ class RiversProcessor(ForcingDataProcessor):
         for line in Path(getattr(self.config.rivers, river).file).open("rt"):
             line_date = arrow.get(*(map(int, line.split()[:3])))
             if start_date <= line_date <= end_date:
-                self.raw_data.append(line)
+                self.raw_data.append(f"{line.split("#", 1)[0].strip()}\n")
 
     def _date_range(self, start_year):
         """
