@@ -190,7 +190,7 @@ tzdata==2025.3
 ukkonen==1.1.0
 unicodedata2==17.0.0
 uri-template==1.3.0
-urllib3==2.6.3
+urllib3==2.7.0
 userpath==1.9.2
 virtualenv==20.36.1
 wcwidth==0.6.0
