@@ -183,7 +183,7 @@ tinycss2==1.4.0
 tomli==2.4.1
 tomli_w==1.2.0
 tomlkit==0.15.0
-tornado==6.5.6
+tornado==6.5.7
 traitlets==5.15.1
 translationstring==1.4
 trove-classifiers==2026.6.1.19
