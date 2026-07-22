@@ -158,7 +158,7 @@ rich-argparse==1.8.0
 rpds-py==2026.5.1
 SecretStorage==3.4.1
 Send2Trash==2.1.0
-setuptools==82.0.1
+setuptools==83.0.0
 shellingham==1.5.4
 shiboken6==6.11.1
 six==1.17.0
